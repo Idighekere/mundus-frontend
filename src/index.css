@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=Sora:wght@700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #0b3d2c;
+  --color-primary-bright: #14573f;
+  --color-primary-deep: #072a1f;
+  --color-on-primary: #ffffff;
+  --color-ink: #06170f;
+  --color-ink-soft: #2e3a34;
+  --color-on-ink: #ffffff;
+  --color-canvas: #f4f6f3;
+  --color-paper: #ffffff;
+  --color-cloud: #e3ece4;
+  --color-hairline: #dfe5de;
+  --color-link: #0b3d2c;
+  --color-link-pressed: #072a1f;
+  --color-accent-highlight: #ffa034;
+  --color-success: #00c46a;
+  --color-error: #e5484d;
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-action: 'Sora', sans-serif;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink-soft);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+
+button, a, [role='button'] {
+  cursor: pointer;
+}
+input, textarea, select {
+  cursor: text;
+}
+
+/* Leaflet map fixes: Tailwind's preflight (img max-width:100%) distorts
+   map tiles into a giant vertical sprawl — scope it back inside the map. */
+.leaflet-container {
+  z-index: 0;
+  background: #e8ece9;
+}
+.leaflet-container img {
+  max-width: none !important;
+}
