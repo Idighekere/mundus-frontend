@@ -156,11 +156,22 @@ export function revokeReporter(id: string): void {
 }
 
 // On-demand examples for the empty queue (works even if auto-seed was missed).
+// Also repairs the approved demo link if it was revoked or rejected.
 export function seedDemoReporters(): void {
-  const ids = new Set(reporters.map((r) => r.id))
-  const missing = demoReporters.filter((r) => !ids.has(r.id))
-  if (missing.length === 0) return
-  reporters = [...missing, ...reporters]
+  let changed = false
+  const next = [...reporters]
+  for (const demo of demoReporters) {
+    const i = next.findIndex((r) => r.id === demo.id)
+    if (i === -1) {
+      next.unshift({ ...demo })
+      changed = true
+    } else if (demo.id === 'rep-seed-approved' && (next[i].status !== 'approved' || !next[i].token)) {
+      next[i] = { ...demo }
+      changed = true
+    }
+  }
+  if (!changed) return
+  reporters = next
   persist()
 }
 
