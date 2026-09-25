@@ -48,6 +48,7 @@ function ContractorSiteDetail() {
     return (
       <div className="mt-4">
         <CheckinFlow
+          key={capturing}
           type={capturing}
           site={site}
           supervisor={session.supervisor}
