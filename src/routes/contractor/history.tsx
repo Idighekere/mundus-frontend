@@ -80,7 +80,7 @@ function ContractorHistory() {
                     {flagged ? <Badge variant="critical">Flagged</Badge> : null}
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {v.before ? (
                     <div>
                       <img src={v.before.photo} alt="Before" className="aspect-[4/3] w-full rounded-xl object-cover" />

@@ -82,7 +82,7 @@ function ContractorSiteDetail() {
               One photo was captured outside the 100 m geofence and flagged for agency review.
             </p>
           ) : null}
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {visit.before ? <img src={visit.before.photo} alt="Before" className="aspect-[4/3] w-full rounded-xl object-cover" /> : null}
             {visit.after ? <img src={visit.after.photo} alt="After" className="aspect-[4/3] w-full rounded-xl object-cover" /> : null}
           </div>
