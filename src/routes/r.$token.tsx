@@ -33,7 +33,7 @@ function ReporterPage() {
     const isDemoLink = token === 'demo-nwaniba-reporter-link'
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
-        <MapPin size={44} className="mx-auto text-[#b42323]" weight="fill" />
+        <MapPin size={44} className="mx-auto text-[#be3b3b]" weight="fill" />
         <h1 className="mt-3 text-2xl font-bold text-ink">This reporting link is not valid</h1>
         <p className="mt-2 text-ink-soft">
           It may have been revoked or replaced. Contact the agency for a new link.
@@ -87,7 +87,7 @@ function ReporterPage() {
 
       {justReportedAt ? (
         <Card className="mt-6 text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#00a35c]" />
+          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h1 className="mt-2 text-2xl font-bold text-ink">Thank you. The agency has been told.</h1>
           <p className="mt-1 text-sm text-ink-soft">
             Reported at {new Date(justReportedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}

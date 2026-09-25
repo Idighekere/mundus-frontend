@@ -83,7 +83,7 @@ function DashboardPage() {
         accessorKey: 'days',
         header: 'Overdue',
         cell: ({ row }) => (
-          <span className={cn('font-semibold', row.original.days > 7 ? 'text-[#b42323]' : 'text-ink')}>
+          <span className={cn('font-semibold', row.original.days > 7 ? 'text-[#be3b3b]' : 'text-ink')}>
             {row.original.days}d
           </span>
         ),
@@ -274,7 +274,7 @@ function DashboardPage() {
                   <TR key={r.id} className="cursor-pointer" onClick={() => openSite(r.original.id)}>
                     <TD><p className="font-semibold">{r.original.name}</p><p className="text-xs text-ink-soft">{r.original.supervisorName}</p></TD>
                     <TD className="text-ink-soft">{r.original.contractorName}</TD>
-                    <TD><span className={cn('font-semibold', r.original.days > 7 && 'text-[#b42323]')}>{r.original.days}d</span></TD>
+                    <TD><span className={cn('font-semibold', r.original.days > 7 && 'text-[#be3b3b]')}>{r.original.days}d</span></TD>
                     <TD>
                       <span className="flex flex-wrap gap-1">
                         <StatusBadge status={r.original.status} />
@@ -293,7 +293,7 @@ function DashboardPage() {
               <button
                 key={r.id}
                 onClick={() => openSite(r.original.id)}
-                className="w-full cursor-pointer rounded-2xl border border-hairline bg-paper p-4 text-left shadow-[0px_4px_32px_0px_rgba(0,0,0,0.08)]"
+                className="w-full cursor-pointer rounded-2xl border border-hairline bg-paper p-4 text-left shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px]"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -303,7 +303,7 @@ function DashboardPage() {
                   <StatusBadge status={r.original.status} />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm">
-                  <span className={cn('font-semibold', r.original.days > 7 ? 'text-[#b42323]' : 'text-ink')}>
+                  <span className={cn('font-semibold', r.original.days > 7 ? 'text-[#be3b3b]' : 'text-ink')}>
                     {r.original.days} days since clearance
                   </span>
                   <span className="text-ink-soft">View details →</span>

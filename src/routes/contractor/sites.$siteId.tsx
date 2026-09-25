@@ -67,17 +67,17 @@ function ContractorSiteDetail() {
       </Button>
 
       {!assigned ? (
-        <Card className="border-[#b42323] text-center">
+        <Card className="border-[#be3b3b] text-center">
           <p className="font-display text-[28px] text-ink">Not assigned to you</p>
           <p className="mt-1">This site belongs to another contractor.</p>
         </Card>
       ) : complete ? (
         <Card className="text-center">
-          <CheckCircle size={40} weight="fill" className="mx-auto text-[#00a35c]" />
+          <CheckCircle size={40} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-2xl font-bold text-ink">Visit complete</h2>
           <p className="mt-1 text-ink-soft">{site.name} · before + after logged today.</p>
           {flagged ? (
-            <p className="mx-auto mt-3 flex max-w-sm items-start gap-2 rounded-xl bg-[#fde8e8] px-3 py-2 text-left text-sm text-[#b42323]">
+            <p className="mx-auto mt-3 flex max-w-sm items-start gap-2 rounded-xl bg-[#fde8e8] px-3 py-2 text-left text-sm text-[#be3b3b]">
               <Warning size={18} className="mt-0.5 shrink-0" />
               One photo was captured outside the 100 m geofence and flagged for agency review.
             </p>
@@ -95,7 +95,7 @@ function ContractorSiteDetail() {
           <div className="flex items-start justify-between gap-2">
             <div>
               <h2 className="text-2xl font-bold text-ink">{site.name}</h2>
-              <p className={cn('text-sm font-medium', days > 7 ? 'text-[#b42323]' : 'text-ink-soft')}>
+              <p className={cn('text-sm font-medium', days > 7 ? 'text-[#be3b3b]' : 'text-ink-soft')}>
                 {days} days since clearance
               </p>
             </div>
@@ -117,7 +117,7 @@ function ContractorSiteDetail() {
           </label>
 
           <div className="mt-3 space-y-3">
-            <Card className={cn(visit.before && 'border-[#00a35c]')}>
+            <Card className={cn(visit.before && 'border-[#1d6f42]')}>
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold text-ink">Step 1 · Before photo</p>
                 {visit.before ? <Badge variant="on-schedule">Done</Badge> : <Badge variant="neutral">Pending</Badge>}
@@ -131,7 +131,7 @@ function ContractorSiteDetail() {
               )}
             </Card>
 
-            <Card className={cn('relative', !visit.before && 'opacity-70', visit.after && 'border-[#00a35c]')}>
+            <Card className={cn('relative', !visit.before && 'opacity-70', visit.after && 'border-[#1d6f42]')}>
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold text-ink">Step 2 · After photo</p>
                 {visit.after ? <Badge variant="on-schedule">Done</Badge> : <Badge variant="neutral">{visit.before ? 'Pending' : 'Locked'}</Badge>}

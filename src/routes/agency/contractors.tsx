@@ -104,7 +104,7 @@ function ContractorsPage() {
         header: 'Overdue',
         cell: ({ getValue }) => {
           const v = getValue<number>()
-          return <span className={cn('font-semibold', v > 0 && 'text-[#b45309]')}>{v}</span>
+          return <span className={cn('font-semibold', v > 0 && 'text-[#c08014]')}>{v}</span>
         },
       },
       {
@@ -112,7 +112,7 @@ function ContractorsPage() {
         header: 'Critical',
         cell: ({ getValue }) => {
           const v = getValue<number>()
-          return <span className={cn('font-semibold', v > 0 && 'text-[#b42323]')}>{v}</span>
+          return <span className={cn('font-semibold', v > 0 && 'text-[#be3b3b]')}>{v}</span>
         },
       },
       {
@@ -196,7 +196,7 @@ function ContractorsPage() {
         <Input id="contractor-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
         <p className="mt-1 text-xs text-ink-soft">The supervisor signs in with these details and can change the password afterwards.</p>
       </div>
-      {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{formError}</p> : null}
+      {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{formError}</p> : null}
       <div className="flex gap-2">
         <Button onClick={saveContractor} className="flex-1">Add contractor</Button>
         <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
@@ -352,7 +352,7 @@ function ContractorsPage() {
               const sites = dumpPoints.filter((s) => s.contractorId === r.original.id)
               const open = r.getIsExpanded()
               return (
-                <div key={r.id} className="rounded-2xl border border-hairline bg-paper p-4 shadow-[0px_4px_32px_0px_rgba(0,0,0,0.08)]">
+                <div key={r.id} className="rounded-2xl border border-hairline bg-paper p-4 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px]">
                   <button onClick={() => r.toggleExpanded()} aria-expanded={open} className="flex w-full cursor-pointer items-center justify-between gap-2 text-left">
                     <span>
                       <span className="block font-semibold text-ink">{r.original.name}</span>

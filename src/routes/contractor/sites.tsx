@@ -46,7 +46,7 @@ function ContractorHome() {
         </Card>
         <Card className="p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Overdue</p>
-          <p className={cn('mt-1 font-display text-4xl', overdue > 0 ? 'text-[#b42323]' : 'text-ink')}>{overdue}</p>
+          <p className={cn('mt-1 font-display text-4xl', overdue > 0 ? 'text-[#be3b3b]' : 'text-ink')}>{overdue}</p>
         </Card>
       </div>
 
@@ -65,12 +65,12 @@ function ContractorHome() {
               key={s.id}
               to="/contractor/sites/$siteId"
               params={{ siteId: s.id }}
-              className="block rounded-2xl border border-hairline bg-paper p-4 shadow-[0px_4px_32px_0px_rgba(0,0,0,0.08)]"
+              className="block rounded-2xl border border-hairline bg-paper p-4 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold text-ink">{s.name}</p>
-                  <p className={cn('text-sm font-medium', s.days > 7 ? 'text-[#b42323]' : 'text-ink-soft')}>
+                  <p className={cn('text-sm font-medium', s.days > 7 ? 'text-[#be3b3b]' : 'text-ink-soft')}>
                     {s.days === 0 ? 'Cleared today' : `${s.days} days since clearance`}
                   </p>
                 </div>

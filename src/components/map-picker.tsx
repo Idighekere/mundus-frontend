@@ -92,7 +92,7 @@ export function MapPicker({
         <Crosshair size={18} /> {locating ? 'Reading GPS — up to 12s for a precise fix…' : 'Use my current location'}
       </Button>
       {accuracy !== null ? (
-        <p className={`mt-1 text-xs ${accuracy <= 100 ? 'text-ink-soft' : 'text-[#b42323]'}`}>
+        <p className={`mt-1 text-xs ${accuracy <= 100 ? 'text-ink-soft' : 'text-[#be3b3b]'}`}>
           Fix accurate to ±{accuracy} m
           {accuracy > 100 ? ' — likely network location. Move outdoors with GPS on and retry, or drag the pin.' : '.'}
         </p>

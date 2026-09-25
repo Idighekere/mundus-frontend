@@ -44,7 +44,7 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wide text-ink-soft">Distance from site</span>
-          <span className={`font-semibold ${within ? 'text-[#00a35c]' : 'text-[#b42323]'}`}>{photo.distanceM} m from site</span>
+          <span className={`font-semibold ${within ? 'text-[#1d6f42]' : 'text-[#be3b3b]'}`}>{photo.distanceM} m from site</span>
         </div>
       </div>
     </div>
@@ -116,12 +116,12 @@ function VisitPage() {
           {checks.map((c) => (
             <div key={c.label} className="flex items-center justify-between rounded-xl bg-canvas p-4">
               <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-ink">
-                {c.state === 'pass' ? <CheckCircle size={22} weight="fill" className="shrink-0 text-[#00a35c]" />
-                  : c.state === 'fail' ? <XCircle size={22} weight="fill" className="shrink-0 text-[#b42323]" />
+                {c.state === 'pass' ? <CheckCircle size={22} weight="fill" className="shrink-0 text-[#1d6f42]" />
+                  : c.state === 'fail' ? <XCircle size={22} weight="fill" className="shrink-0 text-[#be3b3b]" />
                   : <span className="h-5 w-5 shrink-0 rounded-full border-2 border-hairline" />}
                 {c.label}
               </span>
-              <span className={`shrink-0 text-sm font-semibold ${c.state === 'pass' ? 'text-[#00a35c]' : c.state === 'fail' ? 'text-[#b42323]' : 'text-ink-soft'}`}>
+              <span className={`shrink-0 text-sm font-semibold ${c.state === 'pass' ? 'text-[#1d6f42]' : c.state === 'fail' ? 'text-[#be3b3b]' : 'text-ink-soft'}`}>
                 {c.state === 'pass' ? 'Passed' : c.state === 'fail' ? 'Flagged' : 'Pending'}
               </span>
             </div>

@@ -23,10 +23,10 @@ export function VisitStatusBadge({ status }: { status: VisitStatus }) {
 
 export function visitNodeColor(status: VisitStatus): string {
   switch (status) {
-    case 'complete': return '#00C46A'
-    case 'incomplete': return '#B45309'
-    case 'reported-full': return '#1D4ED8'
-    default: return '#B42323'
+    case 'complete': return '#1d6f42'
+    case 'incomplete': return '#c08014'
+    case 'reported-full': return '#3f559e'
+    default: return '#be3b3b'
   }
 }
 

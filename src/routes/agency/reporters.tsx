@@ -102,8 +102,8 @@ function ReportersPage() {
       </div>
 
       {justApproved ? (
-        <Card className="mt-4 border-[#00a35c]">
-          <p className="flex items-center gap-2 font-semibold text-ink"><Check size={18} className="text-[#00a35c]" /> {justApproved} approved</p>
+        <Card className="mt-4 border-[#1d6f42]">
+          <p className="flex items-center gap-2 font-semibold text-ink"><Check size={18} className="text-[#1d6f42]" /> {justApproved} approved</p>
           <p className="mt-1 text-sm text-ink-soft">The contractor can now send them their personal reporting link by SMS or WhatsApp.</p>
           <div className="mt-3">
             <Button variant="secondary" onClick={() => setJustApproved(null)}>Dismiss</Button>

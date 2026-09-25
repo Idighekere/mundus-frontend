@@ -4,13 +4,13 @@ import { cn } from '@/lib/utils'
 import type { SiteStatus } from '@/lib/overdue'
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap',
+  'inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm whitespace-nowrap',
   {
     variants: {
       variant: {
-        'on-schedule': 'bg-[#e3f4ea] text-primary',
-        overdue: 'bg-[#fdf0d5] text-[#8a5a00]',
-        critical: 'bg-[#fde8e8] text-[#b42323]',
+        'on-schedule': 'bg-[#e6f5ee] text-[#1d6f42]',
+        overdue: 'bg-[#fdf3c4] text-[#c08014]',
+        critical: 'bg-[#fde8e8] text-[#be3b3b]',
         neutral: 'bg-cloud text-ink-soft',
       },
     },

@@ -213,8 +213,8 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          {isCam ? <VideoCameraSlash size={40} className="mx-auto text-[#b42323]" />
-            : <Crosshair size={40} className="mx-auto text-[#b42323]" />}
+          {isCam ? <VideoCameraSlash size={40} className="mx-auto text-[#be3b3b]" />
+            : <Crosshair size={40} className="mx-auto text-[#be3b3b]" />}
           <h2 className="mt-2 text-xl font-bold text-ink">
             {stage === 'unsupported' ? 'In-app capture not supported here'
               : isCam ? 'Camera permission is required' : 'Location permission is required'}
@@ -259,17 +259,17 @@ export function CheckinFlow({
                 <Info size={14} /> Demo GPS · simulated fix
               </span>
             ) : fix && !weak ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00a35c] px-3 py-1.5 text-xs font-semibold text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1d6f42] px-3 py-1.5 text-xs font-semibold text-white">
                 <CheckCircle size={14} weight="fill" /> GPS locked · ±{fix.accuracyM ?? '?'} m
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#b45309] px-3 py-1.5 text-xs font-semibold text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c08014] px-3 py-1.5 text-xs font-semibold text-white">
                 <Warning size={14} weight="fill" /> Weak GPS signal{fix?.accuracyM ? ` (accuracy ${fix.accuracyM} m)` : ''}. Move to an open area.
               </span>
             )}
           </div>
         </div>
-        {error ? <p className="mt-2 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{error}</p> : null}
+        {error ? <p className="mt-2 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
         <div className="mt-4 flex items-center gap-3">
           <Button variant="ghost" onClick={() => { stopStream(); onDone() }}>Cancel</Button>
           <button
@@ -291,7 +291,7 @@ export function CheckinFlow({
         {backHeader(site.name.toUpperCase())}
         <p className="text-lg font-semibold text-ink">Step {type === 'before' ? 1 : 2}: {label}</p>
         <img src={shot.dataUrl} alt={`${label} preview`} className="mt-2 aspect-[4/3] w-full rounded-2xl object-cover" />
-        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#e3f4ea] px-3 py-1.5 text-xs font-semibold text-primary">
+        <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#e6f5ee] px-3 py-1.5 text-xs font-semibold text-primary">
           <CheckCircle size={14} weight="fill" /> Location recorded{shot.accuracyM !== null ? `, accuracy ${shot.accuracyM} m` : ''}
         </p>
         <Card className="mt-2 space-y-2 p-4">
@@ -335,7 +335,7 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          <CloudSlash size={40} className="mx-auto text-[#b45309]" />
+          <CloudSlash size={40} className="mx-auto text-[#c08014]" />
           <h2 className="mt-2 text-xl font-bold text-ink">{offline ? 'No connection' : 'Submission failed'}</h2>
           <p className="mt-1 text-sm text-ink-soft">
             {offline
@@ -356,15 +356,15 @@ export function CheckinFlow({
     return (
       <div className="mt-4">
         {backHeader(site.name)}
-        <Card className="border-[#b42323]">
+        <Card className="border-[#be3b3b]">
           <div className="flex items-center gap-2">
-            <Warning size={28} weight="fill" className="shrink-0 text-[#b42323]" />
+            <Warning size={28} weight="fill" className="shrink-0 text-[#be3b3b]" />
             <div>
               <h2 className="text-xl font-bold text-ink">{dup ? 'Duplicate photo' : 'Location mismatch'}</h2>
-              <p className="text-sm font-semibold text-[#b42323]">{dup ? 'Photo already submitted' : `${result.distanceM} m off-target`}</p>
+              <p className="text-sm font-semibold text-[#be3b3b]">{dup ? 'Photo already submitted' : `${result.distanceM} m off-target`}</p>
             </div>
           </div>
-          <p className="mt-1 inline-block rounded-full bg-[#fde8e8] px-2.5 py-1 text-xs font-semibold text-[#b42323]">Submitted, but flagged</p>
+          <p className="mt-1 inline-block rounded-full bg-[#fde8e8] px-2.5 py-1 text-xs font-semibold text-[#be3b3b]">Submitted, but flagged</p>
           <p className="mt-2 text-sm text-ink-soft">
             {dup
               ? 'This exact photo was submitted before. The agency will see this flag.'
@@ -389,7 +389,7 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#00a35c]" />
+          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-xl font-bold text-ink">Before photo submitted</h2>
           <p className="text-sm text-ink-soft">Submitted {fmtDateTime(result?.atIso ?? new Date().toISOString())}</p>
           <p className="mx-auto mt-3 max-w-sm rounded-xl bg-canvas px-3 py-2 text-sm text-ink">Step 1 complete. Take the after photo once clearance is finished.</p>
@@ -408,9 +408,9 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#00a35c]" />
+          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-xl font-bold text-ink">Visit complete. {site.name} cleared.</h2>
-          <p className="mt-2 inline-block rounded-full bg-[#e3f4ea] px-3 py-1 font-display text-2xl text-primary">0 DAYS</p>
+          <p className="mt-2 inline-block rounded-full bg-[#e6f5ee] px-3 py-1 font-display text-2xl text-primary">0 DAYS</p>
           <p className="mt-1 text-xs text-ink-soft">Days since clearance reset to 0.</p>
           <div className="mt-3 grid grid-cols-2 gap-2 text-left">
             {(['before', 'after'] as const).map((k) => (

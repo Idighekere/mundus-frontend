@@ -121,8 +121,8 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
             maxLength={11}
             aria-label="Phone number"
           />
-          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{error}</p> : null}
-          {done ? <p className="rounded-lg bg-[#e3f4ea] px-3 py-2 text-sm text-primary">Nomination sent for agency review.</p> : null}
+          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
+          {done ? <p className="rounded-lg bg-[#e6f5ee] px-3 py-2 text-sm text-primary">Nomination sent for agency review.</p> : null}
           <Button onClick={nominate} className="w-full">Nominate reporter</Button>
         </div>
       </div>

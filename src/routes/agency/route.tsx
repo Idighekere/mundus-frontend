@@ -143,7 +143,7 @@ function AgencyShell() {
         </main>
 
         {/* Mobile floating tab bar */}
-        <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-hairline bg-paper px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.16)] md:hidden">
+        <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-hairline bg-paper px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px] md:hidden">
           <div className="grid grid-cols-3 gap-1">
             {links.map((l) => (
               <Link

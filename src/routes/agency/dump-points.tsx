@@ -97,7 +97,7 @@ function ManageDumpPointsPage() {
       <div>
         <label htmlFor="site-name" className="mb-1 block text-sm font-semibold text-ink">Site name</label>
         <Input id="site-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nwaniba Road" />
-        {errors.name ? <p className="mt-1 text-sm text-[#b42323]">{errors.name}</p> : null}
+        {errors.name ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.name}</p> : null}
       </div>
       <div>
         <span className="mb-1 block text-sm font-semibold text-ink">Contractor</span>
@@ -107,7 +107,7 @@ function ManageDumpPointsPage() {
             {directory.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        {errors.contractorId ? <p className="mt-1 text-sm text-[#b42323]">{errors.contractorId}</p> : null}
+        {errors.contractorId ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.contractorId}</p> : null}
         <p className="mt-1.5 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
           Supervisor: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.supervisor ?? '—'}</span>
         </p>
@@ -116,12 +116,12 @@ function ManageDumpPointsPage() {
         <div>
           <label htmlFor="site-lat" className="mb-1 block text-sm font-semibold text-ink">Latitude</label>
           <Input id="site-lat" inputMode="decimal" value={form.lat} onChange={(e) => setForm({ ...form, lat: e.target.value })} placeholder="5.0450" />
-          {errors.lat ? <p className="mt-1 text-sm text-[#b42323]">{errors.lat}</p> : null}
+          {errors.lat ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.lat}</p> : null}
         </div>
         <div>
           <label htmlFor="site-lng" className="mb-1 block text-sm font-semibold text-ink">Longitude</label>
           <Input id="site-lng" inputMode="decimal" value={form.lng} onChange={(e) => setForm({ ...form, lng: e.target.value })} placeholder="7.9620" />
-          {errors.lng ? <p className="mt-1 text-sm text-[#b42323]">{errors.lng}</p> : null}
+          {errors.lng ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.lng}</p> : null}
         </div>
       </div>
 
@@ -131,7 +131,7 @@ function ManageDumpPointsPage() {
         onChange={(pos) => { setLocateError(''); setForm((f) => ({ ...f, lat: String(pos.lat), lng: String(pos.lng) })) }}
         onLocateError={setLocateError}
       />
-      {locateError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{locateError}</p> : null}
+      {locateError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{locateError}</p> : null}
       {address ? (
         <p className="flex items-start gap-2 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
           <MapPin size={18} className="mt-0.5 shrink-0 text-primary" /> {address}

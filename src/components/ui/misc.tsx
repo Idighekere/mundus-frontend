@@ -11,6 +11,6 @@ export function Separator({ className }: { className?: string }) {
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('rounded-2xl bg-paper p-6 shadow-[0px_4px_32px_0px_rgba(0,0,0,0.08)]', className)} {...props} />
+    <div className={cn('rounded-2xl border border-hairline bg-paper p-6 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px]', className)} {...props} />
   )
 }

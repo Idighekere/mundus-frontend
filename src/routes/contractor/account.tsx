@@ -68,9 +68,9 @@ function ContractorAccount() {
             <label htmlFor="pw-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
             <Input id="pw-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError(''); setSaved(false) }} />
           </div>
-          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{error}</p> : null}
+          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
           {saved ? (
-            <p className="flex items-center gap-2 rounded-lg bg-[#e3f4ea] px-3 py-2 text-sm text-primary">
+            <p className="flex items-center gap-2 rounded-lg bg-[#e6f5ee] px-3 py-2 text-sm text-primary">
               <CheckCircle size={18} weight="fill" /> Password updated.
             </p>
           ) : null}

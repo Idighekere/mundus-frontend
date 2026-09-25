@@ -68,7 +68,7 @@ function ContractorSignIn() {
               placeholder="••••••••"
             />
           </div>
-          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{error}</p> : null}
+          {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
           <Button type="submit" className="w-full">Start shift</Button>
         </form>
       </Card>

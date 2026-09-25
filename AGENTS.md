@@ -12,10 +12,11 @@
 
 ## Theme
 
-- Source of truth: `DESIGN.md` + `src/index.css` `@theme`.
-- Deep green: `primary #0B3D2C`, `primary-bright #14573F`, `primary-deep #072A1F`. Canvas `#F4F6F3`, paper `#fff`, cloud `#E3ECE4`, ink `#06170F`, ink-soft `#2E3A34`.
-- Fonts: `Bebas Neue` (headings), `Inter` (body), `Sora` (buttons). Never swap.
-- No new colors, no raw hex in components, no arbitrary spacing — use tokens / Tailwind theme classes (`bg-primary`, `bg-cloud`, `text-ink`, `border-hairline`).
+- Source of truth: `DESIGN.md` + `src/index.css` `@theme` (Tezera system, Mundus greens).
+- Brand colors stay constant: `primary #0B3D2C`, `primary-bright #14573F`, `primary-deep #072A1F`. Canvas `#F4F6F3`, paper `#fff`, cloud `#E3ECE4`, ink `#06170F`, ink-soft `#2E3A34`.
+- Status: `success #1D6F42` on `#E6F5EE`, `warning #C08014` on `#FDF3C4`, `error #BE3B3B` — always as badge pairs.
+- Fonts: `Fraunces` (Recoleta stand-in — Recoleta is commercial) for display, `DM Sans` for body/buttons. Never swap.
+- Radii 4/8/14/24px; buttons `rounded-md`, cards `rounded-xl/2xl` with hairline border.
 
 ## Project structure
 

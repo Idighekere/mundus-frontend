@@ -70,12 +70,12 @@ function SiteDetailPage() {
           <Card className="flex flex-col gap-4">
             <div className="flex items-center justify-between gap-2">
               <StatusBadge status={status} />
-              <p className={cn('text-sm font-semibold', days > 7 ? 'text-[#b42323]' : 'text-ink')}>
+              <p className={cn('text-sm font-semibold', days > 7 ? 'text-[#be3b3b]' : 'text-ink')}>
                 {days} days since clearance
               </p>
             </div>
 
-            <SiteMiniMap name={site.name} lat={site.lat} lng={site.lng} pin={status === 'critical' ? '#B91C1C' : '#0B3D2C'} />
+            <SiteMiniMap name={site.name} lat={site.lat} lng={site.lng} pin={status === 'critical' ? '#be3b3b' : '#0B3D2C'} />
 
             <div className="divide-y divide-hairline border-y border-hairline">
               <div className="flex items-center justify-between py-2.5">
@@ -174,7 +174,7 @@ function SiteDetailPage() {
                               <span className="text-sm text-ink-soft">No supervisor photos{v.ticket ? ` · Ticket #${v.ticket}` : ''}</span>
                             )}
                             {v.status === 'location-mismatch' && v.before ? (
-                              <span className="font-mono text-xs text-[#b42323]">{v.before.distanceM} m from site</span>
+                              <span className="font-mono text-xs text-[#be3b3b]">{v.before.distanceM} m from site</span>
                             ) : null}
                           </div>
                         </div>
