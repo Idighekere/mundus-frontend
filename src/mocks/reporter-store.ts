@@ -38,6 +38,36 @@ function read<T>(key: string, fallback: T): T {
 
 let reporters: Reporter[] = typeof localStorage === 'undefined' ? [] : read<Reporter[]>(REPORTERS_KEY, [])
 let reports: SiteReport[] = typeof localStorage === 'undefined' ? [] : read<SiteReport[]>(REPORTS_KEY, [])
+
+// Seed two example nominations so the queue, contractor card, and reporter
+// link are all demonstrable on first run. Cleared once the agency acts.
+if (typeof localStorage !== 'undefined' && reporters.length === 0 && !localStorage.getItem('mundus-reporters-seeded')) {
+  const day = 86_400_000
+  reporters = [
+    {
+      id: 'rep-seed-approved',
+      name: 'Adaeze Okoro',
+      phone: '08031234567',
+      siteId: 'nwaniba-road',
+      contractorId: 'cleancity',
+      status: 'approved',
+      token: 'demo-nwaniba-reporter-link',
+      updatedAt: new Date(Date.now() - 2 * day).toISOString(),
+    },
+    {
+      id: 'rep-seed-pending',
+      name: 'Emeka Bassey',
+      phone: '08039876543',
+      siteId: 'itam-junction',
+      contractorId: 'greenpath',
+      status: 'pending',
+      token: null,
+      updatedAt: new Date(Date.now() - 5 * 3_600_000).toISOString(),
+    },
+  ]
+  localStorage.setItem('mundus-reporters-seeded', '1')
+  persist()
+}
 const listeners = new Set<() => void>()
 
 function persist() {
