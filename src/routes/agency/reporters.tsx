@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { Check, Copy, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-icons/react'
+import { Check, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -13,7 +13,7 @@ import { useMediaQuery } from '@/lib/use-media-query'
 import { siteById } from '@/mocks/data'
 import { useContractorDirectory } from '@/mocks/contractor-store'
 import {
-  approveReporter, rejectReporter, reporterMessage, revokeReporter,
+  approveReporter, rejectReporter, revokeReporter, seedDemoReporters,
   useReporters, type Reporter,
 } from '@/mocks/reporter-store'
 
@@ -37,8 +37,7 @@ function ReportersPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [rejectId, setRejectId] = useState<string | null>(null)
   const [reason, setReason] = useState('')
-  const [sent, setSent] = useState<Reporter | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [justApproved, setJustApproved] = useState<string | null>(null)
 
   const contractorName = (id: string) => directory.find((c) => c.id === id)?.name ?? 'Unknown contractor'
 
@@ -58,27 +57,7 @@ function ReportersPage() {
 
   const approve = (id: string) => {
     const next = approveReporter(id)
-    if (next) {
-      setSent(next)
-      setCopied(false)
-    }
-  }
-
-  const copyLink = async () => {
-    if (!sent?.token) return
-    const site = siteById(sent.siteId)
-    const text = reporterMessage(site?.name ?? sent.siteId, sent.token)
-    try {
-      await navigator.clipboard.writeText(text)
-    } catch {
-      const ta = document.createElement('textarea')
-      ta.value = text
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      ta.remove()
-    }
-    setCopied(true)
+    if (next) setJustApproved(next.name)
   }
 
   const rejectBody = (
@@ -122,16 +101,12 @@ function ReportersPage() {
         </Card>
       </div>
 
-      {sent?.token ? (
+      {justApproved ? (
         <Card className="mt-4 border-[#00a35c]">
-          <p className="flex items-center gap-2 font-semibold text-ink"><Check size={18} className="text-[#00a35c]" /> {sent.name} approved</p>
-          <p className="mt-1 text-sm text-ink-soft">Send this message to {sent.phone}:</p>
-          <p className="mt-2 rounded-xl bg-canvas px-3 py-2 font-mono text-xs text-ink">
-            {reporterMessage(siteById(sent.siteId)?.name ?? sent.siteId, sent.token)}
-          </p>
-          <div className="mt-3 flex gap-2">
-            <Button onClick={copyLink} className="flex-1"><Copy size={18} /> {copied ? 'Copied' : 'Copy message'}</Button>
-            <Button variant="secondary" onClick={() => setSent(null)}>Dismiss</Button>
+          <p className="flex items-center gap-2 font-semibold text-ink"><Check size={18} className="text-[#00a35c]" /> {justApproved} approved</p>
+          <p className="mt-1 text-sm text-ink-soft">The contractor can now send them their personal reporting link by SMS or WhatsApp.</p>
+          <div className="mt-3">
+            <Button variant="secondary" onClick={() => setJustApproved(null)}>Dismiss</Button>
           </div>
         </Card>
       ) : null}
@@ -180,6 +155,9 @@ function ReportersPage() {
             {reporters.length === 0 ? 'No nominations yet' : 'No reporters match these filters'}
           </p>
           <p className="mt-1">Contractors nominate a reporter from each assigned site.</p>
+          <Button variant="secondary" onClick={seedDemoReporters} className="mt-4">
+            Load example requests
+          </Button>
         </Card>
       ) : (
         <>

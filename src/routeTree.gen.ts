@@ -25,6 +25,7 @@ import { Route as ContractorAccountRouteImport } from './routes/contractor/accou
 import { Route as ContractorHistoryRouteImport } from './routes/contractor/history'
 import { Route as ContractorSignInRouteImport } from './routes/contractor/sign-in'
 import { Route as ContractorSitesRouteImport } from './routes/contractor/sites'
+import { Route as RTokenRouteImport } from './routes/r.$token'
 import { Route as AgencySitesSiteIdRouteImport } from './routes/agency/sites.$siteId'
 import { Route as ContractorSitesSiteIdRouteImport } from './routes/contractor/sites.$siteId'
 import { Route as AgencySitesSiteIdVisitsVisitIdRouteImport } from './routes/agency/sites.$siteId.visits.$visitId'
@@ -109,6 +110,11 @@ const ContractorSitesRoute = ContractorSitesRouteImport.update({
   path: '/sites',
   getParentRoute: () => ContractorRouteRoute,
 } as any)
+const RTokenRoute = RTokenRouteImport.update({
+  id: '/r/$token',
+  path: '/r/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgencySitesSiteIdRoute = AgencySitesSiteIdRouteImport.update({
   id: '/sites/$siteId',
   path: '/sites/$siteId',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
+  '/r/$token': typeof RTokenRoute
   '/agency/': typeof AgencyIndexRoute
   '/contractor/': typeof ContractorIndexRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
+  '/r/$token': typeof RTokenRoute
   '/agency': typeof AgencyIndexRoute
   '/contractor': typeof ContractorIndexRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
+  '/r/$token': typeof RTokenRoute
   '/agency/': typeof AgencyIndexRoute
   '/contractor/': typeof ContractorIndexRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/contractor/history'
     | '/contractor/sign-in'
     | '/contractor/sites'
+    | '/r/$token'
     | '/agency/'
     | '/contractor/'
     | '/agency/sites/$siteId'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/contractor/history'
     | '/contractor/sign-in'
     | '/contractor/sites'
+    | '/r/$token'
     | '/agency'
     | '/contractor'
     | '/agency/sites/$siteId'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/contractor/history'
     | '/contractor/sign-in'
     | '/contractor/sites'
+    | '/r/$token'
     | '/agency/'
     | '/contractor/'
     | '/agency/sites/$siteId'
@@ -256,6 +268,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgencyRouteRoute: typeof AgencyRouteRouteWithChildren
   ContractorRouteRoute: typeof ContractorRouteRouteWithChildren
+  RTokenRoute: typeof RTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractorSitesRouteImport
       parentRoute: typeof ContractorRouteRoute
     }
+    '/r/$token': {
+      id: '/r/$token'
+      path: '/r/$token'
+      fullPath: '/r/$token'
+      preLoaderRoute: typeof RTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agency/sites/$siteId': {
       id: '/agency/sites/$siteId'
       path: '/sites/$siteId'
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgencyRouteRoute: AgencyRouteRouteWithChildren,
   ContractorRouteRoute: ContractorRouteRouteWithChildren,
+  RTokenRoute: RTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

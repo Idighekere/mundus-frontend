@@ -39,35 +39,31 @@ function read<T>(key: string, fallback: T): T {
 let reporters: Reporter[] = typeof localStorage === 'undefined' ? [] : read<Reporter[]>(REPORTERS_KEY, [])
 let reports: SiteReport[] = typeof localStorage === 'undefined' ? [] : read<SiteReport[]>(REPORTS_KEY, [])
 
+const demoReporters: Reporter[] = [
+  {
+    id: 'rep-seed-approved',
+    name: 'Adaeze Okoro',
+    phone: '08031234567',
+    siteId: 'nwaniba-road',
+    contractorId: 'cleancity',
+    status: 'approved',
+    token: 'demo-nwaniba-reporter-link',
+    updatedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+  },
+  {
+    id: 'rep-seed-pending',
+    name: 'Emeka Bassey',
+    phone: '08039876543',
+    siteId: 'itam-junction',
+    contractorId: 'greenpath',
+    status: 'pending',
+    token: null,
+    updatedAt: new Date(Date.now() - 5 * 3_600_000).toISOString(),
+  },
+]
+
 // Seed two example nominations so the queue, contractor card, and reporter
 // link are all demonstrable on first run. Cleared once the agency acts.
-if (typeof localStorage !== 'undefined' && reporters.length === 0 && !localStorage.getItem('mundus-reporters-seeded')) {
-  const day = 86_400_000
-  reporters = [
-    {
-      id: 'rep-seed-approved',
-      name: 'Adaeze Okoro',
-      phone: '08031234567',
-      siteId: 'nwaniba-road',
-      contractorId: 'cleancity',
-      status: 'approved',
-      token: 'demo-nwaniba-reporter-link',
-      updatedAt: new Date(Date.now() - 2 * day).toISOString(),
-    },
-    {
-      id: 'rep-seed-pending',
-      name: 'Emeka Bassey',
-      phone: '08039876543',
-      siteId: 'itam-junction',
-      contractorId: 'greenpath',
-      status: 'pending',
-      token: null,
-      updatedAt: new Date(Date.now() - 5 * 3_600_000).toISOString(),
-    },
-  ]
-  localStorage.setItem('mundus-reporters-seeded', '1')
-  persist()
-}
 const listeners = new Set<() => void>()
 
 function persist() {
@@ -78,6 +74,12 @@ function persist() {
     // private mode — in-memory only
   }
   listeners.forEach((fn) => fn())
+}
+
+if (typeof localStorage !== 'undefined' && reporters.length === 0 && !localStorage.getItem('mundus-reporters-seeded')) {
+  reporters = [...demoReporters]
+  localStorage.setItem('mundus-reporters-seeded', '1')
+  persist()
 }
 
 function subscribe(fn: () => void): () => void {
@@ -153,6 +155,15 @@ export function revokeReporter(id: string): void {
   persist()
 }
 
+// On-demand examples for the empty queue (works even if auto-seed was missed).
+export function seedDemoReporters(): void {
+  const ids = new Set(reporters.map((r) => r.id))
+  const missing = demoReporters.filter((r) => !ids.has(r.id))
+  if (missing.length === 0) return
+  reporters = [...missing, ...reporters]
+  persist()
+}
+
 export function reporterForSite(siteId: string): Reporter | undefined {
   return reporters.find((r) => r.siteId === siteId && r.status !== 'revoked')
 }
@@ -167,6 +178,17 @@ export function reporterLink(token: string): string {
 
 export function reporterMessage(siteName: string, token: string): string {
   return `Mundus: you've been approved as reporter for ${siteName}. Report a full site here: ${reporterLink(token)}`
+}
+
+// Normalize an NG phone number for wa.me (0803… → 234803…).
+export function whatsappNumber(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('0')) return `234${digits.slice(1)}`
+  return digits
+}
+
+export function reporterWhatsappUrl(phone: string, siteName: string, token: string): string {
+  return `https://wa.me/${whatsappNumber(phone)}?text=${encodeURIComponent(reporterMessage(siteName, token))}`
 }
 
 export function submitSiteReport(siteId: string, reporterId: string): { ok: true } | { ok: false; retryIn: string } {

@@ -1,9 +1,13 @@
 import { useState } from 'react'
+import { Check, Copy } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
-import { nominateReporter, reporterForSite, useReporters } from '@/mocks/reporter-store'
+import {
+  nominateReporter, reporterForSite, reporterMessage, reporterWhatsappUrl, useReporters,
+} from '@/mocks/reporter-store'
+import { siteById } from '@/mocks/data'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pending agency review',
@@ -16,8 +20,10 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [copied, setCopied] = useState(false)
   useReporters()
   const reporter = reporterForSite(siteId)
+  const siteName = siteById(siteId)?.name ?? siteId
 
   const nominate = () => {
     const res = nominateReporter({ name, phone, siteId, contractorId })
@@ -29,6 +35,22 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
     setName('')
     setPhone('')
     setDone(true)
+  }
+
+  const copyMessage = async () => {
+    if (!reporter?.token) return
+    const text = reporterMessage(siteName, reporter.token)
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      ta.remove()
+    }
+    setCopied(true)
   }
 
   return (
@@ -48,7 +70,31 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
         <div className="mt-2 text-sm">
           <p className="font-semibold text-ink">{reporter.name} · {reporter.phone}</p>
           {reporter.status === 'pending' ? (
-            <p className="mt-1 text-ink-soft">Waiting for agency approval. The reporter gets a personal reporting link once approved.</p>
+            <p className="mt-1 text-ink-soft">Waiting for agency approval. Once approved, you send them their personal reporting link below.</p>
+          ) : reporter.status === 'approved' && reporter.token ? (
+            <div className="mt-2 rounded-xl bg-canvas p-3">
+              <p className="text-sm font-semibold text-ink">Send the reporter their link</p>
+              <p className="mt-1 rounded-lg bg-paper px-2.5 py-2 font-mono text-[11px] leading-relaxed text-ink">
+                {reporterMessage(siteName, reporter.token)}
+              </p>
+              <div className="mt-2 flex gap-2">
+                <Button variant="secondary" onClick={copyMessage} className="flex-1">
+                  {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? 'Copied' : 'Copy SMS'}
+                </Button>
+                <Button
+                  asChild
+                  className="flex-1 bg-[#1faa55] hover:bg-[#178a44]"
+                >
+                  <a
+                    href={reporterWhatsappUrl(reporter.phone, siteName, reporter.token)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Send via WhatsApp
+                  </a>
+                </Button>
+              </div>
+            </div>
           ) : reporter.status === 'approved' ? (
             <p className="mt-1 text-ink-soft">Approved — they can report this site as full from their personal link.</p>
           ) : (

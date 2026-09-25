@@ -68,6 +68,30 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
+      <section className="bg-cloud">
+        <div className="mx-auto max-w-[1200px] px-4 py-16 md:py-24">
+          <p className="font-display text-sm uppercase tracking-[0.2em] text-primary">Explore the demo</p>
+          <h2 className="mt-2 font-display text-4xl text-ink md:text-[40px]">Every role, one link away</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <Card>
+              <h3 className="font-display text-[28px] text-ink">Agency portal</h3>
+              <p className="mt-2 leading-relaxed">Overdue ranking, site timelines, contractors, reporters, registry.</p>
+              <Button asChild className="mt-4 w-full"><Link to="/agency/dashboard">Open dashboard</Link></Button>
+            </Card>
+            <Card>
+              <h3 className="font-display text-[28px] text-ink">Field app</h3>
+              <p className="mt-2 leading-relaxed">Supervisor check-in with before/after camera capture.</p>
+              <Button asChild variant="secondary" className="mt-4 w-full"><Link to="/contractor/sign-in">Supervisor sign in</Link></Button>
+            </Card>
+            <Card>
+              <h3 className="font-display text-[28px] text-ink">Reporter link</h3>
+              <p className="mt-2 leading-relaxed">Single-tap “site full” report from an approved reporter's personal link.</p>
+              <Button asChild variant="secondary" className="mt-4 w-full"><Link to="/r/$token" params={{ token: 'demo-nwaniba-reporter-link' }}>Open example report link</Link></Button>
+            </Card>
+          </div>
+        </div>
+      </section>
     </main>
   )
 }

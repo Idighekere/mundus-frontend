@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { contractorById, dumpPoints, type DumpPoint } from '@/mocks/data'
+import { latestReportForSite } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
@@ -94,7 +95,7 @@ function DashboardPage() {
         cell: ({ row }) => (
           <span className="flex flex-wrap items-center gap-1">
             <StatusBadge status={row.original.status} />
-            {row.original.reporterFlagIso ? <Badge variant="neutral">Reporter flag</Badge> : null}
+            {row.original.reporterFlagIso || latestReportForSite(row.original.id) ? <Badge variant="neutral">Reporter flag</Badge> : null}
           </span>
         ),
       },
