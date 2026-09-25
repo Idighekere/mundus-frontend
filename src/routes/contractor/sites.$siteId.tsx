@@ -5,6 +5,7 @@ import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { CheckinFlow } from '@/components/checkin-flow'
+import { ReporterCard } from '@/components/reporter-card'
 import { SiteMiniMap } from '@/components/site-mini-map'
 import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints } from '@/mocks/data'
@@ -149,6 +150,8 @@ function ContractorSiteDetail() {
           <p className="mt-3 text-xs text-ink-soft">
             Photos must be taken with the in-app camera — gallery uploads are not allowed. Location locks at capture.
           </p>
+
+          <ReporterCard siteId={site.id} contractorId={session.contractorId} />
         </>
       )}
 

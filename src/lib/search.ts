@@ -8,6 +8,7 @@ export type SearchResult =
 const pages: Extract<SearchResult, { kind: 'page' }>[] = [
   { kind: 'page', id: 'dashboard', title: 'Dashboard', hint: 'Dump points overview', to: '/agency/dashboard' },
   { kind: 'page', id: 'contractors', title: 'Contractors', hint: 'Contractor coverage', to: '/agency/contractors' },
+  { kind: 'page', id: 'reporters', title: 'Reporters', hint: 'Reporter approvals', to: '/agency/reporters' },
   { kind: 'page', id: 'manage', title: 'Manage Dump Points', hint: 'Site registry', to: '/agency/dump-points' },
 ]
 

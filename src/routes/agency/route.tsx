@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Buildings, ListChecks, MagnifyingGlass, Recycle, SignOut, SquaresFour, X } from '@phosphor-icons/react'
+import { Buildings, ListChecks, MagnifyingGlass, Megaphone, Recycle, SignOut, SquaresFour, X } from '@phosphor-icons/react'
 import { GlobalSearch } from '@/components/global-search'
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ export const Route = createFileRoute('/agency')({
 const links = [
   { to: '/agency/dashboard' as const, label: 'Dashboard', icon: SquaresFour },
   { to: '/agency/contractors' as const, label: 'Contractors', icon: Buildings },
+  { to: '/agency/reporters' as const, label: 'Reporters', icon: Megaphone },
   { to: '/agency/dump-points' as const, label: 'Manage Dump Points', mobileLabel: 'Dump points', icon: ListChecks },
 ]
 

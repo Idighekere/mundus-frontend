@@ -5,6 +5,8 @@ export interface DirectoryContractor {
   id: string
   name: string
   supervisor: string
+  email: string
+  password: string
 }
 
 export interface Submission {
@@ -25,7 +27,10 @@ export interface Submission {
 }
 
 // ---- Contractor directory (agency-created contractors appear everywhere) ----
-let directory: DirectoryContractor[] = [...seedContractors]
+let directory: DirectoryContractor[] = [
+  { ...seedContractors[0], email: 'emmanuel.udo@cleancity.ng', password: 'supervisor123' },
+  { ...seedContractors[1], email: 'blessing.akpan@greenpath.ng', password: 'supervisor123' },
+]
 const dirListeners = new Set<() => void>()
 
 function emitDir() {
@@ -41,12 +46,22 @@ function getDirectory(): DirectoryContractor[] {
   return directory
 }
 
-export function addContractor(name: string, supervisor: string): DirectoryContractor {
+export function addContractor(name: string, supervisor: string, email: string, password: string): DirectoryContractor {
   const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString(36)}`
-  const entry = { id, name: name.trim(), supervisor: supervisor.trim() }
+  const entry = { id, name: name.trim(), supervisor: supervisor.trim(), email: email.trim().toLowerCase(), password }
   directory = [...directory, entry]
   emitDir()
   return entry
+}
+
+export function verifySupervisor(email: string, password: string): DirectoryContractor | undefined {
+  const normalized = email.trim().toLowerCase()
+  return getDirectory().find((c) => c.email.toLowerCase() === normalized && c.password === password)
+}
+
+export function updateSupervisorPassword(contractorId: string, newPassword: string): void {
+  directory = directory.map((c) => (c.id === contractorId ? { ...c, password: newPassword } : c))
+  emitDir()
 }
 
 export function useContractorDirectory(): DirectoryContractor[] {

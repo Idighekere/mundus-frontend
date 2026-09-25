@@ -46,6 +46,8 @@ function ContractorsPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [name, setName] = useState('')
   const [supervisor, setSupervisor] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const directory = useContractorDirectory()
@@ -89,7 +91,12 @@ function ContractorsPage() {
       {
         accessorKey: 'supervisor',
         header: 'Supervisor',
-        cell: ({ getValue }) => <span className="text-ink-soft">{getValue<string>()}</span>,
+        cell: ({ row }) => (
+          <span>
+            <span className="block text-ink">{row.original.supervisor}</span>
+            <span className="block text-xs text-ink-soft">{row.original.email}</span>
+          </span>
+        ),
       },
       { accessorKey: 'siteCount', header: 'Sites' },
       {
@@ -142,13 +149,27 @@ function ContractorsPage() {
       setFormError('Supervisor name needs at least 2 characters.')
       return
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setFormError('Enter a valid supervisor email.')
+      return
+    }
+    if (password.length < 6) {
+      setFormError('Password needs at least 6 characters. The supervisor can change it later.')
+      return
+    }
     if (directory.some((c) => c.name.toLowerCase() === name.trim().toLowerCase())) {
       setFormError('A contractor with this name already exists.')
       return
     }
-    addContractor(name, supervisor)
+    if (directory.some((c) => c.email.toLowerCase() === email.trim().toLowerCase())) {
+      setFormError('This email is already registered to another supervisor.')
+      return
+    }
+    addContractor(name, supervisor, email, password)
     setName('')
     setSupervisor('')
+    setEmail('')
+    setPassword('')
     setFormError('')
     setFormOpen(false)
   }
@@ -166,6 +187,15 @@ function ContractorsPage() {
         <label htmlFor="contractor-supervisor" className="mb-1 block text-sm font-semibold text-ink">Field supervisor</label>
         <Input id="contractor-supervisor" value={supervisor} onChange={(e) => setSupervisor(e.target.value)} placeholder="Emmanuel Udo" />
       </div>
+      <div>
+        <label htmlFor="contractor-email" className="mb-1 block text-sm font-semibold text-ink">Supervisor email</label>
+        <Input id="contractor-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="supervisor@contractor.ng" />
+      </div>
+      <div>
+        <label htmlFor="contractor-password" className="mb-1 block text-sm font-semibold text-ink">Temporary password</label>
+        <Input id="contractor-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+        <p className="mt-1 text-xs text-ink-soft">The supervisor signs in with these details and can change the password afterwards.</p>
+      </div>
       {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#b42323]">{formError}</p> : null}
       <div className="flex gap-2">
         <Button onClick={saveContractor} className="flex-1">Add contractor</Button>
@@ -181,7 +211,7 @@ function ContractorsPage() {
           <h2 className="font-display text-4xl text-ink">Contractors</h2>
           <p className="mt-1 text-ink-soft">Registered waste evacuation contractors. Expand a row to see assigned dump points.</p>
         </div>
-        <Button onClick={() => { setName(''); setSupervisor(''); setFormError(''); setFormOpen(true) }}>
+        <Button onClick={() => { setName(''); setSupervisor(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
           <Plus size={18} /> Add contractor
         </Button>
       </div>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
-import { ClockCounterClockwise, MapPin, Recycle, SignOut } from '@phosphor-icons/react'
+import { ClockCounterClockwise, MapPin, Recycle, SignOut, User } from '@phosphor-icons/react'
 import { useContractorSession } from '@/lib/contractor-session'
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/contractor')({
 const tabs = [
   { to: '/contractor/sites' as const, label: 'Sites', icon: MapPin },
   { to: '/contractor/history' as const, label: 'History', icon: ClockCounterClockwise },
+  { to: '/contractor/account' as const, label: 'Account', icon: User },
 ]
 
 function initials(name: string): string {
@@ -134,7 +135,7 @@ function ContractorShell() {
 
         {/* Mobile bottom tabs only */}
         <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-hairline bg-paper px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.16)] md:hidden">
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-3 gap-1">
             {tabs.map((t) => (
               <Link
                 key={t.to}
