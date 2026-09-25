@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { siteById } from '@/mocks/data'
 import {
-  latestReportForSite, reportGate, reportsForReporter, resolveToken, submitSiteReport,
+  latestReportForSite, reportGate, reportsForReporter, resolveToken, seedDemoReporters, submitSiteReport,
 } from '@/mocks/reporter-store'
 
 export const Route = createFileRoute('/r/$token')({
@@ -30,6 +30,7 @@ function ReporterPage() {
   const reporter = resolveToken(token)
 
   if (!reporter) {
+    const isDemoLink = token === 'demo-nwaniba-reporter-link'
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
         <MapPin size={44} className="mx-auto text-[#b42323]" weight="fill" />
@@ -37,6 +38,18 @@ function ReporterPage() {
         <p className="mt-2 text-ink-soft">
           It may have been revoked or replaced. Contact the agency for a new link.
         </p>
+        {isDemoLink ? (
+          <Button
+            variant="secondary"
+            className="mt-4"
+            onClick={() => {
+              seedDemoReporters()
+              window.location.reload()
+            }}
+          >
+            Restore example link
+          </Button>
+        ) : null}
       </main>
     )
   }
