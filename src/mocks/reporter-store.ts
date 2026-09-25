@@ -100,11 +100,7 @@ export function nominateReporter(input: {
   const name = input.name.trim()
   const phone = digitsOnly(input.phone)
   if (name.length < 2) return { ok: false, error: 'Reporter name needs at least 2 characters.' }
-  if (phone.length < 7 || phone.length > 15) return { ok: false, error: 'Enter a valid phone number.' }
-  const activeForSite = reporters.find(
-    (r) => r.siteId === input.siteId && (r.status === 'pending' || r.status === 'approved'),
-  )
-  if (activeForSite) return { ok: false, error: 'This site already has an active reporter.' }
+  if (phone.length !== 11) return { ok: false, error: 'Phone number must be exactly 11 digits.' }
   const activeForPhone = reporters.find(
     (r) => digitsOnly(r.phone) === phone && (r.status === 'pending' || r.status === 'approved'),
   )
@@ -175,8 +171,12 @@ export function seedDemoReporters(): void {
   persist()
 }
 
+export function reportersForSite(siteId: string): Reporter[] {
+  return reporters.filter((r) => r.siteId === siteId && r.status !== 'revoked')
+}
+
 export function reporterForSite(siteId: string): Reporter | undefined {
-  return reporters.find((r) => r.siteId === siteId && r.status !== 'revoked')
+  return reportersForSite(siteId)[0]
 }
 
 export function resolveToken(token: string): Reporter | undefined {
