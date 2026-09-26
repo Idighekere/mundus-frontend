@@ -18,7 +18,9 @@ import { Route as AgencyDashboardRouteImport } from './routes/agency/dashboard'
 import { Route as AgencyDumpPointsRouteImport } from './routes/agency/dump-points'
 import { Route as AgencyManageDumpPointsRouteImport } from './routes/agency/manage-dump-points'
 import { Route as AgencyManageSitesRouteImport } from './routes/agency/manage-sites'
+import { Route as AgencyNotificationsRouteImport } from './routes/agency/notifications'
 import { Route as AgencyReportersRouteImport } from './routes/agency/reporters'
+import { Route as AgencyRequestAccessRouteImport } from './routes/agency/request-access'
 import { Route as AgencySignInRouteImport } from './routes/agency/sign-in'
 import { Route as ContractorIndexRouteImport } from './routes/contractor/index'
 import { Route as ContractorAccountRouteImport } from './routes/contractor/account'
@@ -75,9 +77,19 @@ const AgencyManageSitesRoute = AgencyManageSitesRouteImport.update({
   path: '/manage-sites',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
+const AgencyNotificationsRoute = AgencyNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
 const AgencyReportersRoute = AgencyReportersRouteImport.update({
   id: '/reporters',
   path: '/reporters',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
+const AgencyRequestAccessRoute = AgencyRequestAccessRouteImport.update({
+  id: '/request-access',
+  path: '/request-access',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
 const AgencySignInRoute = AgencySignInRouteImport.update({
@@ -141,7 +153,9 @@ export interface FileRoutesByFullPath {
   '/agency/dump-points': typeof AgencyDumpPointsRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
+  '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -161,7 +175,9 @@ export interface FileRoutesByTo {
   '/agency/dump-points': typeof AgencyDumpPointsRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
+  '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -184,7 +200,9 @@ export interface FileRoutesById {
   '/agency/dump-points': typeof AgencyDumpPointsRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
+  '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -208,7 +226,9 @@ export interface FileRouteTypes {
     | '/agency/dump-points'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
+    | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
     | '/contractor/history'
@@ -228,7 +248,9 @@ export interface FileRouteTypes {
     | '/agency/dump-points'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
+    | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
     | '/contractor/history'
@@ -250,7 +272,9 @@ export interface FileRouteTypes {
     | '/agency/dump-points'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
+    | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
     | '/contractor/history'
@@ -336,11 +360,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgencyManageSitesRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
+    '/agency/notifications': {
+      id: '/agency/notifications'
+      path: '/notifications'
+      fullPath: '/agency/notifications'
+      preLoaderRoute: typeof AgencyNotificationsRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
     '/agency/reporters': {
       id: '/agency/reporters'
       path: '/reporters'
       fullPath: '/agency/reporters'
       preLoaderRoute: typeof AgencyReportersRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
+    '/agency/request-access': {
+      id: '/agency/request-access'
+      path: '/request-access'
+      fullPath: '/agency/request-access'
+      preLoaderRoute: typeof AgencyRequestAccessRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
     '/agency/sign-in': {
@@ -433,7 +471,9 @@ interface AgencyRouteRouteChildren {
   AgencyDumpPointsRoute: typeof AgencyDumpPointsRoute
   AgencyManageDumpPointsRoute: typeof AgencyManageDumpPointsRoute
   AgencyManageSitesRoute: typeof AgencyManageSitesRoute
+  AgencyNotificationsRoute: typeof AgencyNotificationsRoute
   AgencyReportersRoute: typeof AgencyReportersRoute
+  AgencyRequestAccessRoute: typeof AgencyRequestAccessRoute
   AgencySignInRoute: typeof AgencySignInRoute
   AgencyIndexRoute: typeof AgencyIndexRoute
   AgencySitesSiteIdRoute: typeof AgencySitesSiteIdRouteWithChildren
@@ -445,7 +485,9 @@ const AgencyRouteRouteChildren: AgencyRouteRouteChildren = {
   AgencyDumpPointsRoute: AgencyDumpPointsRoute,
   AgencyManageDumpPointsRoute: AgencyManageDumpPointsRoute,
   AgencyManageSitesRoute: AgencyManageSitesRoute,
+  AgencyNotificationsRoute: AgencyNotificationsRoute,
   AgencyReportersRoute: AgencyReportersRoute,
+  AgencyRequestAccessRoute: AgencyRequestAccessRoute,
   AgencySignInRoute: AgencySignInRoute,
   AgencyIndexRoute: AgencyIndexRoute,
   AgencySitesSiteIdRoute: AgencySitesSiteIdRouteWithChildren,
