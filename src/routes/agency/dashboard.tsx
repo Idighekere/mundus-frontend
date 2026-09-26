@@ -129,29 +129,12 @@ function DashboardPage() {
   const overdueCount = rows.filter((r) => r.days > 7).length
   const criticalCount = rows.filter((r) => r.status === 'critical').length
 
-  const sortedByLabel = useMemo(() => {
-    const first = sorting[0]
-    if (!first) return 'Default order'
-    const dir = first.desc ? 'desc' : 'asc'
-    switch (`${first.id}:${dir}`) {
-      case 'days:desc': return 'Most overdue first'
-      case 'days:asc': return 'Least overdue first'
-      case 'name:asc': return 'Name A–Z'
-      case 'name:desc': return 'Name Z–A'
-      case 'contractorName:asc': return 'Contractor A–Z'
-      case 'contractorName:desc': return 'Contractor Z–A'
-      case 'lastClearanceIso:desc': return 'Recently cleared first'
-      case 'lastClearanceIso:asc': return 'Longest uncleared first'
-      default: return 'Custom order'
-    }
-  }, [sorting])
-
   return (
     <div>
       <h2 className="font-display text-4xl text-ink">Dashboard</h2>
       <p className="mt-1 text-ink-soft">All registered dump points, most overdue first. Select a site for its full audit timeline.</p>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-4">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { label: 'Dump points', value: String(rows.length) },
           { label: 'Overdue', value: String(overdueCount) },
@@ -162,10 +145,6 @@ function DashboardPage() {
             <p className="mt-1 font-display text-4xl text-ink">{s.value}</p>
           </Card>
         ))}
-        <Card className="hidden p-4 md:block">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Sorted by</p>
-          <p className="mt-1 font-display text-2xl text-ink">{sortedByLabel}</p>
-        </Card>
       </div>
 
       <div className="mt-4 flex gap-2">
