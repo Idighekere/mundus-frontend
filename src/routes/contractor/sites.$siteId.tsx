@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Camera, CheckCircle, Warning } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { SiteMiniMap } from '@/components/site-mini-map'
 import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints } from '@/mocks/data'
 import { todaySubmissions } from '@/mocks/contractor-store'
+import { markSiteReportsSeen, useReporters, useReports } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,12 @@ function ContractorSiteDetail() {
   const [tick, setTick] = useState(0)
 
   const site = dumpPoints.find((s) => s.id === siteId)
+  const reporters = useReporters()
+  const allReports = useReports()
+
+  useEffect(() => {
+    markSiteReportsSeen(siteId)
+  }, [siteId])
   const visit = useMemo(
     () => (session ? todaySubmissions(siteId, session.supervisor) : { before: undefined, after: undefined }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -38,6 +45,10 @@ function ContractorSiteDetail() {
   const assigned = site.contractorId === session.contractorId
   const complete = !!(visit.before && visit.after)
   const flagged = visit.before?.flagged || visit.after?.flagged
+  const siteReport = site
+    ? allReports.filter((r) => r.siteId === site.id).sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))[0]
+    : undefined
+  const siteReporterName = reporters.find((r) => r.id === siteReport?.reporterId)?.name
 
   const flowDone = (next?: 'after' | 'sites') => {
     setTick((t) => t + 1)
@@ -105,6 +116,23 @@ function ContractorSiteDetail() {
           <div className="mt-3">
             <SiteMiniMap name={site.name} lat={site.lat} lng={site.lng} />
           </div>
+
+          {siteReport ? (
+            <div className="mt-3 flex gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
+              {siteReport.photo ? (
+                <img src={siteReport.photo} alt="Reporter photo" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+              ) : null}
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-ink">
+                  Reported full{siteReporterName ? ` by ${siteReporterName}` : ''}
+                </p>
+                <p className="text-xs text-ink-soft">
+                  {new Date(siteReport.atIso).toLocaleString()}
+                </p>
+                <p className="mt-0.5 text-xs text-ink-soft">This is what the reporter saw — verify on your visit.</p>
+              </div>
+            </div>
+          ) : null}
 
           <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
             <input

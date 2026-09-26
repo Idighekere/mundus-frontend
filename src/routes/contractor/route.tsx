@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
-import { ClockCounterClockwise, MapPin, Recycle, SignOut, User } from '@phosphor-icons/react'
+import { ClockCounterClockwise, MapPin, SignOut, User } from '@phosphor-icons/react'
+import { LogoMark } from '@/components/logo'
 import { useContractorSession } from '@/lib/contractor-session'
 import {
   DropdownMenu,
@@ -43,7 +44,7 @@ function ContractorShell() {
       <DropdownMenuTrigger asChild>
         <button
           aria-label="Open profile menu"
-          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-white hover:bg-white/30"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-semibold text-white"
         >
           {initials(session.supervisor)}
         </button>
@@ -63,72 +64,51 @@ function ContractorShell() {
 
   return (
     <div className="min-h-screen bg-canvas font-body text-ink-soft">
-      {/* Desktop sidebar — contractor chrome */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-primary-deep text-white md:flex">
-        <Link to="/" aria-label="Mundus home" className="flex h-16 items-center gap-2 px-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 text-white">
-            <Recycle size={20} weight="bold" />
-          </span>
-          <span className="font-display text-2xl tracking-wide">MUNDUS</span>
-        </Link>
-        <p className="px-5 pb-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60">Field app</p>
-        <nav className="flex-1 space-y-1 px-3">
-          {tabs.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              className={cn(
-                'flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white',
-                pathname.startsWith(t.to) && 'bg-white/15 text-white',
-              )}
-            >
-              <t.icon size={20} /> {t.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-white/15 p-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 font-semibold text-white">
-              {initials(session.supervisor)}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">{session.supervisor}</p>
-              <p className="truncate text-xs text-white/70">{session.contractorName}</p>
-            </div>
-          </div>
-          <button
-            onClick={logout}
-            className="mt-3 flex min-h-[44px] w-full cursor-pointer items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20"
-          >
-            <SignOut size={18} /> Log out
-          </button>
+      {/* Mobile header — dark field chrome */}
+      <header className="sticky top-0 z-30 bg-primary-deep text-white md:hidden">
+        <div className="flex h-20 items-center gap-2 px-4">
+          <Link to="/" aria-label="Mundus home" className="flex items-center gap-2">
+            <LogoMark variant="mono" className="h-8 w-8" />
+            <span className="font-display text-xl tracking-wide">MUNDUS</span>
+          </Link>
+          <div className="ml-auto">{profileMenu}</div>
         </div>
-      </aside>
+      </header>
 
-      <div className="md:pl-64">
-        {/* Mobile header — logo left, avatar right */}
-        <header className="sticky top-0 z-30 bg-primary-deep text-white md:hidden">
-          <div className="flex h-14 items-center gap-2 px-4">
-            <Link to="/" aria-label="Mundus home" className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white">
-                <Recycle size={18} weight="bold" />
-              </span>
-              <span className="font-display text-xl tracking-wide">MUNDUS</span>
-            </Link>
-            <div className="ml-auto">{profileMenu}</div>
+      {/* Desktop header — white with inline links, no sidebar */}
+      <header className="sticky top-0 z-30 hidden border-b border-hairline bg-paper/95 backdrop-blur md:block">
+        <div className="mx-auto flex h-20 w-full max-w-[1100px] items-center gap-2 px-4">
+          <Link to="/" aria-label="Mundus home" className="flex items-center gap-2">
+            <LogoMark className="h-8 w-8" />
+            <span className="font-display text-xl tracking-wide text-ink">MUNDUS</span>
+          </Link>
+          <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Field</span>
+          <nav className="ml-4 flex items-center gap-1" aria-label="Field">
+            {tabs.map((t) => (
+              <Link
+                key={t.to}
+                to={t.to}
+                aria-current={pathname.startsWith(t.to) ? 'page' : undefined}
+                className={cn(
+                  'relative flex min-h-[36px] items-center px-3 pb-1.5 pt-2 text-sm font-medium text-ink-soft hover:text-ink',
+                  pathname.startsWith(t.to) && 'font-semibold text-ink after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary',
+                )}
+              >
+                {t.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-right">
+              <span className="block text-[13px] font-semibold leading-tight text-ink">{session.supervisor}</span>
+              <span className="block max-w-44 truncate text-[11px] text-ink-soft">{session.contractorName}</span>
+            </span>
+            {profileMenu}
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Desktop header */}
-        <header className="sticky top-0 z-30 hidden border-b border-hairline bg-paper/95 backdrop-blur md:block">
-          <div className="flex h-14 items-center gap-2 px-6">
-            <p className="text-sm text-ink-soft">
-              <span className="font-semibold text-ink">{session.supervisor}</span> · {session.contractorName}
-            </p>
-            <div className="ml-auto">{profileMenu}</div>
-          </div>
-        </header>
-
+      <div>
         <main className="mx-auto w-full max-w-[720px] px-4 py-6 pb-28 md:pb-10">
           <Outlet />
         </main>
@@ -136,18 +116,22 @@ function ContractorShell() {
         {/* Mobile bottom tabs only */}
         <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-hairline bg-paper px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px] md:hidden">
           <div className="grid grid-cols-3 gap-1">
-            {tabs.map((t) => (
-              <Link
-                key={t.to}
-                to={t.to}
-                className={cn(
-                  'flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium text-ink-soft',
-                  pathname.startsWith(t.to) && 'bg-cloud text-primary',
-                )}
-              >
-                <t.icon size={20} /> {t.label}
-              </Link>
-            ))}
+            {tabs.map((t) => {
+              const active = pathname.startsWith(t.to)
+              return (
+                <Link
+                  key={t.to}
+                  to={t.to}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-xl text-[11px] text-ink-soft',
+                    active ? 'font-bold text-primary' : 'font-medium',
+                  )}
+                >
+                  <t.icon size={22} weight={active ? 'fill' : 'regular'} /> {t.label}
+                </Link>
+              )
+            })}
           </div>
         </nav>
       </div>

@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useMatch } from '@tanstack/react-router'
 import { useMemo } from 'react'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRight, X } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/misc'
 import { useContractorSession } from '@/lib/contractor-session'
-import { dumpPoints } from '@/mocks/data'
+import { dumpPoints, siteById } from '@/mocks/data'
+import { markSiteReportsSeen, unseenReports, useReports } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/contractor/sites')({
 
 function ContractorHome() {
   const { session } = useContractorSession()
+  const reportsState = useReports()
   // Site detail is a nested route — render it in place of the list.
   const siteMatch = useMatch({ from: '/contractor/sites/$siteId', shouldThrow: false })
 
@@ -30,6 +32,11 @@ function ContractorHome() {
   )
 
   const overdue = sites.filter((s) => s.days > 7).length
+  const alerts = useMemo(
+    () => (session ? unseenReports(sites.map((s) => s.id)) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.contractorId, sites, reportsState],
+  )
 
   if (!session) return null
   // Site detail is a nested route — render it in place of the list.
@@ -52,6 +59,37 @@ function ContractorHome() {
 
       <h2 className="mt-6 text-base font-normal text-ink-soft">Your dump points</h2>
       <p className="text-sm text-ink-soft">Most overdue first.</p>
+
+      {alerts.length > 0 ? (
+        <div className="mt-3 space-y-2" role="alert">
+          {alerts.map((r) => (
+            <div key={r.id} className="flex items-center gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
+              {r.photo ? (
+                <img src={r.photo} alt="Reported site" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+              ) : null}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-ink">{siteById(r.siteId)?.name} reported full</p>
+                <p className="text-xs text-ink-soft">{new Date(r.atIso).toLocaleString()}</p>
+              </div>
+              <Link
+                to="/contractor/sites/$siteId"
+                params={{ siteId: r.siteId }}
+                onClick={() => markSiteReportsSeen(r.siteId)}
+                className="inline-flex min-h-[44px] shrink-0 items-center rounded-xl bg-primary px-4 font-action text-sm font-medium text-white"
+              >
+                View
+              </Link>
+              <button
+                onClick={() => markSiteReportsSeen(r.siteId)}
+                aria-label="Dismiss alert"
+                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-white/50"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {sites.length === 0 ? (
         <Card className="mt-3 text-center">
