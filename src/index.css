@@ -44,22 +44,32 @@
   --radius-2xl: 24px;
 }
 
-body {
-  background: var(--color-canvas);
-  color: var(--color-ink-soft);
-  font-family: var(--font-body);
-}
+@layer base {
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink-soft);
+    font-family: var(--font-body);
+  }
 
-h1, h2, h3 {
-  font-family: var(--font-display);
-  color: var(--color-ink);
-}
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    /* Recoleta DEMO lacks ligature glyphs (fi/fl render as tofu) — disable them. */
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0;
+  }
 
-button, a, [role='button'] {
-  cursor: pointer;
-}
-input, textarea, select {
-  cursor: text;
+  button, a, [role='button'] {
+    cursor: pointer;
+  }
+  input, textarea, select {
+    cursor: text;
+  }
+
+  .font-display {
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0;
+  }
 }
 
 /* Leaflet map fixes: Tailwind's preflight (img max-width:100%) distorts
@@ -70,4 +80,41 @@ input, textarea, select {
 }
 .leaflet-container img {
   max-width: none !important;
+}
+
+/* Landing texture + motion */
+.dot-grid {
+  background-image: radial-gradient(rgba(6, 23, 15, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.dot-grid-light {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+}
+@keyframes mundus-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mundus-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.anim-fade-up {
+  opacity: 0;
+  animation: mundus-fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.anim-float {
+  animation: mundus-float 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up { opacity: 1; animation: none; }
+  .anim-float { animation: none; }
 }
