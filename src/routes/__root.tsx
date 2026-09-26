@@ -1,5 +1,5 @@
 import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
-import { Recycle } from '@phosphor-icons/react'
+import { LogoMark } from '@/components/logo'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -7,17 +7,15 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   const { pathname } = useLocation()
-  // App sections render their own shells — no public chrome there.
-  if (pathname.startsWith('/agency') || pathname.startsWith('/contractor')) return <Outlet />
+  // App sections + bespoke landing + reporter links render their own shells — no public chrome there.
+  if (pathname === '/' || pathname.startsWith('/agency') || pathname.startsWith('/contractor') || pathname.startsWith('/r/')) return <Outlet />
 
   return (
     <div className="min-h-screen bg-canvas font-body text-ink-soft">
       <header className="border-b border-hairline bg-paper">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-on-primary">
-              <Recycle size={20} weight="bold" />
-            </span>
+            <LogoMark className="h-9 w-9" />
             <span className="font-display text-2xl tracking-wide text-ink">MUNDUS</span>
           </Link>
           <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
