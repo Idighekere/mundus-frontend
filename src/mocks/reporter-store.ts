@@ -18,6 +18,7 @@ export interface SiteReport {
   id: string
   siteId: string
   reporterId: string
+  photo?: string
   atIso: string
 }
 
@@ -26,6 +27,7 @@ export const REPORT_WINDOW_HOURS = 12
 
 const REPORTERS_KEY = 'mundus-reporters'
 const REPORTS_KEY = 'mundus-reports'
+const SEEN_KEY = 'mundus-reports-seen'
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -202,10 +204,10 @@ export function reporterWhatsappUrl(phone: string, siteName: string, token: stri
   return `https://wa.me/${whatsappNumber(phone)}?text=${encodeURIComponent(reporterMessage(siteName, token))}`
 }
 
-export function submitSiteReport(siteId: string, reporterId: string): { ok: true } | { ok: false; retryIn: string } {
+export function submitSiteReport(siteId: string, reporterId: string, photo?: string): { ok: true } | { ok: false; retryIn: string } {
   const gate = reportGate(siteId)
   if (!gate.open) return { ok: false, retryIn: gate.retryIn }
-  reports = [{ id: `sr-${Date.now().toString(36)}`, siteId, reporterId, atIso: new Date().toISOString() }, ...reports]
+  reports = [{ id: `sr-${Date.now().toString(36)}`, siteId, reporterId, photo, atIso: new Date().toISOString() }, ...reports]
   persist()
   return { ok: true }
 }
@@ -221,6 +223,42 @@ export function reportGate(siteId: string): { open: true } | { open: false; retr
 
 export function latestReportForSite(siteId: string): SiteReport | undefined {
   return reports.filter((r) => r.siteId === siteId).sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))[0]
+}
+
+// In-app "push": reports the supervisor hasn't opened yet. Real push/SMS
+// needs the backend; until then the home screen shouts instead.
+function readSeen(): string[] {
+  try {
+    const raw = localStorage.getItem(SEEN_KEY)
+    return raw ? (JSON.parse(raw) as string[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function unseenReports(siteIds: string[]): SiteReport[] {
+  const seen = new Set(readSeen())
+  return reports
+    .filter((r) => siteIds.includes(r.siteId) && !seen.has(r.id))
+    .sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))
+}
+
+export function markSiteReportsSeen(siteId: string): void {
+  const seen = new Set(readSeen())
+  let changed = false
+  for (const r of reports) {
+    if (r.siteId === siteId && !seen.has(r.id)) {
+      seen.add(r.id)
+      changed = true
+    }
+  }
+  if (!changed) return
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify([...seen]))
+  } catch {
+    // ignore
+  }
+  listeners.forEach((fn) => fn())
 }
 
 export function reportsForReporter(reporterId: string): SiteReport[] {
