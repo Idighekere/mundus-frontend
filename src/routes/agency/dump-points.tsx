@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { MapPicker } from '@/components/map-picker'
+import { PlaceSearch } from '@/components/place-search'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { reverseGeocode } from '@/lib/geocode'
 import { dumpPoints as seed } from '@/mocks/data'
@@ -125,6 +126,10 @@ function ManageDumpPointsPage() {
         </div>
       </div>
 
+      <PlaceSearch
+        onPick={(pos) => { setLocateError(''); setForm((f) => ({ ...f, lat: String(pos.lat), lng: String(pos.lng) })) }}
+      />
+
       <MapPicker
         lat={validCoords ? latNum : null}
         lng={validCoords ? lngNum : null}
@@ -138,7 +143,7 @@ function ManageDumpPointsPage() {
         </p>
       ) : null}
 
-      <div className="flex gap-2">
+      <div className="sticky bottom-[-1.5rem] -mx-6 -mb-6 mt-2 flex gap-2 border-t border-hairline bg-paper p-6 pt-4">
         <Button onClick={save} className="flex-1">{editingId ? 'Save changes' : 'Add dump point'}</Button>
         <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
       </div>

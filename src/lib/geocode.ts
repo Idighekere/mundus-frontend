@@ -1,7 +1,45 @@
 // Reverse-geocode via OpenStreetMap Nominatim (demo-grade, no key).
 // Swap for a paid provider in production — same { address } shape.
-export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+export interface PlaceResult {
+  label: string
+  lat: number
+  lng: number
+}
+
+// Forward search via Photon (Komoot, OSM-based, no key) so the agency can
+// pin a site by name without standing on it.
+export async function searchPlaces(query: string): Promise<PlaceResult[]> {
+  const q = query.trim()
+  if (q.length < 3) return []
   try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 8000)
+    const res = await fetch(
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=5.042&lon=7.957&limit=5&lang=en`,
+      { headers: { Accept: 'application/json' }, signal: controller.signal },
+    )
+    clearTimeout(timer)
+    if (!res.ok) return []
+    const data = (await res.json()) as {
+      features?: { geometry?: { coordinates?: unknown }; properties?: Record<string, unknown> }[]
+    }
+    const features = Array.isArray(data?.features) ? data.features : []
+    return features
+      .filter((f) => Array.isArray(f?.geometry?.coordinates))
+      .map((f) => {
+        const [lng, lat] = (f.geometry as { coordinates: [number, number] }).coordinates
+        const p = (f.properties ?? {}) as Record<string, unknown>
+        const parts = [p.name, p.street, p.city ?? p.county, p.country].filter(
+          (x): x is string => typeof x === 'string' && x.length > 0,
+        )
+        return { label: parts.join(', ') || q, lat, lng }
+      })
+  } catch {
+    return []
+  }
+}
+
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {  try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
       { headers: { Accept: 'application/json' } },
