@@ -2,7 +2,7 @@
 
 ## Stack (do not deviate)
 
-- **Package manager: `bun` only.** Never use npm/pnpm/yarn. Install: `bun add <pkg>`, dev: `bun add -d <pkg>`, run: `bun dev`, `bun run build`.
+- **Package manager: `bun` for local dev** (`bun add`, `bun dev`, `bun run build`). `package-lock.json` is committed for Pxxl deploys (its builder runs `npm ci`) — do not delete it, do not reintroduce `bun.lock` (gitignored). Never use pnpm/yarn.
 - **Vite + React + TS** (`react-ts` template).
 - **Routing: TanStack Router, file-based.** Plugin `TanStackRouterVite({ target: 'react', autoCodeSplitting: true })` in `vite.config.ts`. Routes live in `src/routes/` (`__root.tsx`, `index.tsx`, `agency/*`). Never use `react-router-dom`.
 - **UI: shadcn-style primitives only** (copy into `src/components/ui/`): `button, table, input, badge, sheet, dialog, dropdown-menu, select, skeleton, sonner, avatar, separator, tabs`. Tailwind v4 (`@tailwindcss/vite`). Tokens in `src/index.css` via `@theme` — see `DESIGN.md`.
@@ -61,6 +61,6 @@ bun run build  # tsc -b && vite build
 
 ## Don'ts
 
-- No `lucide-react`, no `react-router-dom`, no npm/pnpm.
+- No `lucide-react`, no `react-router-dom`, no pnpm/yarn. npm is only for the committed Pxxl lockfile, never for local commands.
 - No gallery upload in future camera flow (in-app capture only — doc §5).
 - Don't add backend/auth until Agency Phase 1 is done and approved.
