@@ -2,13 +2,14 @@ import { useEffect, type ReactNode } from 'react'
 import { X } from '@phosphor-icons/react'
 
 export function RightSheet({
-  open, onOpenChange, title, description, children,
+  open, onOpenChange, title, description, children, footer,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
   description?: string
   children: ReactNode
+  footer?: ReactNode
 }) {
   useEffect(() => {
     if (!open) return
@@ -38,7 +39,10 @@ export function RightSheet({
             <X size={20} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>
+        {footer ? (
+          <div className="shrink-0 border-t border-hairline bg-paper p-6 pt-4">{footer}</div>
+        ) : null}
       </aside>
     </div>
   )

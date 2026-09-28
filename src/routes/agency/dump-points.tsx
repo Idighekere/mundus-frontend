@@ -143,7 +143,7 @@ function ManageDumpPointsPage() {
         </p>
       ) : null}
 
-      <div className="sticky bottom-[-1.5rem] -mx-6 -mb-6 mt-2 flex gap-2 border-t border-hairline bg-paper p-6 pt-4">
+      <div className="flex gap-2">
         <Button onClick={save} className="flex-1">{editingId ? 'Save changes' : 'Add dump point'}</Button>
         <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
       </div>
@@ -199,11 +199,27 @@ function ManageDumpPointsPage() {
           onOpenChange={setFormOpen}
           title={editingId ? 'Edit dump point' : 'Add dump point'}
           description="Register a new point for scheduled waste evacuation."
+          footer={
+            <div className="flex gap-2">
+              <Button onClick={save} className="flex-1">{editingId ? 'Save changes' : 'Add dump point'}</Button>
+              <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
+            </div>
+          }
         >
           {formBody}
         </RightSheet>
       ) : (
-        <BottomSheet open={formOpen} onOpenChange={setFormOpen} title={editingId ? 'Edit dump point' : 'Add dump point'}>
+        <BottomSheet
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          title={editingId ? 'Edit dump point' : 'Add dump point'}
+          footer={
+            <div className="flex gap-2">
+              <Button onClick={save} className="flex-1">{editingId ? 'Save changes' : 'Add dump point'}</Button>
+              <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
+            </div>
+          }
+        >
           {formBody}
         </BottomSheet>
       )}

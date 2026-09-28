@@ -197,10 +197,13 @@ function ContractorsPage() {
         <p className="mt-1 text-xs text-ink-soft">The supervisor signs in with these details and can change the password afterwards.</p>
       </div>
       {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{formError}</p> : null}
-      <div className="flex gap-2">
-        <Button onClick={saveContractor} className="flex-1">Add contractor</Button>
-        <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
-      </div>
+    </div>
+  )
+
+  const contractorActions = (
+    <div className="flex gap-2">
+      <Button onClick={saveContractor} className="flex-1">Add contractor</Button>
+      <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
     </div>
   )
 
@@ -391,11 +394,12 @@ function ContractorsPage() {
           onOpenChange={setFormOpen}
           title="Add contractor"
           description="Register a waste evacuation contractor and their field supervisor."
+          footer={contractorActions}
         >
           {contractorForm}
         </RightSheet>
       ) : (
-        <BottomSheet open={formOpen} onOpenChange={setFormOpen} title="Add contractor">
+        <BottomSheet open={formOpen} onOpenChange={setFormOpen} title="Add contractor" footer={contractorActions}>
           {contractorForm}
         </BottomSheet>
       )}
