@@ -204,7 +204,7 @@ export function reporterWhatsappUrl(phone: string, siteName: string, token: stri
   return `https://wa.me/${whatsappNumber(phone)}?text=${encodeURIComponent(reporterMessage(siteName, token))}`
 }
 
-export function submitSiteReport(siteId: string, reporterId: string, photo?: string): { ok: true } | { ok: false; retryIn: string } {
+export function submitSiteReport(siteId: string, reporterId: string, photo: string): { ok: true } | { ok: false; retryIn: string } {
   const gate = reportGate(siteId)
   if (!gate.open) return { ok: false, retryIn: gate.retryIn }
   reports = [{ id: `sr-${Date.now().toString(36)}`, siteId, reporterId, photo, atIso: new Date().toISOString() }, ...reports]

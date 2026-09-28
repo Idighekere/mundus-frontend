@@ -22,7 +22,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)} days ago`
 }
 
-function ReporterPhotoStep({ onPhoto, onSkip }: { onPhoto: (dataUrl: string) => void; onSkip: () => void }) {
+function ReporterPhotoStep({ onPhoto, onBack }: { onPhoto: (dataUrl: string) => void; onBack: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [live, setLive] = useState(false)
   const [blocked, setBlocked] = useState(false)
@@ -71,24 +71,28 @@ function ReporterPhotoStep({ onPhoto, onSkip }: { onPhoto: (dataUrl: string) => 
   return (
     <Card className="mt-6">
       <h1 className="text-2xl font-bold text-ink">Snap the pile</h1>
-      <p className="mt-1 text-sm text-ink-soft">Show the contractor exactly what you are reporting. Optional.</p>
+      <p className="mt-1 text-sm text-ink-soft">A photo is required — show the contractor exactly what you are reporting.</p>
       {blocked ? (
         <div className="mt-3 rounded-xl bg-canvas p-4 text-center text-sm text-ink-soft">
           <Camera size={28} className="mx-auto" />
-          <p className="mt-2">Camera unavailable — you can still report without a photo.</p>
+          <p className="mt-2 font-semibold text-ink">Camera access is required to report.</p>
+          <p className="mt-1">Allow camera access for this page in your browser settings, then try again.</p>
+          <Button variant="secondary" onClick={onBack} className="mt-3 w-full">Back</Button>
         </div>
       ) : (
-        <div className="relative mt-3 overflow-hidden rounded-xl bg-ink">
-          <video ref={videoRef} playsInline muted className="aspect-[4/3] w-full object-cover" />
-          {!live ? (
-            <div className="absolute inset-0 flex items-center justify-center text-sm text-white/80">Starting camera…</div>
-          ) : null}
-        </div>
+        <>
+          <div className="relative mt-3 overflow-hidden rounded-xl bg-ink">
+            <video ref={videoRef} playsInline muted className="aspect-[4/3] w-full object-cover" />
+            {!live ? (
+              <div className="absolute inset-0 flex items-center justify-center text-sm text-white/80">Starting camera…</div>
+            ) : null}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Button variant="secondary" onClick={onBack} className="flex-1">Back</Button>
+            <Button onClick={capture} disabled={!live} className="flex-1"><Camera size={18} /> Capture</Button>
+          </div>
+        </>
       )}
-      <div className="mt-3 flex gap-2">
-        <Button variant="secondary" onClick={onSkip} className="flex-1">Skip photo</Button>
-        <Button onClick={capture} disabled={!live} className="flex-1"><Camera size={18} /> Capture</Button>
-      </div>
     </Card>
   )
 }
@@ -145,7 +149,8 @@ function ReporterPage() {
   const contractorName = directory.find((c) => c.id === reporter.contractorId)?.name ?? 'Your contractor'
 
   const submit = () => {
-    const res = submitSiteReport(site.id, reporter.id, photo ?? undefined)
+    if (!photo) return
+    const res = submitSiteReport(site.id, reporter.id, photo)
     if (res.ok) {
       setJustReportedAt(new Date().toISOString())
       setStage('done')
@@ -175,7 +180,7 @@ function ReporterPage() {
       ) : stage === 'photo' ? (
         <ReporterPhotoStep
           onPhoto={(dataUrl) => { setPhoto(dataUrl); setStage('confirm') }}
-          onSkip={() => { setPhoto(null); setStage('confirm') }}
+          onBack={() => setStage('home')}
         />
       ) : stage === 'confirm' ? (
         <Card className="mt-6">
@@ -185,8 +190,8 @@ function ReporterPage() {
             <img src={photo} alt="Report preview" className="mt-3 aspect-[4/3] w-full rounded-xl object-cover" />
           ) : null}
           <div className="mt-4 flex gap-2">
-            <Button variant="secondary" onClick={() => setStage('photo')} className="flex-1">Back</Button>
-            <Button onClick={submit} className="flex-1">Yes, report</Button>
+            <Button variant="secondary" onClick={() => setStage('photo')} className="flex-1">Retake</Button>
+            <Button onClick={submit} disabled={!photo} className="flex-1">Yes, report</Button>
           </div>
         </Card>
       ) : (
