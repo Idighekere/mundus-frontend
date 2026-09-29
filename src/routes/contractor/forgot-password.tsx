@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ArrowLeft, CheckCircle, EnvelopeSimple, Key } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { apiEnabled, authApi } from '@/lib/api'
 import { updateSupervisorPassword, useContractorDirectory } from '@/mocks/contractor-store'
 
@@ -120,11 +120,11 @@ function ContractorForgotPassword() {
               <form className="mt-6 space-y-4" onSubmit={resetPassword}>
                 <div>
                   <label htmlFor="fp-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
-                  <Input id="fp-new" type="password" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
+                  <PasswordInput id="fp-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
                 </div>
                 <div>
                   <label htmlFor="fp-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
-                  <Input id="fp-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
+                  <PasswordInput id="fp-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
                 </div>
                 {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
                 <Button type="submit" className="w-full">Save new password</Button>

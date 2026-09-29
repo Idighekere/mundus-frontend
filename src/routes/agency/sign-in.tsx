@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ArrowLeft, Bell, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { useSession } from '@/lib/session'
 import { apiEnabled } from '@/lib/api'
 
@@ -94,7 +94,7 @@ function AgencySignIn() {
             </div>
             <div>
               <label htmlFor="password" className="mb-1 block text-sm font-semibold text-ink">Password</label>
-              <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} />
+              <PasswordInput id="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} />
             </div>
             {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
             <Button type="submit" className="w-full">Sign in <CheckCircle size={18} /></Button>

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ArrowLeft, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/input'
 import { apiEnabled, authApi } from '@/lib/api'
 
 export const Route = createFileRoute('/contractor/reset-password')({
@@ -89,11 +89,11 @@ function ContractorResetPassword() {
               <form className="mt-6 space-y-4" onSubmit={submit}>
                 <div>
                   <label htmlFor="rp-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
-                  <Input id="rp-new" type="password" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
+                  <PasswordInput id="rp-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
                 </div>
                 <div>
                   <label htmlFor="rp-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
-                  <Input id="rp-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
+                  <PasswordInput id="rp-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
                 </div>
                 {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
                 <Button type="submit" disabled={saving} className="w-full">

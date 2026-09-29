@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Camera, MapPin, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
 import { apiEnabled } from '@/lib/api'
 import { useContractorDirectory, verifySupervisor } from '@/mocks/contractor-store'
@@ -118,9 +118,8 @@ function ContractorSignIn() {
                   Forgot password?
                 </Link>
               </div>
-              <Input
+              <PasswordInput
                 id="supervisor-password"
-                type="password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError('') }}

@@ -1,4 +1,6 @@
 import type { InputHTMLAttributes } from 'react'
+import { useState } from 'react'
+import { Eye, EyeSlash } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
@@ -10,5 +12,23 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
       )}
       {...props}
     />
+  )
+}
+
+export function PasswordInput({ className, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="relative">
+      <Input type={visible ? 'text' : 'password'} className={cn('pr-14', className)} {...props} />
+      <button
+        type="button"
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+        onClick={() => setVisible((v) => !v)}
+        className="absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-ink-soft hover:bg-cloud hover:text-ink"
+      >
+        {visible ? <EyeSlash size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
   )
 }

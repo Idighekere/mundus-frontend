@@ -14,7 +14,7 @@ import { ArrowDown, ArrowUp, ArrowsDownUp, CaretDown, FunnelSimple, MagnifyingGl
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -262,7 +262,7 @@ function ContractorsPage() {
       </div>
       <div>
         <label htmlFor="contractor-password" className="mb-1 block text-sm font-semibold text-ink">Temporary password</label>
-        <Input id="contractor-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+        <PasswordInput id="contractor-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
         <p className="mt-1 text-xs text-ink-soft">The supervisor signs in with these details and can change the password afterwards.</p>
       </div>
       {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{formError}</p> : null}

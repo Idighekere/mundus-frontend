@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { CheckCircle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
 import { usersApi } from '@/lib/api'
 import { updateSupervisorPassword, useContractorDirectory } from '@/mocks/contractor-store'
@@ -85,15 +85,15 @@ function ContractorAccount() {
         <form className="mt-3 space-y-3" onSubmit={save}>
           <div>
             <label htmlFor="pw-current" className="mb-1 block text-sm font-semibold text-ink">Current password</label>
-            <Input id="pw-current" type="password" autoComplete="current-password" value={current} onChange={(e) => { setCurrent(e.target.value); setError(''); setSaved(false) }} />
+            <PasswordInput id="pw-current" autoComplete="current-password" value={current} onChange={(e) => { setCurrent(e.target.value); setError(''); setSaved(false) }} />
           </div>
           <div>
             <label htmlFor="pw-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
-            <Input id="pw-new" type="password" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError(''); setSaved(false) }} />
+            <PasswordInput id="pw-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError(''); setSaved(false) }} />
           </div>
           <div>
             <label htmlFor="pw-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
-            <Input id="pw-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError(''); setSaved(false) }} />
+            <PasswordInput id="pw-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError(''); setSaved(false) }} />
           </div>
           {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
           {saved ? (
