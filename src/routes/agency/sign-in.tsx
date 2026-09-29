@@ -5,6 +5,7 @@ import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useSession } from '@/lib/session'
+import { apiEnabled } from '@/lib/api'
 
 // Unlisted staff-only route — never linked from public pages except the footer.
 export const Route = createFileRoute('/agency/sign-in')({
@@ -20,19 +21,27 @@ function AgencySignIn() {
 
   if (session) return <Navigate to="/agency/dashboard" />
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.includes('@')) {
       setError('Enter your agency email to continue.')
       return
     }
-    if (password.length < 4) {
+    if (!apiEnabled && password.length < 4) {
       setError('Password needs at least 4 characters.')
       return
     }
+    if (apiEnabled && !password) {
+      setError('Enter your password to continue.')
+      return
+    }
     setError('')
-    signIn(email)
-    navigate({ to: '/agency/dashboard' })
+    try {
+      await signIn(email, password)
+      navigate({ to: '/agency/dashboard' })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
+    }
   }
 
   return (

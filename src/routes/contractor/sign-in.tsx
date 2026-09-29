@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
+import { apiEnabled } from '@/lib/api'
 import { useContractorDirectory, verifySupervisor } from '@/mocks/contractor-store'
 
 export const Route = createFileRoute('/contractor/sign-in')({
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/contractor/sign-in')({
 })
 
 function ContractorSignIn() {
-  const { session, signIn } = useContractorSession()
+  const { session, signIn, signInLive } = useContractorSession()
   const directory = useContractorDirectory()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -20,10 +21,20 @@ function ContractorSignIn() {
 
   if (session) return <Navigate to="/contractor/sites" />
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password) {
       setError('Enter any email and password to continue the demo.')
+      return
+    }
+    if (apiEnabled) {
+      setError('')
+      try {
+        await signInLive(email, password)
+        navigate({ to: '/contractor/sites' })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
+      }
       return
     }
     // Demo mode: registered credentials sign in as that supervisor,

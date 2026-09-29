@@ -8,7 +8,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowsDownUp, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,8 @@ import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { contractorById, dumpPoints, type DumpPoint } from '@/mocks/data'
 import { latestReportForSite } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
+import { dashboardApi, hasLiveSession, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
+import { hasReporterFlag, mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agency/dashboard')({
@@ -29,6 +31,7 @@ interface Row extends DumpPoint {
   days: number
   status: ReturnType<typeof statusFor>
   contractorName: string
+  flagged: boolean
 }
 
 function DashboardPage() {
@@ -38,16 +41,54 @@ function DashboardPage() {
   const [overdueOnly, setOverdueOnly] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([{ id: 'days', desc: true }])
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
+  const [liveStats, setLiveStats] = useState<DashboardStatsDto | null>(null)
+  const [liveLoading, setLiveLoading] = useState(false)
+  const [liveError, setLiveError] = useState('')
   const navigate = useNavigate()
 
-  const rows: Row[] = useMemo(
-    () =>
-      dumpPoints.map((s) => {
-        const days = daysSince(s.lastClearanceIso)
-        return { ...s, days, status: statusFor(days), contractorName: contractorById(s.contractorId).name }
-      }),
-    [],
-  )
+  const loadLive = useCallback(async () => {
+    setLiveLoading(true)
+    setLiveError('')
+    try {
+      const [sites, stats] = await Promise.all([dashboardApi.sites(), dashboardApi.stats()])
+      setLiveSites(sites.sites)
+      setLiveStats(stats)
+    } catch (err) {
+      setLiveError(err instanceof Error ? err.message : 'Could not load dashboard.')
+    } finally {
+      setLiveLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (hasLiveSession()) void loadLive()
+  }, [loadLive])
+
+  const rows: Row[] = useMemo(() => {
+    if (liveSites) {
+      return liveSites.map((d) => {
+        const site = mapDumpPoint(d)
+        return {
+          ...site,
+          days: mapDaysSince(d, site.lastClearanceIso),
+          status: mapSiteStatus(d.status),
+          contractorName: d.assigned_contractor_name ?? (site.contractorId ? contractorById(site.contractorId).name : 'Unassigned'),
+          flagged: hasReporterFlag(d),
+        }
+      })
+    }
+    return dumpPoints.map((s) => {
+      const days = daysSince(s.lastClearanceIso)
+      return {
+        ...s,
+        days,
+        status: statusFor(days),
+        contractorName: contractorById(s.contractorId).name,
+        flagged: !!(s.reporterFlagIso || latestReportForSite(s.id)),
+      }
+    })
+  }, [liveSites])
 
   const filtered = useMemo(
     () =>
@@ -95,7 +136,7 @@ function DashboardPage() {
         cell: ({ row }) => (
           <span className="flex flex-wrap items-center gap-1">
             <StatusBadge status={row.original.status} />
-            {row.original.reporterFlagIso || latestReportForSite(row.original.id) ? <Badge variant="neutral">Reporter flag</Badge> : null}
+            {row.original.flagged ? <Badge variant="neutral">Reporter flag</Badge> : null}
           </span>
         ),
       },
@@ -126,8 +167,9 @@ function DashboardPage() {
   })
 
   const visible = table.getRowModel().rows
-  const overdueCount = rows.filter((r) => r.days > 7).length
-  const criticalCount = rows.filter((r) => r.status === 'critical').length
+  const total = liveStats?.total_sites ?? rows.length
+  const overdueCount = liveStats?.overdue_count ?? rows.filter((r) => r.days > 7).length
+  const criticalCount = liveStats?.critical_count ?? rows.filter((r) => r.status === 'critical').length
 
   return (
     <div>
@@ -136,7 +178,7 @@ function DashboardPage() {
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
-          { label: 'Dump points', value: String(rows.length) },
+          { label: 'Dump points', value: String(total) },
           { label: 'Overdue', value: String(overdueCount) },
           { label: 'Critical', value: String(criticalCount) },
         ].map((s) => (
@@ -211,7 +253,20 @@ function DashboardPage() {
         </Card>
       ) : null}
 
-      {visible.length === 0 ? (
+      {liveLoading && !liveSites ? (
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Loading live data…</p>
+          <p className="mt-1">Fetching the latest dump points from the server.</p>
+        </Card>
+      ) : liveError && !liveSites ? (
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Could not load dashboard</p>
+          <p className="mt-1">{liveError}</p>
+          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+            Retry
+          </Button>
+        </Card>
+      ) : visible.length === 0 ? (
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">No dump points match these filters</p>
           <p className="mt-1">Try widening the status or clearing the search.</p>
@@ -257,7 +312,7 @@ function DashboardPage() {
                     <TD>
                       <span className="flex flex-wrap gap-1">
                         <StatusBadge status={r.original.status} />
-                        {r.original.reporterFlagIso ? <Badge variant="neutral">Reporter flag</Badge> : null}
+                        {r.original.flagged ? <Badge variant="neutral">Reporter flag</Badge> : null}
                       </span>
                     </TD>
                     <TD className="text-ink-soft">{new Date(r.original.lastClearanceIso).toLocaleDateString()}</TD>
