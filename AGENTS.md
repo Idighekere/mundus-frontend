@@ -49,6 +49,7 @@ mundus-frontend/
 - Forms (add/edit dump point): shadcn `input/select` + inline validation, in `Dialog` (desktop) / `Sheet` (mobile).
 - States for every view: `Skeleton` loading, filter-empty, load-error with retry.
 - Touch targets ≥44px; mobile-first contractor screens.
+- The logo (`LogoMark` + wordmark) must always link to `/` (home) on every surface — never render it as plain text.
 
 ## Commands
 

@@ -56,7 +56,7 @@ function ContractorSignIn() {
       <div className="grain relative overflow-hidden bg-primary-deep text-white">
         <div aria-hidden="true" className="dot-grid-light absolute inset-0 [mask-image:radial-gradient(ellipse_70%_70%_at_30%_30%,black,transparent)]" />
         <div className="relative flex min-h-full flex-col p-6 md:p-10">
-          <p className="flex items-center gap-2 font-display text-xl tracking-wide"><LogoMark variant="mono" className="h-7 w-7" />MUNDUS</p>
+          <p className="flex items-center gap-2 font-display text-xl tracking-wide"><Link to="/" aria-label="Mundus home" className="flex items-center gap-2"><LogoMark variant="mono" className="h-7 w-7" />MUNDUS</Link></p>
           <div className="my-auto py-8">
             <p className="font-display text-sm uppercase tracking-[0.2em] text-[#ffa034]">Today's round</p>
             <p className="mt-2 max-w-sm leading-relaxed text-white/80 md:hidden">
