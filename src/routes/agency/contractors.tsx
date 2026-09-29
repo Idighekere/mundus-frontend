@@ -9,7 +9,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowsDownUp, CaretDown, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,8 +19,10 @@ import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import { dumpPoints } from '@/mocks/data'
+import { dumpPoints, type DumpPoint } from '@/mocks/data'
 import { addContractor, useContractorDirectory, type DirectoryContractor } from '@/mocks/contractor-store'
+import { contractorsApi, dumpPointsApi, hasLiveSession, type ContractorDto, type DumpPointDto } from '@/lib/api'
+import { mapDumpPoint } from '@/lib/backend-map'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { daysSince, statusFor, type SiteStatus } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
@@ -50,26 +52,70 @@ function ContractorsPage() {
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const directory = useContractorDirectory()
+  const mockDirectory = useContractorDirectory()
+  const [liveContractors, setLiveContractors] = useState<ContractorDto[] | null>(null)
+  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
+  const [liveLoading, setLiveLoading] = useState(false)
+  const [liveError, setLiveError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const live = hasLiveSession()
 
-  const allRows: Row[] = useMemo(
-    () =>
-      directory.map((c) => {
-        const sites = dumpPoints.filter((s) => s.contractorId === c.id)
-        const statuses = sites.map((s) => statusFor(daysSince(s.lastClearanceIso)))
-        const critical = statuses.filter((s) => s === 'critical').length
-        const overdue = statuses.filter((s) => s === 'overdue').length
-        return {
-          ...c,
-          siteCount: sites.length,
-          overdue,
-          critical,
-          onSchedule: sites.length - overdue - critical,
-          worst: critical > 0 ? 'critical' : overdue > 0 ? 'overdue' : 'on-schedule',
-        }
-      }),
-    [directory],
+  const loadLive = useCallback(async () => {
+    setLiveLoading(true)
+    setLiveError('')
+    try {
+      const [contractors, sites] = await Promise.all([contractorsApi.list(), dumpPointsApi.all()])
+      setLiveContractors(contractors)
+      setLiveSites(sites)
+    } catch (err) {
+      setLiveError(err instanceof Error ? err.message : 'Could not load contractors.')
+    } finally {
+      setLiveLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (live) void loadLive()
+  }, [live, loadLive])
+
+  const directory: DirectoryContractor[] = liveContractors
+    ? liveContractors.map((c) => ({ id: String(c.id), name: c.name, supervisor: c.supervisor_name, email: c.supervisor_email, password: '' }))
+    : mockDirectory
+  const allSites: DumpPoint[] = useMemo(
+    () => (liveSites ? liveSites.map(mapDumpPoint) : dumpPoints),
+    [liveSites],
   )
+
+  const allRows: Row[] = useMemo(() => {
+    if (liveContractors) {
+      return liveContractors.map((c) => ({
+        id: String(c.id),
+        name: c.name,
+        supervisor: c.supervisor_name,
+        email: c.supervisor_email,
+        password: '',
+        siteCount: c.site_count,
+        overdue: c.overdue,
+        critical: c.critical,
+        onSchedule: Math.max(0, c.site_count - c.overdue - c.critical),
+        worst: c.critical > 0 ? 'critical' : c.overdue > 0 ? 'overdue' : 'on-schedule',
+      }))
+    }
+    return mockDirectory.map((c) => {
+      const sites = allSites.filter((s) => s.contractorId === c.id)
+      const statuses = sites.map((s) => statusFor(daysSince(s.lastClearanceIso)))
+      const critical = statuses.filter((s) => s === 'critical').length
+      const overdue = statuses.filter((s) => s === 'overdue').length
+      return {
+        ...c,
+        siteCount: sites.length,
+        overdue,
+        critical,
+        onSchedule: sites.length - overdue - critical,
+        worst: critical > 0 ? 'critical' : overdue > 0 ? 'overdue' : 'on-schedule',
+      }
+    })
+  }, [mockDirectory, liveContractors, liveSites, allSites])
 
   const rows = useMemo(
     () =>
@@ -140,7 +186,7 @@ function ContractorsPage() {
   const visible = table.getRowModel().rows
   const totalSites = rows.reduce((n, r) => n + r.siteCount, 0)
 
-  const saveContractor = () => {
+  const saveContractor = async () => {
     if (name.trim().length < 2) {
       setFormError('Contractor name needs at least 2 characters.')
       return
@@ -165,13 +211,36 @@ function ContractorsPage() {
       setFormError('This email is already registered to another supervisor.')
       return
     }
-    addContractor(name, supervisor, email, password)
-    setName('')
-    setSupervisor('')
-    setEmail('')
-    setPassword('')
+    if (!live) {
+      addContractor(name, supervisor, email, password)
+      setName('')
+      setSupervisor('')
+      setEmail('')
+      setPassword('')
+      setFormError('')
+      setFormOpen(false)
+      return
+    }
+    setSaving(true)
     setFormError('')
-    setFormOpen(false)
+    try {
+      await contractorsApi.create({
+        name: name.trim(),
+        supervisor_name: supervisor.trim(),
+        supervisor_email: email.trim().toLowerCase(),
+        password,
+      })
+      await loadLive()
+      setName('')
+      setSupervisor('')
+      setEmail('')
+      setPassword('')
+      setFormOpen(false)
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Could not add the contractor.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const contractorForm = (
@@ -202,8 +271,10 @@ function ContractorsPage() {
 
   const contractorActions = (
     <div className="flex gap-2">
-      <Button onClick={saveContractor} className="flex-1">Add contractor</Button>
-      <Button variant="secondary" onClick={() => setFormOpen(false)}>Cancel</Button>
+      <Button onClick={() => void saveContractor()} disabled={saving} className="flex-1">
+        {saving ? 'Adding…' : 'Add contractor'}
+      </Button>
+      <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
     </div>
   )
 
@@ -219,7 +290,22 @@ function ContractorsPage() {
         </Button>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      {liveLoading && !liveContractors ? (
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Loading contractors…</p>
+          <p className="mt-1">Fetching the live directory from the server.</p>
+        </Card>
+      ) : liveError && !liveContractors ? (
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Could not load contractors</p>
+          <p className="mt-1">{liveError}</p>
+          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+            Retry
+          </Button>
+        </Card>
+      ) : (
+        <>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { label: 'Contractors', value: String(rows.length) },
           { label: 'Dump points', value: String(totalSites) },
@@ -305,7 +391,7 @@ function ContractorsPage() {
               </THead>
               <TBody>
                 {visible.map((r) => {
-                  const sites = dumpPoints.filter((s) => s.contractorId === r.original.id)
+                  const sites = allSites.filter((s) => s.contractorId === r.original.id)
                   return (
                     <Fragment key={r.id}>
                       <TR key={r.id} className="cursor-pointer" onClick={() => r.toggleExpanded()}>
@@ -352,7 +438,7 @@ function ContractorsPage() {
 
           <div className="mt-4 space-y-3 md:hidden">
             {visible.map((r) => {
-              const sites = dumpPoints.filter((s) => s.contractorId === r.original.id)
+              const sites = allSites.filter((s) => s.contractorId === r.original.id)
               const open = r.getIsExpanded()
               return (
                 <div key={r.id} className="rounded-2xl border border-hairline bg-paper p-4 shadow-[rgba(13,12,35,0.18)_0px_10px_30px_-22px]">
@@ -385,6 +471,9 @@ function ContractorsPage() {
               )
             })}
           </div>
+        </>
+      )}
+
         </>
       )}
 
