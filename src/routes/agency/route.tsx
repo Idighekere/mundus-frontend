@@ -78,7 +78,7 @@ function AgencyShell() {
 
   if (pathname === '/agency/sign-in' || pathname === '/agency/request-access') return <Outlet />
 
-  if (!session) return <Navigate to="/agency/sign-in" />
+  if (!session) return <Navigate to="/agency/sign-in" replace />
 
   const logout = () => {
     signOut()

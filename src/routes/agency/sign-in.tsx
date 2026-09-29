@@ -19,7 +19,7 @@ function AgencySignIn() {
   const { session, signIn } = useSession()
   const navigate = useNavigate()
 
-  if (session) return <Navigate to="/agency/dashboard" />
+  if (session) return <Navigate to="/agency/dashboard" replace />
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +38,7 @@ function AgencySignIn() {
     setError('')
     try {
       await signIn(email, password)
-      navigate({ to: '/agency/dashboard' })
+      navigate({ to: '/agency/dashboard', replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
     }

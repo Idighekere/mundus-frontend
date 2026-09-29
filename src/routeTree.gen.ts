@@ -24,7 +24,9 @@ import { Route as AgencyRequestAccessRouteImport } from './routes/agency/request
 import { Route as AgencySignInRouteImport } from './routes/agency/sign-in'
 import { Route as ContractorIndexRouteImport } from './routes/contractor/index'
 import { Route as ContractorAccountRouteImport } from './routes/contractor/account'
+import { Route as ContractorForgotPasswordRouteImport } from './routes/contractor/forgot-password'
 import { Route as ContractorHistoryRouteImport } from './routes/contractor/history'
+import { Route as ContractorResetPasswordRouteImport } from './routes/contractor/reset-password'
 import { Route as ContractorSignInRouteImport } from './routes/contractor/sign-in'
 import { Route as ContractorSitesRouteImport } from './routes/contractor/sites'
 import { Route as RTokenRouteImport } from './routes/r.$token'
@@ -107,9 +109,20 @@ const ContractorAccountRoute = ContractorAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => ContractorRouteRoute,
 } as any)
+const ContractorForgotPasswordRoute =
+  ContractorForgotPasswordRouteImport.update({
+    id: '/forgot-password',
+    path: '/forgot-password',
+    getParentRoute: () => ContractorRouteRoute,
+  } as any)
 const ContractorHistoryRoute = ContractorHistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => ContractorRouteRoute,
+} as any)
+const ContractorResetPasswordRoute = ContractorResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => ContractorRouteRoute,
 } as any)
 const ContractorSignInRoute = ContractorSignInRouteImport.update({
@@ -158,7 +171,9 @@ export interface FileRoutesByFullPath {
   '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
+  '/contractor/reset-password': typeof ContractorResetPasswordRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
   '/r/$token': typeof RTokenRoute
@@ -180,7 +195,9 @@ export interface FileRoutesByTo {
   '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
+  '/contractor/reset-password': typeof ContractorResetPasswordRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
   '/r/$token': typeof RTokenRoute
@@ -205,7 +222,9 @@ export interface FileRoutesById {
   '/agency/request-access': typeof AgencyRequestAccessRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
+  '/contractor/reset-password': typeof ContractorResetPasswordRoute
   '/contractor/sign-in': typeof ContractorSignInRoute
   '/contractor/sites': typeof ContractorSitesRouteWithChildren
   '/r/$token': typeof RTokenRoute
@@ -231,7 +250,9 @@ export interface FileRouteTypes {
     | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/forgot-password'
     | '/contractor/history'
+    | '/contractor/reset-password'
     | '/contractor/sign-in'
     | '/contractor/sites'
     | '/r/$token'
@@ -253,7 +274,9 @@ export interface FileRouteTypes {
     | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/forgot-password'
     | '/contractor/history'
+    | '/contractor/reset-password'
     | '/contractor/sign-in'
     | '/contractor/sites'
     | '/r/$token'
@@ -277,7 +300,9 @@ export interface FileRouteTypes {
     | '/agency/request-access'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/forgot-password'
     | '/contractor/history'
+    | '/contractor/reset-password'
     | '/contractor/sign-in'
     | '/contractor/sites'
     | '/r/$token'
@@ -402,11 +427,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractorAccountRouteImport
       parentRoute: typeof ContractorRouteRoute
     }
+    '/contractor/forgot-password': {
+      id: '/contractor/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/contractor/forgot-password'
+      preLoaderRoute: typeof ContractorForgotPasswordRouteImport
+      parentRoute: typeof ContractorRouteRoute
+    }
     '/contractor/history': {
       id: '/contractor/history'
       path: '/history'
       fullPath: '/contractor/history'
       preLoaderRoute: typeof ContractorHistoryRouteImport
+      parentRoute: typeof ContractorRouteRoute
+    }
+    '/contractor/reset-password': {
+      id: '/contractor/reset-password'
+      path: '/reset-password'
+      fullPath: '/contractor/reset-password'
+      preLoaderRoute: typeof ContractorResetPasswordRouteImport
       parentRoute: typeof ContractorRouteRoute
     }
     '/contractor/sign-in': {
@@ -511,7 +550,9 @@ const ContractorSitesRouteWithChildren = ContractorSitesRoute._addFileChildren(
 
 interface ContractorRouteRouteChildren {
   ContractorAccountRoute: typeof ContractorAccountRoute
+  ContractorForgotPasswordRoute: typeof ContractorForgotPasswordRoute
   ContractorHistoryRoute: typeof ContractorHistoryRoute
+  ContractorResetPasswordRoute: typeof ContractorResetPasswordRoute
   ContractorSignInRoute: typeof ContractorSignInRoute
   ContractorSitesRoute: typeof ContractorSitesRouteWithChildren
   ContractorIndexRoute: typeof ContractorIndexRoute
@@ -519,7 +560,9 @@ interface ContractorRouteRouteChildren {
 
 const ContractorRouteRouteChildren: ContractorRouteRouteChildren = {
   ContractorAccountRoute: ContractorAccountRoute,
+  ContractorForgotPasswordRoute: ContractorForgotPasswordRoute,
   ContractorHistoryRoute: ContractorHistoryRoute,
+  ContractorResetPasswordRoute: ContractorResetPasswordRoute,
   ContractorSignInRoute: ContractorSignInRoute,
   ContractorSitesRoute: ContractorSitesRouteWithChildren,
   ContractorIndexRoute: ContractorIndexRoute,

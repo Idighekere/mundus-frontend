@@ -249,13 +249,19 @@ async function request<T>(path: string, opts: RequestOptions = {}, retried = fal
 
 // ---- endpoints, grouped by resource ----
 
-/** POST /auth/* — login, registration, session. */
+/** POST /auth/* — login, registration, session, password reset. */
 export const authApi = {
   login: (email: string, password: string) =>
     request<TokenDto>('/auth/login', { method: 'POST', body: { email, password } }),
   register: (email: string, password: string, full_name?: string, role?: UserRole) =>
     request<TokenDto>('/auth/register', { method: 'POST', body: { email, password, full_name, role } }),
   me: () => request<UserDto>('/auth/me', { auth: true }),
+  /** Public — sends a reset link. Always resolves so emails can't be enumerated. */
+  forgotPassword: (email: string) =>
+    request<void>('/auth/forgot-password', { method: 'POST', body: { email } }),
+  /** Public — consumes an emailed reset token. */
+  resetPassword: (token: string, new_password: string) =>
+    request<void>('/auth/reset-password', { method: 'POST', body: { token, new_password } }),
 }
 
 /** PATCH /users/* — password management. */
