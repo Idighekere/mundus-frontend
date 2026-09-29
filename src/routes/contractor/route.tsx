@@ -37,7 +37,13 @@ function ContractorShell() {
     pathname === '/contractor/reset-password'
   )
     return <Outlet />
-  if (!session) return <Navigate to="/contractor/sign-in" replace />
+  if (!session) {
+    // Redirect only while inside this section. During a transition away
+    // (e.g. to "/") the shell can render once with the new pathname and no
+    // session — render nothing and let it unmount instead of bouncing back.
+    if (pathname.startsWith('/contractor')) return <Navigate to="/contractor/sign-in" replace />
+    return null
+  }
 
   const logout = () => {
     signOut()

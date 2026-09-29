@@ -78,7 +78,12 @@ function AgencyShell() {
 
   if (pathname === '/agency/sign-in' || pathname === '/agency/request-access') return <Outlet />
 
-  if (!session) return <Navigate to="/agency/sign-in" replace />
+  if (!session) {
+    // Same as contractor shell: only redirect inside this section; render
+    // nothing during a transition away so the navigation can complete.
+    if (pathname.startsWith('/agency')) return <Navigate to="/agency/sign-in" replace />
+    return null
+  }
 
   const logout = () => {
     signOut()

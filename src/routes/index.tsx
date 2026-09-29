@@ -403,7 +403,7 @@ function LandingPage() {
                 {CHAIN_STEPS.map((st, i) => (
                   <div
                     key={st.name}
-                    className="sticky border-t border-white/10 bg-primary-deep p-5 first:rounded-t-2xl first:border-t-0 last:rounded-b-2xl last:min-h-[70vh]"
+                    className="sticky border-t border-white/10 bg-primary-deep px-6 py-5 first:rounded-t-2xl first:border-t-0 last:rounded-b-2xl last:min-h-[46vh]"
                     style={{ top: `${84 + i * 14}px` }}
                   >
                     <div className="flex items-center gap-3">
