@@ -294,6 +294,32 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* ---------- infrastructure band ---------- */}
+        <section className="border-y border-hairline bg-canvas py-10 md:py-14">
+          <div className={cn(MAXW, 'text-center')}>
+            <Reveal>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                What runs Mundus
+              </p>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed">
+                Hosted on Pxxl. Every field action and failure traced with WatchUp —
+                the same verification discipline we ask of contractors.
+              </p>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="mt-6 flex items-center justify-center gap-8">
+                <a href="https://pxxl.app" target="_blank" rel="noreferrer noopener" aria-label="Pxxl">
+                  <img src="/logos/pxxl-app.avif" alt="Pxxl" className="h-6 w-auto opacity-80 transition-opacity hover:opacity-100" loading="lazy" />
+                </a>
+                <span aria-hidden="true" className="h-6 w-px bg-hairline" />
+                <a href="https://watchup.site" target="_blank" rel="noreferrer noopener" aria-label="WatchUp">
+                  <img src="/logos/watchup_logo.webp" alt="WatchUp" className="h-5 w-auto opacity-80 transition-opacity hover:opacity-100" loading="lazy" />
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* ---------- roles: Guild-style, one card per role ---------- */}
         <section className="bg-paper py-14 md:py-20 lg:py-28">
           <div className={MAXW}>
