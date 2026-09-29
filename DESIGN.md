@@ -32,9 +32,9 @@ colors:
   error: "#BE3B3B"
 
 typography:
-  display-xl: { fontFamily: "Fraunces (Recoleta stand-in)", fontSize: 68px, fontWeight: 600, lineHeight: 1.1 }
-  display-lg: { fontFamily: "Fraunces (Recoleta stand-in)", fontSize: 48px, fontWeight: 600, lineHeight: 1.2 }
-  display-md: { fontFamily: "Fraunces (Recoleta stand-in)", fontSize: 32px, fontWeight: 600, lineHeight: 1.25 }
+  display-xl: { fontFamily: "DM Sans", fontSize: 68px, fontWeight: 700, lineHeight: 1.1 }
+  display-lg: { fontFamily: "DM Sans", fontSize: 48px, fontWeight: 700, lineHeight: 1.2 }
+  display-md: { fontFamily: "DM Sans", fontSize: 32px, fontWeight: 700, lineHeight: 1.25 }
   body-lg: { fontFamily: "DM Sans", fontSize: 20px, fontWeight: 400, lineHeight: 1.5 }
   body-md: { fontFamily: "DM Sans", fontSize: 16px, fontWeight: 400, lineHeight: 1.6 }
   body-sm: { fontFamily: "DM Sans", fontSize: 14px, fontWeight: 400, lineHeight: 1.5 }
@@ -115,12 +115,12 @@ Implemented in `src/index.css`:
 
 - Brand (constant): `--color-primary: #0B3D2C`, `--color-primary-bright: #14573F`, `--color-primary-deep: #072A1F`, `--color-canvas: #F4F6F3`, `--color-paper: #fff`, `--color-cloud: #E3ECE4`, `--color-hairline: #DFE5DE`, `--color-ink: #06170F`, `--color-ink-soft: #2E3A34`
 - Status: `--color-success: #1D6F42`, `--color-success-surface: #E6F5EE`, `--color-warning: #C08014`, `--color-warning-surface: #FDF3C4`, `--color-error: #BE3B3B`
-- Fonts: `--font-display: Fraunces` (stand-in for Recoleta, which is a commercial font with no free web build), `--font-body/--font-action: DM Sans`
+- Fonts: `--font-display/--font-body/--font-action: DM Sans` (single typeface)
 - Radii: `--radius-sm/md/lg/xl/2xl: 4/8/14/24/24px`
 
 ## Rules (Tezera, Mundus-tinted)
 
-- Fraunces for `display-*` only; DM Sans for everything else. No exceptions.
+- DM Sans for everything, including `display-*`. No exceptions.
 - `{colors.primary}` for the single most important CTA per view; hover `{colors.primary-bright}` + `{shadows.soft-lift}`.
 - Status always via badge pairs (success/warning/error) — never raw color alone.
 - All surfaces from canvas/paper/cloud; all spacing from `{spacing.*}`; shadows only from `{shadows.*}`; `cursor: pointer` on every interactive element; 44px minimum touch targets.

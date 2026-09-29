@@ -5,7 +5,7 @@ Retired concepts 1–3 (globe, pin, M) were deleted.
 
 ## Files
 
-- `logo-horizontal.svg` — icon + `MUNDUS` wordmark (Fraunces 600, ink).
+- `logo-horizontal.svg` — icon + `MUNDUS` wordmark (DM Sans 700, ink).
 - `logo-icon.svg` — symbol only. Default UI mark.
 - `logo-mono-dark.svg` — single-color ink. Light-background print/docs.
 - `logo-mono-light.svg` — single-color white, knocked-out check.
@@ -15,7 +15,7 @@ Retired concepts 1–3 (globe, pin, M) were deleted.
 
 | Surface | Usage |
 |---|---|
-| Landing nav + footer (`routes/index.tsx`) | color mark + Fraunces text |
+| Landing nav + footer (`routes/index.tsx`) | color mark + DM Sans text |
 | Fallback shell (`routes/__root.tsx`) | color mark + text |
 | Agency sidebar dark (`routes/agency/route.tsx`) | mono mark + text |
 | Agency mobile header, paper (`routes/agency/route.tsx`) | color mark + text |
@@ -37,7 +37,7 @@ loop incenter (measured equal clearance all sides).
 
 ## Rules (from DESIGN.md)
 
-- Wordmark needs Fraunces loaded — true in-app via `public/fonts/`.
+- Wordmark uses DM Sans (loaded via Google Fonts in `src/index.css`).
 - Clear space = check height on all sides. Minimums: icon 16px,
   horizontal lockup 120px wide.
 - Never stretch, recolor, add shadows, or place on busy photos without

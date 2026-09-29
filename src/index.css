@@ -1,13 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
 @import 'tailwindcss';
-
-@font-face {
-  font-family: 'Recoleta';
-  src: url('/fonts/Recoleta-RegularDEMO.otf') format('opentype');
-  font-weight: 400 600;
-  font-style: normal;
-  font-display: swap;
-}
 
 @theme {
   /* Brand greens stay constant — everything else follows Tezera. */
@@ -31,8 +23,8 @@
   --color-warning-surface: #fdf3c4;
   --color-error: #be3b3b;
 
-  /* Tezera type duet: self-hosted Recoleta (dafont DEMO, regular only), Fraunces fallback. */
-  --font-display: 'Recoleta', 'Fraunces', Georgia, serif;
+  /* Single typeface: DM Sans for display, body, and actions. */
+  --font-display: 'DM Sans', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --font-action: 'DM Sans', sans-serif;
 
@@ -54,9 +46,6 @@
   h1, h2, h3 {
     font-family: var(--font-display);
     color: var(--color-ink);
-    /* Recoleta DEMO lacks ligature glyphs (fi/fl render as tofu) — disable them. */
-    font-variant-ligatures: none;
-    font-feature-settings: "liga" 0, "clig" 0;
   }
 
   button, a, [role='button'] {
@@ -64,11 +53,6 @@
   }
   input, textarea, select {
     cursor: text;
-  }
-
-  .font-display {
-    font-variant-ligatures: none;
-    font-feature-settings: "liga" 0, "clig" 0;
   }
 }
 
