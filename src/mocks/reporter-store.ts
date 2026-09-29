@@ -12,6 +12,8 @@ export interface Reporter {
   token: string | null
   reason?: string
   updatedAt: string
+  /** Live-backend share link (present when the token is masked for supervisors). */
+  whatsappLink?: string
 }
 
 export interface SiteReport {

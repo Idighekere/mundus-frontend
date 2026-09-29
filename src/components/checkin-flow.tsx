@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/misc'
 import { currentPosition, type GeoFix } from '@/lib/geocode'
 import { haversineMeters } from '@/lib/haversine'
 import { sha256Hex } from '@/lib/photo-hash'
+import { checkInsApi, mediaApi } from '@/lib/api'
 import { recordSubmission, useSubmissions, type Submission } from '@/mocks/contractor-store'
 import { contractorById, type DumpPoint } from '@/mocks/data'
 
@@ -34,12 +35,13 @@ function fmtDateTime(iso: string): string {
 }
 
 export function CheckinFlow({
-  type, site, supervisor, simulateGps, onDone,
+  type, site, supervisor, simulateGps, live, onDone,
 }: {
   type: 'before' | 'after'
   site: DumpPoint
   supervisor: string
   simulateGps: boolean
+  live?: boolean
   onDone: (next?: 'after' | 'sites') => void
 }) {
   const [stage, setStage] = useState<Stage>('primer')
@@ -132,6 +134,55 @@ export function CheckinFlow({
     }
   }
 
+  // Live upload: photo → media service → check-in record. The result is
+  // also stored locally so today's flow state and history keep working.
+  const uploadLive = async (shot: Shot) => {
+    const siteId = Number(site.id)
+    if (!Number.isFinite(siteId)) {
+      setStage('server-error')
+      return
+    }
+    try {
+      setProgress(96)
+      const blob = await (await fetch(shot.dataUrl)).blob()
+      const up = await mediaApi.uploadPhoto(blob, `${type}-${Date.now()}.jpg`)
+      const res = await checkInsApi.submit({
+        site_id: siteId,
+        type,
+        photo_url: up.photo_url,
+        photo_hash: up.photo_hash,
+        latitude: shot.lat,
+        longitude: shot.lng,
+        device_timestamp: shot.atIso,
+      })
+      const serverDistance = Math.round(res.distance_from_site_meters)
+      const isDuplicate = res.status === 'flagged'
+      const isOffTarget = res.status === 'location_mismatch' || serverDistance > 100
+      const entry = recordSubmission({
+        siteId: site.id,
+        supervisor,
+        type,
+        photo: shot.dataUrl,
+        lat: shot.lat, lng: shot.lng,
+        accuracyM: shot.accuracyM,
+        simulated: shot.simulated,
+        distanceM: serverDistance,
+        flagged: isDuplicate || isOffTarget,
+        flagReason: isDuplicate ? 'duplicate' : isOffTarget ? 'location' : undefined,
+        hash: up.photo_hash,
+      })
+      setProgress(100)
+      await new Promise((r) => setTimeout(r, 250))
+      stopStream()
+      setResult(entry)
+      if (isDuplicate) setStage('flagged-duplicate')
+      else if (isOffTarget) setStage('flagged-location')
+      else setStage(type === 'before' ? 'success-before' : 'success-complete')
+    } catch {
+      setStage('server-error')
+    }
+  }
+
   const upload = async () => {
     if (!shot) return
     setStage('uploading')
@@ -148,6 +199,10 @@ export function CheckinFlow({
         setProgress(p)
       }
       const hash = await sha256Hex(shot.dataUrl)
+      if (live) {
+        await uploadLive(shot)
+        return
+      }
       const duplicate = hash ? submissions.find((s) => s.hash === hash) : undefined
       const distanceM = Math.round(haversineMeters({ lat: site.lat, lng: site.lng }, { lat: shot.lat, lng: shot.lng }))
       const entry = recordSubmission({

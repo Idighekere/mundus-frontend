@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Camera, CheckCircle, Warning } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,8 @@ import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints } from '@/mocks/data'
 import { todaySubmissions } from '@/mocks/contractor-store'
 import { markSiteReportsSeen, useReporters, useReports } from '@/mocks/reporter-store'
+import { contractorsApi, type ContractorAlertDto, type DumpPointDto } from '@/lib/api'
+import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
@@ -21,34 +23,96 @@ export const Route = createFileRoute('/contractor/sites/$siteId')({
 function ContractorSiteDetail() {
   const { siteId } = Route.useParams()
   const { session } = useContractorSession()
+  const live = session?.live ?? false
+  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
+  const [liveAlerts, setLiveAlerts] = useState<ContractorAlertDto[] | null>(null)
+  const [liveError, setLiveError] = useState('')
   const navigate = useNavigate()
   const [capturing, setCapturing] = useState<'before' | 'after' | null>(null)
   const [simulateGps, setSimulateGps] = useState(true)
   const [tick, setTick] = useState(0)
 
-  const site = dumpPoints.find((s) => s.id === siteId)
+  const mockSite = dumpPoints.find((s) => s.id === siteId)
+  const liveDto = liveSites?.find((d) => String(d.id) === siteId)
+  const liveSite = liveDto ? mapDumpPoint(liveDto) : undefined
   const reporters = useReporters()
   const allReports = useReports()
 
-  useEffect(() => {
-    markSiteReportsSeen(siteId)
+  const loadField = useCallback(async () => {
+    try {
+      const sites = await contractorsApi.sites()
+      setLiveSites(sites)
+      setLiveError('')
+      let alerts = await contractorsApi.alerts()
+      if (alerts.some((a) => String(a.site_id) === siteId && !a.is_seen)) {
+        try {
+          await contractorsApi.markAlertSeen(Number(siteId))
+        } catch {
+          // Marking seen is best-effort — the banner still renders.
+        }
+        try {
+          alerts = await contractorsApi.alerts()
+        } catch {
+          // Keep the previous alerts.
+        }
+      }
+      setLiveAlerts(alerts)
+    } catch (err) {
+      setLiveError(err instanceof Error ? err.message : 'Could not load this site.')
+    }
   }, [siteId])
+
+  useEffect(() => {
+    if (!live) markSiteReportsSeen(siteId)
+  }, [live, siteId])
+
+  useEffect(() => {
+    if (live) void loadField()
+  }, [live, loadField])
   const visit = useMemo(
     () => (session ? todaySubmissions(siteId, session.supervisor) : { before: undefined, after: undefined }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [siteId, session?.supervisor, tick],
   )
 
-  if (!session || !site) return null
-  const days = daysSince(site.lastClearanceIso)
-  const status = statusFor(days)
-  const assigned = site.contractorId === session.contractorId
+  if (live && liveError && !liveSites) {
+    return (
+      <div className="mt-4">
+        <Card className="text-center">
+          <p className="font-display text-[28px] text-ink">Could not load this site</p>
+          <p className="mt-1 text-sm text-ink-soft">{liveError}</p>
+          <Button variant="secondary" onClick={() => void loadField()} className="mt-4 w-full">
+            Retry
+          </Button>
+        </Card>
+      </div>
+    )
+  }
+  if (live && !liveSites) {
+    return (
+      <div className="mt-4">
+        <Card className="text-center">
+          <p className="font-display text-[28px] text-ink">Loading site…</p>
+          <p className="mt-1 text-sm text-ink-soft">Fetching the latest from the server.</p>
+        </Card>
+      </div>
+    )
+  }
+  const resolvedSite = live ? liveSite : mockSite
+  if (!session || !resolvedSite) return null
+  const site = resolvedSite
+  const days = liveDto ? mapDaysSince(liveDto, resolvedSite.lastClearanceIso) : daysSince(resolvedSite.lastClearanceIso)
+  const status = liveDto ? mapSiteStatus(liveDto.status) : statusFor(days)
+  const assigned = resolvedSite.contractorId === session.contractorId
   const complete = !!(visit.before && visit.after)
   const flagged = visit.before?.flagged || visit.after?.flagged
   const siteReport = site
     ? allReports.filter((r) => r.siteId === site.id).sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))[0]
     : undefined
   const siteReporterName = reporters.find((r) => r.id === siteReport?.reporterId)?.name
+  const liveAlert = liveAlerts
+    ?.filter((a) => String(a.site_id) === site.id)
+    .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))[0]
 
   const flowDone = (next?: 'after' | 'sites') => {
     setTick((t) => t + 1)
@@ -65,6 +129,7 @@ function ContractorSiteDetail() {
           site={site}
           supervisor={session.supervisor}
           simulateGps={simulateGps}
+          live={live}
           onDone={flowDone}
         />
       </div>
@@ -117,7 +182,21 @@ function ContractorSiteDetail() {
             <SiteMiniMap name={site.name} lat={site.lat} lng={site.lng} />
           </div>
 
-          {siteReport ? (
+          {live ? (
+            liveAlert ? (
+              <div className="mt-3 flex gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-ink">
+                    {liveAlert.site_name ? `${liveAlert.site_name} reported full` : liveAlert.message}
+                  </p>
+                  <p className="text-xs text-ink-soft">
+                    {new Date(liveAlert.created_at).toLocaleString()}
+                  </p>
+                  <p className="mt-0.5 text-xs text-ink-soft">This is what the reporter saw — verify on your visit.</p>
+                </div>
+              </div>
+            ) : null
+          ) : siteReport ? (
             <div className="mt-3 flex gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
               {siteReport.photo ? (
                 <img src={siteReport.photo} alt="Reporter photo" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
@@ -179,7 +258,7 @@ function ContractorSiteDetail() {
             Photos must be taken with the in-app camera — gallery uploads are not allowed. Location locks at capture.
           </p>
 
-          <ReporterCard siteId={site.id} contractorId={session.contractorId} />
+          <ReporterCard siteId={site.id} contractorId={session.contractorId} siteName={site.name} live={live} />
         </>
       )}
 

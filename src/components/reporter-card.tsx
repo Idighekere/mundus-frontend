@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Check, Copy } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,9 @@ import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
 import {
   nominateReporter, reportersForSite, reporterMessage, reporterWhatsappUrl, useReporters,
+  type Reporter,
 } from '@/mocks/reporter-store'
+import { reportersApi, type ReporterDto } from '@/lib/api'
 import { siteById } from '@/mocks/data'
 
 const statusLabel: Record<string, string> = {
@@ -19,17 +21,73 @@ function elevenDigits(v: string): string {
   return v.replace(/\D/g, '').slice(0, 11)
 }
 
-export function ReporterCard({ siteId, contractorId }: { siteId: string; contractorId: string }) {
+export function ReporterCard({ siteId, contractorId, siteName: siteNameProp, live }: { siteId: string; contractorId: string; siteName?: string; live?: boolean }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [liveList, setLiveList] = useState<ReporterDto[] | null>(null)
   useReporters()
-  const list = reportersForSite(siteId)
-  const siteName = siteById(siteId)?.name ?? siteId
+  const siteName = siteNameProp ?? siteById(siteId)?.name ?? siteId
 
-  const nominate = () => {
+  const loadLive = useCallback(async () => {
+    try {
+      setLiveList(await reportersApi.list(Number(siteId)))
+    } catch {
+      // Keep the previous list — the nominate action surfaces errors.
+    }
+  }, [siteId])
+
+  useEffect(() => {
+    if (live) void loadLive()
+  }, [live, loadLive])
+
+  const list: Reporter[] = live && liveList
+    ? liveList.map((r) => ({
+      id: String(r.id),
+      name: r.name,
+      phone: r.phone,
+      siteId: String(r.site_id),
+      contractorId: r.contractor_id !== null && r.contractor_id !== undefined ? String(r.contractor_id) : '',
+      status: (r.status === 'approved' || r.status === 'rejected' || r.status === 'revoked' ? r.status : 'pending') as Reporter['status'],
+      token: r.token ?? null,
+      reason: r.rejection_reason ?? undefined,
+      updatedAt: r.updated_at,
+      whatsappLink: r.whatsapp_link ?? undefined,
+    }))
+    : reportersForSite(siteId)
+
+  const nominate = async () => {
+    if (live) {
+      const trimmed = name.trim()
+      const digits = phone.replace(/\D/g, '')
+      if (trimmed.length < 2) {
+        setError('Reporter name needs at least 2 characters.')
+        return
+      }
+      if (digits.length !== 11) {
+        setError('Phone number must be exactly 11 digits.')
+        return
+      }
+      try {
+        const cid = Number(contractorId)
+        await reportersApi.nominate({
+          site_id: Number(siteId),
+          contractor_id: Number.isFinite(cid) ? cid : undefined,
+          name: trimmed,
+          phone: digits,
+        })
+        setError('')
+        setName('')
+        setPhone('')
+        setDone(true)
+        await loadLive()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Nomination failed. Try again.')
+      }
+      return
+    }
     const res = nominateReporter({ name, phone, siteId, contractorId })
     if (!res.ok) {
       setError(res.error)
@@ -41,8 +99,7 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
     setDone(true)
   }
 
-  const copyMessage = async (reporterId: string, token: string) => {
-    const text = reporterMessage(siteName, token)
+  const copyText = async (reporterId: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text)
     } catch {
@@ -81,18 +138,25 @@ export function ReporterCard({ siteId, contractorId }: { siteId: string; contrac
                   Rejected{reporter.reason ? `: ${reporter.reason}` : ''}.
                 </p>
               ) : null}
-              {reporter.status === 'approved' && reporter.token ? (
+              {reporter.status === 'approved' && (reporter.token || reporter.whatsappLink) ? (
                 <div className="mt-2">
                   <p className="rounded-lg bg-paper px-2.5 py-2 font-mono text-[11px] leading-relaxed text-ink">
-                    {reporterMessage(siteName, reporter.token)}
+                    {reporter.token ? reporterMessage(siteName, reporter.token) : reporter.whatsappLink}
                   </p>
                   <div className="mt-2 flex gap-2">
-                    <Button variant="secondary" onClick={() => copyMessage(reporter.id, reporter.token as string)} className="flex-1">
+                    <Button
+                      variant="secondary"
+                      onClick={() => void copyText(
+                        reporter.id,
+                        reporter.token ? reporterMessage(siteName, reporter.token as string) : (reporter.whatsappLink ?? ''),
+                      )}
+                      className="flex-1"
+                    >
                       {copiedId === reporter.id ? <Check size={16} /> : <Copy size={16} />} {copiedId === reporter.id ? 'Copied' : 'Copy SMS'}
                     </Button>
                     <Button asChild className="flex-1 bg-[#1faa55] hover:bg-[#178a44]">
                       <a
-                        href={reporterWhatsappUrl(reporter.phone, siteName, reporter.token)}
+                        href={reporter.token ? reporterWhatsappUrl(reporter.phone, siteName, reporter.token) : (reporter.whatsappLink ?? '#')}
                         target="_blank"
                         rel="noreferrer"
                       >

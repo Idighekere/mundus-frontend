@@ -1,11 +1,14 @@
-import { createFileRoute, Link, Outlet, useMatch } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { createFileRoute, Link, Outlet, useMatch, useNavigate } from '@tanstack/react-router'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowRight, X } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints, siteById } from '@/mocks/data'
 import { markSiteReportsSeen, unseenReports, useReports } from '@/mocks/reporter-store'
+import { contractorsApi, type ContractorAlertDto, type DumpPointDto } from '@/lib/api'
+import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
@@ -16,31 +19,141 @@ export const Route = createFileRoute('/contractor/sites')({
 function ContractorHome() {
   const { session } = useContractorSession()
   const reportsState = useReports()
+  const navigate = useNavigate()
+  const live = session?.live ?? false
+  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
+  const [liveAlerts, setLiveAlerts] = useState<ContractorAlertDto[] | null>(null)
+  const [liveError, setLiveError] = useState('')
   // Site detail is a nested route — render it in place of the list.
   const siteMatch = useMatch({ from: '/contractor/sites/$siteId', shouldThrow: false })
 
-  const sites = useMemo(
-    () =>
-      dumpPoints
-        .filter((s) => s.contractorId === session?.contractorId)
-        .map((s) => {
-          const days = daysSince(s.lastClearanceIso)
-          return { ...s, days, status: statusFor(days) }
+  const loadField = useCallback(async () => {
+    try {
+      const [sites, alerts] = await Promise.all([contractorsApi.sites(), contractorsApi.alerts()])
+      setLiveSites(sites)
+      setLiveAlerts(alerts)
+      setLiveError('')
+    } catch (err) {
+      setLiveError(err instanceof Error ? err.message : 'Could not load your sites.')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (live) void loadField()
+  }, [live, loadField])
+
+  const sites = useMemo(() => {
+    if (liveSites) {
+      return liveSites
+        .map((d) => {
+          const s = mapDumpPoint(d)
+          const days = mapDaysSince(d, s.lastClearanceIso)
+          return { ...s, days, status: mapSiteStatus(d.status) }
         })
-        .sort((a, b) => b.days - a.days),
-    [session?.contractorId],
-  )
+        .sort((a, b) => b.days - a.days)
+    }
+    return dumpPoints
+      .filter((s) => s.contractorId === session?.contractorId)
+      .map((s) => {
+        const days = daysSince(s.lastClearanceIso)
+        return { ...s, days, status: statusFor(days) }
+      })
+      .sort((a, b) => b.days - a.days)
+  }, [session?.contractorId, liveSites])
 
   const overdue = sites.filter((s) => s.days > 7).length
-  const alerts = useMemo(
-    () => (session ? unseenReports(sites.map((s) => s.id)) : []),
+
+  interface AlertVM {
+    key: string
+    siteId: string
+    title: string
+    atIso: string
+    photo?: string
+  }
+
+  const alerts: AlertVM[] = useMemo(() => {
+    if (liveAlerts) {
+      return liveAlerts
+        .filter((a) => !a.is_seen)
+        .map((a) => ({
+          key: `alert-${a.id}`,
+          siteId: String(a.site_id),
+          title: a.site_name ? `${a.site_name} reported full` : a.message,
+          atIso: a.created_at,
+        }))
+    }
+    if (!session) return []
+    return unseenReports(sites.map((s) => s.id)).map((r) => ({
+      key: r.id,
+      siteId: r.siteId,
+      title: `${siteById(r.siteId)?.name ?? 'A site'} reported full`,
+      atIso: r.atIso,
+      photo: r.photo ?? undefined,
+    }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session?.contractorId, sites, reportsState],
-  )
+  }, [session?.contractorId, sites, reportsState, liveAlerts])
+
+  const refreshAlerts = useCallback(async () => {
+    try {
+      setLiveAlerts(await contractorsApi.alerts())
+    } catch {
+      // Keep the previous alerts.
+    }
+  }, [])
+
+  const openAlert = async (a: AlertVM) => {
+    if (live) {
+      try {
+        await contractorsApi.markAlertSeen(Number(a.siteId))
+      } catch {
+        // Best-effort — still navigate.
+      }
+      await refreshAlerts()
+    } else {
+      markSiteReportsSeen(a.siteId)
+    }
+    navigate({ to: '/contractor/sites/$siteId', params: { siteId: a.siteId } })
+  }
+
+  const dismissAlert = async (a: AlertVM) => {
+    if (live) {
+      try {
+        await contractorsApi.markAlertSeen(Number(a.siteId))
+      } catch {
+        // Best-effort.
+      }
+      await refreshAlerts()
+    } else {
+      markSiteReportsSeen(a.siteId)
+    }
+  }
 
   if (!session) return null
   // Site detail is a nested route — render it in place of the list.
   if (siteMatch) return <Outlet />
+  if (live && liveError && !liveSites) {
+    return (
+      <div className="mt-4">
+        <Card className="text-center">
+          <p className="font-display text-[28px] text-ink">Could not load your sites</p>
+          <p className="mt-1 text-sm text-ink-soft">{liveError}</p>
+          <Button variant="secondary" onClick={() => void loadField()} className="mt-4 w-full">
+            Retry
+          </Button>
+        </Card>
+      </div>
+    )
+  }
+  if (live && !liveSites) {
+    return (
+      <div className="mt-4">
+        <Card className="text-center">
+          <p className="font-display text-[28px] text-ink">Loading your sites…</p>
+          <p className="mt-1 text-sm text-ink-soft">Fetching your assigned dump points.</p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="mt-4">
@@ -63,24 +176,22 @@ function ContractorHome() {
       {alerts.length > 0 ? (
         <div className="mt-3 space-y-2" role="alert">
           {alerts.map((r) => (
-            <div key={r.id} className="flex items-center gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
+            <div key={r.key} className="flex items-center gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
               {r.photo ? (
                 <img src={r.photo} alt="Reported site" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
               ) : null}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-ink">{siteById(r.siteId)?.name} reported full</p>
+                <p className="truncate text-sm font-bold text-ink">{r.title}</p>
                 <p className="text-xs text-ink-soft">{new Date(r.atIso).toLocaleString()}</p>
               </div>
-              <Link
-                to="/contractor/sites/$siteId"
-                params={{ siteId: r.siteId }}
-                onClick={() => markSiteReportsSeen(r.siteId)}
-                className="inline-flex min-h-[44px] shrink-0 items-center rounded-xl bg-primary px-4 font-action text-sm font-medium text-white"
+              <button
+                onClick={() => void openAlert(r)}
+                className="inline-flex min-h-[44px] shrink-0 cursor-pointer items-center rounded-xl bg-primary px-4 font-action text-sm font-medium text-white"
               >
                 View
-              </Link>
+              </button>
               <button
-                onClick={() => markSiteReportsSeen(r.siteId)}
+                onClick={() => void dismissAlert(r)}
                 aria-label="Dismiss alert"
                 className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-white/50"
               >
