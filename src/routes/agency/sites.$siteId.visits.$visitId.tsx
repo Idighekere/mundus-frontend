@@ -1,9 +1,12 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Camera, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/misc'
 import { VisitStatusBadge } from '@/components/visit-status'
-import { contractorById, siteById, visitById, type VisitPhoto } from '@/mocks/data'
+import { contractorById, siteById, visitById, type Visit, type VisitPhoto } from '@/mocks/data'
+import { hasLiveSession } from '@/lib/api'
+import { fetchLiveSiteDetail, type LiveSiteDetail } from '@/lib/live-timeline'
 
 export const Route = createFileRoute('/agency/sites/$siteId/visits/$visitId')({
   component: VisitPage,
@@ -53,10 +56,33 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
 
 function VisitPage() {
   const { siteId, visitId } = Route.useParams()
-  const site = siteById(siteId)
-  const visit = visitById(siteId, visitId)
+  const numericId = Number(siteId)
+  const liveMode = hasLiveSession() && Number.isFinite(numericId)
+  const [liveDetail, setLiveDetail] = useState<LiveSiteDetail | null>(null)
+  const [liveError, setLiveError] = useState('')
+
+  useEffect(() => {
+    if (!liveMode) return
+    fetchLiveSiteDetail(numericId).then(
+      (d) => setLiveDetail(d),
+      (err) => setLiveError(err instanceof Error ? err.message : 'Could not load this visit.'),
+    )
+  }, [liveMode, numericId, siteId])
+
+  const site = liveMode ? liveDetail?.site : siteById(siteId)
+  const visit: Visit | undefined = liveMode
+    ? liveDetail?.timeline.find((v) => v.id === visitId)
+    : visitById(siteId, visitId)
+  if (liveMode && !liveDetail) {
+    return (
+      <div>
+        <p className="font-display text-4xl text-ink">{liveError ? 'Could not load this visit' : 'Loading visit…'}</p>
+        {liveError ? <p className="mt-1 text-ink-soft">{liveError}</p> : null}
+      </div>
+    )
+  }
   if (!site || !visit) throw notFound()
-  const contractor = contractorById(site.contractorId)
+  const contractorName = liveDetail ? liveDetail.contractorName : contractorById(site.contractorId).name
 
   const geofencePass = visit.before && visit.after
     ? visit.before.distanceM <= 100 && visit.after.distanceM <= 100
@@ -88,7 +114,7 @@ function VisitPage() {
       <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-canvas p-4 sm:grid-cols-3">
         <div><p className="text-xs uppercase tracking-wide text-ink-soft">Visit date</p><p className="font-semibold text-ink">{fmtDateTime(visit.dateIso)}</p></div>
         <div><p className="text-xs uppercase tracking-wide text-ink-soft">Supervisor</p><p className="font-semibold text-ink">{visit.supervisor}</p></div>
-        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{contractor.name}</p></div>
+        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{contractorName}</p></div>
       </div>
 
       {visit.status === 'reported-full' ? (

@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { SiteMiniMap } from '@/components/site-mini-map'
 import { VisitStatusBadge, photoCount, visitNodeColor } from '@/components/visit-status'
-import { contractorById, siteById, visitsForSite } from '@/mocks/data'
+import { contractorById, siteById, visitsForSite, type Visit } from '@/mocks/data'
 import { daysSince, statusFor } from '@/lib/overdue'
+import { hasLiveSession } from '@/lib/api'
+import { fetchLiveSiteDetail, type LiveSiteDetail } from '@/lib/live-timeline'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agency/sites/$siteId')({
@@ -19,11 +21,27 @@ const PAGE_SIZE = 3
 function SiteDetailPage() {
   const { siteId } = Route.useParams()
   const visitMatch = useMatch({ from: '/agency/sites/$siteId/visits/$visitId', shouldThrow: false })
-  const site = siteById(siteId)
+  const numericId = Number(siteId)
+  const liveMode = hasLiveSession() && Number.isFinite(numericId)
   const [page, setPage] = useState(0)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [liveDetail, setLiveDetail] = useState<LiveSiteDetail | null>(null)
+  const [liveLoading, setLiveLoading] = useState(false)
+  const [liveError, setLiveError] = useState('')
 
-  const timeline = site ? visitsForSite(site.id) : []
+  useEffect(() => {
+    if (!liveMode) return
+    setLiveLoading(true)
+    setLiveError('')
+    setLiveDetail(null)
+    fetchLiveSiteDetail(numericId).then(
+      (d) => { setLiveDetail(d); setLiveLoading(false) },
+      (err) => { setLiveError(err instanceof Error ? err.message : 'Could not load this site.'); setLiveLoading(false) },
+    )
+  }, [liveMode, numericId, siteId])
+
+  const site = liveMode ? liveDetail?.site : siteById(siteId)
+  const timeline: Visit[] = liveDetail ? liveDetail.timeline : site ? visitsForSite(site.id) : []
   const pageCount = Math.max(1, Math.ceil(timeline.length / PAGE_SIZE))
   const visible = timeline.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
 
@@ -31,15 +49,43 @@ function SiteDetailPage() {
     setPage(0)
     setExpanded(new Set(timeline.slice(0, 1).map((v) => v.id)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siteId])
+  }, [siteId, timeline.length])
 
-  if (!site) throw notFound()
-  // Visit comparison is a nested route — render it in place of the detail
-  // content so the URL change actually swaps the page.
   if (visitMatch) return <Outlet />
-  const days = daysSince(site.lastClearanceIso)
-  const status = statusFor(days)
-  const contractor = contractorById(site.contractorId)
+  if (liveMode && (liveLoading || !liveDetail)) {
+    return (
+      <div>
+        <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
+          <ArrowLeft size={16} /> Dashboard
+        </Link>
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Loading site…</p>
+          <p className="mt-1">Fetching the site profile and timeline.</p>
+        </Card>
+      </div>
+    )
+  }
+  if (liveMode && liveError) {
+    return (
+      <div>
+        <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
+          <ArrowLeft size={16} /> Dashboard
+        </Link>
+        <Card className="mt-4 text-center">
+          <p className="font-display text-[28px] text-ink">Could not load this site</p>
+          <p className="mt-1">{liveError}</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </Card>
+      </div>
+    )
+  }
+  if (!site) throw notFound()
+  const days = liveDetail ? liveDetail.days : daysSince(site.lastClearanceIso)
+  const status = liveDetail ? liveDetail.status : statusFor(days)
+  const contractorName = liveDetail ? liveDetail.contractorName : contractorById(site.contractorId).name
+  const intervalLabel = liveDetail ? `${liveDetail.intervalDays} days` : '7 days · red-flag 10'
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -80,7 +126,7 @@ function SiteDetailPage() {
             <div className="divide-y divide-hairline border-y border-hairline">
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-ink-soft">Contractor</span>
-                <span className="font-semibold text-ink">{contractor.name}</span>
+                <span className="font-semibold text-ink">{contractorName}</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-ink-soft">Supervisor</span>
@@ -88,7 +134,7 @@ function SiteDetailPage() {
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-ink-soft">Clearance interval</span>
-                <span className="font-semibold text-ink">7 days · red-flag 10</span>
+                <span className="font-semibold text-ink">{intervalLabel}</span>
               </div>
             </div>
           </Card>
