@@ -364,8 +364,8 @@ export const reportersApi = {
     request<ReporterDto>(`/reporters/${id}/revoke`, { method: 'POST', auth: true }),
   /** Public — resolves a personal reporter link. */
   resolveToken: (token: string) => request<PublicReporterSiteDto>(`/r/${token}`),
-  /** Public via reporter_token — includes the mandatory report photo. */
-  flag: (body: { site_id: number; reporter_token?: string; photo_url: string; note?: string }) =>
+  /** Public via reporter_token — includes the mandatory report photo once the backend accepts it. */
+  flag: (body: { site_id: number; reporter_token?: string; photo_url?: string; note?: string }) =>
     request<ReporterFlagDto>('/reporters/flag-site', { method: 'POST', body }),
   siteFlags: (siteId: number) => request<ReporterFlagDto[]>(`/reporters/site/${siteId}/flags`, { auth: true }),
 }

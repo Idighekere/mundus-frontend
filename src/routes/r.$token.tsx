@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { siteById } from '@/mocks/data'
 import { useContractorDirectory } from '@/mocks/contractor-store'
+import { ApiError, apiEnabled, reportersApi } from '@/lib/api'
+import { mapDumpPoint } from '@/lib/backend-map'
+import type { DumpPoint } from '@/mocks/data'
 import {
   latestReportForSite, reportGate, reportsForReporter, resolveToken, seedDemoReporters, submitSiteReport,
 } from '@/mocks/reporter-store'
@@ -102,13 +105,56 @@ function ReporterPage() {
   const [stage, setStage] = useState<'home' | 'photo' | 'confirm' | 'done'>('home')
   const [photo, setPhoto] = useState<string | null>(null)
   const [justReportedAt, setJustReportedAt] = useState<string | null>(null)
+  const [justPhoto, setJustPhoto] = useState<string | null>(null)
+  const [flagError, setFlagError] = useState('')
   const [tick, setTick] = useState(0)
   void tick
+  const live = apiEnabled
+  const [liveResolve, setLiveResolve] = useState<{
+    reporterName: string
+    site: DumpPoint
+    siteId: number
+    contractorName: string
+  } | null>(null)
+  const [liveLoading, setLiveLoading] = useState(false)
+  const [liveInvalid, setLiveInvalid] = useState(false)
 
-  const reporter = resolveToken(token)
+  useEffect(() => {
+    if (!live) return
+    setLiveLoading(true)
+    setLiveInvalid(false)
+    reportersApi.resolveToken(token).then(
+      (res) => {
+        const raw = res.reporter as { name?: unknown }
+        const siteDto = res.site
+        setLiveResolve({
+          reporterName: typeof raw.name === 'string' && raw.name ? raw.name : 'Reporter',
+          site: mapDumpPoint(siteDto),
+          siteId: siteDto.id,
+          contractorName: siteDto.assigned_contractor_name ?? 'Your contractor',
+        })
+        setLiveLoading(false)
+      },
+      () => {
+        setLiveInvalid(true)
+        setLiveLoading(false)
+      },
+    )
+  }, [live, token])
+
+  const reporter = live ? undefined : resolveToken(token)
   const directory = useContractorDirectory()
 
-  if (!reporter) {
+  if (live && liveLoading) {
+    return (
+      <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
+        <p className="font-display text-xl tracking-wide text-ink">MUNDUS</p>
+        <p className="mt-4 text-ink-soft">Checking your reporting link…</p>
+      </main>
+    )
+  }
+
+  if ((live && liveInvalid) || (!live && !reporter)) {
     const isDemoLink = token === 'demo-nwaniba-reporter-link'
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
@@ -133,7 +179,7 @@ function ReporterPage() {
     )
   }
 
-  const site = siteById(reporter.siteId)
+  const site = live ? liveResolve?.site : reporter ? siteById(reporter.siteId) : undefined
   if (!site) {
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
@@ -143,13 +189,42 @@ function ReporterPage() {
     )
   }
 
-  const gate = reportGate(site.id)
-  const last = latestReportForSite(site.id)
-  const mine = reportsForReporter(reporter.id)
-  const contractorName = directory.find((c) => c.id === reporter.contractorId)?.name ?? 'Your contractor'
+  const gate = live ? { open: true as const } : reportGate(site.id)
+  const last = live ? undefined : latestReportForSite(site.id)
+  const mine = live ? [] : reportsForReporter(reporter?.id ?? '')
+  const contractorName = live
+    ? (liveResolve?.contractorName ?? 'Your contractor')
+    : (directory.find((c) => c.id === reporter?.contractorId)?.name ?? 'Your contractor')
 
-  const submit = () => {
-    if (!photo) return
+  const submit = async () => {
+    if (live && liveResolve) {
+      if (!photo) return
+      setFlagError('')
+      const base = { site_id: liveResolve.siteId, reporter_token: token }
+      try {
+        // photo_url is not accepted by the backend yet — it is sent so
+        // the photo starts persisting with zero frontend changes once added.
+        await reportersApi.flag({ ...base, photo_url: photo })
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 422) {
+          try {
+            await reportersApi.flag(base)
+          } catch (fallbackErr) {
+            setFlagError(fallbackErr instanceof Error ? fallbackErr.message : 'Could not send the report.')
+            return
+          }
+        } else {
+          setFlagError(err instanceof Error ? err.message : 'Could not send the report.')
+          if (err instanceof ApiError && err.status === 429) setStage('home')
+          return
+        }
+      }
+      setJustReportedAt(new Date().toISOString())
+      setJustPhoto(photo)
+      setStage('done')
+      return
+    }
+    if (!reporter || !photo) return
     const res = submitSiteReport(site.id, reporter.id, photo)
     if (res.ok) {
       setJustReportedAt(new Date().toISOString())
@@ -164,7 +239,7 @@ function ReporterPage() {
   return (
     <main className="mx-auto w-full max-w-[640px] px-4 py-8 pb-16">
       <Link to="/" aria-label="Mundus home" className="flex items-center gap-2 font-display text-xl tracking-wide text-ink"><LogoMark className="h-7 w-7" />MUNDUS</Link>
-      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-ink-soft">Reporter access · {reporter.name}</p>
+      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-ink-soft">Reporter access · {live ? (liveResolve?.reporterName ?? 'Reporter') : (reporter?.name ?? 'Reporter')}</p>
 
       {stage === 'done' && justReportedAt ? (
         <Card className="mt-6 text-center">
@@ -173,6 +248,9 @@ function ReporterPage() {
           <p className="mt-1 text-sm text-ink-soft">
             Reported at {new Date(justReportedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
           </p>
+          {justPhoto ? (
+            <img src={justPhoto} alt="Submitted report photo" className="mt-3 aspect-[4/3] w-full rounded-xl object-cover" />
+          ) : null}
           <Button variant="secondary" onClick={() => { setStage('home'); setPhoto(null) }} className="mt-4 w-full">
             Done
           </Button>
@@ -218,6 +296,9 @@ function ReporterPage() {
             </div>
           )}
           <p className="mt-3 text-xs text-ink-soft">This link is personal to you and only works for {site.name}.</p>
+          {flagError ? (
+            <p role="alert" className="mt-3 rounded-xl bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{flagError}</p>
+          ) : null}
         </Card>
       )}
 

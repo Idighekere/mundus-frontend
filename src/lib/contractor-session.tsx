@@ -5,6 +5,7 @@ interface ContractorSession {
   supervisor: string
   contractorId: string
   contractorName: string
+  email?: string
   live: boolean
 }
 
@@ -58,7 +59,7 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
           } catch {
             // Directory lookup is best-effort — login already succeeded.
           }
-          const next = { supervisor: name, contractorId, contractorName, live: true }
+          const next = { supervisor: name, contractorId, contractorName, email: email.trim().toLowerCase(), live: true }
           localStorage.setItem(KEY, JSON.stringify(next))
           setSession(next)
         },

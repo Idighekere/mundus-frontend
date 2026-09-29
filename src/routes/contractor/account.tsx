@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
+import { usersApi } from '@/lib/api'
 import { updateSupervisorPassword, useContractorDirectory } from '@/mocks/contractor-store'
 
 export const Route = createFileRoute('/contractor/account')({
@@ -21,10 +22,36 @@ function ContractorAccount() {
   const [saved, setSaved] = useState(false)
 
   if (!session) return null
+  const live = session.live
   const entry = directory.find((c) => c.id === session.contractorId)
 
-  const save = (e: React.FormEvent) => {
+  const save = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (live) {
+      if (!current) {
+        setError('Enter your current password.')
+        return
+      }
+      if (next.length < 6) {
+        setError('New password needs at least 6 characters.')
+        return
+      }
+      if (next !== confirm) {
+        setError('New passwords do not match.')
+        return
+      }
+      try {
+        await usersApi.changePassword(current, next)
+        setCurrent('')
+        setNext('')
+        setConfirm('')
+        setError('')
+        setSaved(true)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not update the password.')
+      }
+      return
+    }
     if (!entry || current !== entry.password) {
       setError('Current password is incorrect.')
       return
@@ -50,7 +77,7 @@ function ContractorAccount() {
       <Card>
         <p className="text-sm text-ink-soft">{session.contractorName}</p>
         <p className="text-lg font-semibold text-ink">{session.supervisor}</p>
-        <p className="text-sm text-ink-soft">{entry?.email}</p>
+        <p className="text-sm text-ink-soft">{entry?.email ?? session.email ?? ''}</p>
       </Card>
 
       <Card>

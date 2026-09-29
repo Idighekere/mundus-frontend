@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints, siteById } from '@/mocks/data'
 import { useSubmissions, type Submission } from '@/mocks/contractor-store'
+import { contractorsApi, type CheckInDto, type DumpPointDto, type SubmissionPairDto } from '@/lib/api'
+import { mapDumpPoint } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/contractor/history')({
@@ -52,20 +55,88 @@ function dayLabel(day: string): string {
 
 type StatusFilter = 'all' | 'complete' | 'pending' | 'flagged'
 
+function pairToSubmissions(pair: SubmissionPairDto, supervisor: string): Submission[] {
+  const out: Submission[] = []
+  const push = (c: CheckInDto | null | undefined) => {
+    if (!c) return
+    out.push({
+      id: `srv-${c.id}`,
+      siteId: String(pair.site_id),
+      supervisor,
+      type: c.type,
+      photo: c.photo_url,
+      lat: c.latitude,
+      lng: c.longitude,
+      accuracyM: null,
+      simulated: false,
+      distanceM: Math.round(c.distance_from_site_meters),
+      flagged: c.status !== 'valid',
+      flagReason: c.status === 'flagged' ? 'duplicate' : c.status === 'location_mismatch' ? 'location' : undefined,
+      hash: c.photo_hash,
+      atIso: c.server_timestamp,
+    })
+  }
+  push(pair.before)
+  push(pair.after)
+  return out
+}
+
 function ContractorHistory() {
   const { session } = useContractorSession()
-  const all = useSubmissions()
+  const mockAll = useSubmissions()
   const [search, setSearch] = useState('')
   const [site, setSite] = useState('all')
   const [status, setStatus] = useState<StatusFilter>('all')
+  const live = session?.live ?? false
+  const [livePairs, setLivePairs] = useState<SubmissionPairDto[] | null>(null)
+  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
+  const [liveLoading, setLiveLoading] = useState(false)
+  const [liveError, setLiveError] = useState('')
+
+  const loadHistory = useCallback(async () => {
+    setLiveLoading(true)
+    setLiveError('')
+    try {
+      const [pairs, sites] = await Promise.all([contractorsApi.submissions(), contractorsApi.sites()])
+      setLivePairs(pairs)
+      setLiveSites(sites)
+    } catch (err) {
+      setLiveError(err instanceof Error ? err.message : 'Could not load submissions.')
+    } finally {
+      setLiveLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (live) void loadHistory()
+  }, [live, loadHistory])
+
+  const all = useMemo<Submission[]>(() => {
+    if (livePairs && session) return livePairs.flatMap((p) => pairToSubmissions(p, session.supervisor))
+    return mockAll.filter((s) => s.supervisor === session?.supervisor)
+  }, [livePairs, mockAll, session])
+
+  const siteNameOf = (siteId: string): string => {
+    if (liveSites) {
+      const found = liveSites.find((s) => String(s.id) === siteId)
+      if (found) return mapDumpPoint(found).name
+    }
+    return siteById(siteId)?.name ?? siteId
+  }
 
   const mySites = useMemo(
-    () => dumpPoints.filter((s) => s.contractorId === session?.contractorId),
-    [session?.contractorId],
+    () => {
+      if (liveSites) return liveSites.map((d) => {
+        const s = mapDumpPoint(d)
+        return { id: s.id, name: s.name }
+      })
+      return dumpPoints.filter((s) => s.contractorId === session?.contractorId)
+    },
+    [session?.contractorId, liveSites],
   )
 
   const visits = useMemo(() => {
-    const grouped = groupVisits(all.filter((s) => s.supervisor === session?.supervisor))
+    const grouped = groupVisits(all)
     return grouped.filter((v) => {
       if (site !== 'all' && v.siteId !== site) return false
       const complete = !!(v.before && v.after)
@@ -74,10 +145,11 @@ function ContractorHistory() {
       if (status === 'pending' && complete) return false
       if (status === 'flagged' && !flagged) return false
       const q = search.toLowerCase().trim()
-      if (q && !(siteById(v.siteId)?.name ?? '').toLowerCase().includes(q)) return false
+      if (q && !siteNameOf(v.siteId).toLowerCase().includes(q)) return false
       return true
     })
-  }, [all, session?.supervisor, site, status, search])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all, site, status, search, liveSites])
 
   const days = useMemo(() => {
     const map = new Map<string, Visit[]>()
@@ -129,7 +201,20 @@ function ContractorHistory() {
         </div>
       </div>
 
-      {visits.length === 0 ? (
+      {liveLoading && !livePairs ? (
+        <Card className="mt-3 text-center">
+          <p className="text-lg text-ink">Loading submissions…</p>
+          <p className="mt-1 text-sm text-ink-soft">Fetching your history from the server.</p>
+        </Card>
+      ) : liveError && !livePairs ? (
+        <Card className="mt-3 text-center">
+          <p className="text-lg text-ink">Could not load submissions</p>
+          <p className="mt-1 text-sm text-ink-soft">{liveError}</p>
+          <Button variant="secondary" onClick={() => void loadHistory()} className="mt-3">
+            Retry
+          </Button>
+        </Card>
+      ) : visits.length === 0 ? (
         <Card className="mt-3 text-center">
           <p className="text-lg text-ink">{all.length === 0 ? 'Nothing logged yet' : 'No visits match these filters'}</p>
           <p className="mt-1 text-sm text-ink-soft">
@@ -165,7 +250,7 @@ function ContractorHistory() {
                         )}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-semibold text-ink">{siteById(v.siteId)?.name ?? v.siteId}</span>
+                        <span className="block truncate font-semibold text-ink">{siteNameOf(v.siteId)}</span>
                         <span className="mt-0.5 block text-xs text-ink-soft">
                           {v.before ? new Date(v.before.atIso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}
                           {v.after ? ` → ${new Date(v.after.atIso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : ' · after pending'}
