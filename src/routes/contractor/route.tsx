@@ -31,7 +31,12 @@ function ContractorShell() {
   const { session, signOut } = useContractorSession()
   const navigate = useNavigate()
 
-  if (pathname === '/contractor/sign-in') return <Outlet />
+  if (
+    pathname === '/contractor/sign-in' ||
+    pathname === '/contractor/forgot-password' ||
+    pathname === '/contractor/reset-password'
+  )
+    return <Outlet />
   if (!session) return <Navigate to="/contractor/sign-in" replace />
 
   const logout = () => {
