@@ -308,8 +308,8 @@ function LandingPage() {
             </Reveal>
             <Reveal delay={80}>
               <div className="mt-6 flex items-center justify-center gap-8">
-                <a href="https://pxxl.app" target="_blank" rel="noreferrer noopener" aria-label="Pxxl">
-                  <img src="/logos/pxxl-app.avif" alt="Pxxl" className="h-6 w-auto opacity-80 transition-opacity hover:opacity-100" loading="lazy" />
+                <a href="https://pxxl.app" target="_blank" rel="noreferrer noopener" aria-label="Pxxl" className="rounded-full bg-ink px-4 py-2 transition-opacity hover:opacity-90">
+                  <img src="/logos/pxxl-app.avif" alt="Pxxl" className="h-6 w-auto" loading="lazy" />
                 </a>
                 <span aria-hidden="true" className="h-6 w-px bg-hairline" />
                 <a href="https://watchup.site" target="_blank" rel="noreferrer noopener" aria-label="WatchUp">
