@@ -17,6 +17,8 @@ export interface UserDto {
   full_name?: string | null
   role: UserRole
   is_active: boolean
+  /** Agency admins can invite and deactivate staff. Absent = non-admin. */
+  is_admin?: boolean | null
   created_at: string
 }
 
@@ -274,10 +276,20 @@ export const usersApi = {
     }),
 }
 
-/** POST /agency/* — access requests (public). */
-export const agencyApi = {
-  requestAccess: (full_name: string, email: string) =>
-    request<{ id: number }>('/agency/request-access', { method: 'POST', body: { full_name, email } }),
+/** /agency/staff/* — staff management (agency admin JWT).
+ *
+ * Backend contract: the invite endpoint creates the user, generates a
+ * temporary password, and emails the login details. The plaintext password
+ * never appears in any response.
+ */
+export const staffApi = {
+  list: () => request<UserDto[]>('/agency/staff', { auth: true }),
+  invite: (body: { full_name: string; email: string; make_admin: boolean }) =>
+    request<UserDto>('/agency/staff/invite', { method: 'POST', body, auth: true }),
+  deactivate: (id: number) =>
+    request<UserDto>(`/agency/staff/${id}/deactivate`, { method: 'PATCH', auth: true }),
+  reactivate: (id: number) =>
+    request<UserDto>(`/agency/staff/${id}/reactivate`, { method: 'PATCH', auth: true }),
 }
 
 /** GET /dashboard/* — agency overview (agency JWT). */
