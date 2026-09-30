@@ -100,8 +100,13 @@ function AgencySignIn() {
             <Button type="submit" className="w-full">Sign in <CheckCircle size={18} /></Button>
           </form>
           <p className="mt-4 text-center text-sm">
-            New to the agency? <Link to="/agency/request-access" className="font-semibold text-primary hover:underline">Request access</Link>
+            New to the agency? Ask your agency admin for an account.
           </p>
+          {!apiEnabled ? (
+            <p className="mt-3 rounded-xl bg-canvas px-3 py-2 text-center font-mono text-xs text-ink-soft">
+              Demo admin — admin@aksepwma.gov / admin123
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
