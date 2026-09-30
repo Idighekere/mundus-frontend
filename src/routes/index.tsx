@@ -191,7 +191,7 @@ function LandingPage() {
               <Link to="/agency/sign-in">Sign in</Link>
             </Button>
             <Button asChild className="hidden min-h-[40px] py-2 md:inline-flex">
-              <Link to="/agency/request-access">Agency access</Link>
+              <Link to="/agency/sign-in">Agency sign in</Link>
             </Button>
             <button
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -217,7 +217,7 @@ function LandingPage() {
             ))}
             <div className="mt-1 grid grid-cols-2 gap-2 border-t border-hairline p-2">
               <Button asChild variant="secondary"><Link to="/agency/sign-in">Sign in</Link></Button>
-              <Button asChild><Link to="/agency/request-access">Agency access</Link></Button>
+              <Button asChild><Link to="/agency/sign-in">Agency sign in</Link></Button>
             </div>
           </div>
         ) : null}
@@ -610,7 +610,7 @@ function LandingPage() {
               <h2 className="mt-3 font-display text-4xl leading-tight text-white md:text-[48px]">Every claim, checked.</h2>
               <div className="mt-8">
                 <Button asChild className="bg-white text-primary hover:bg-cloud">
-                  <Link to="/agency/request-access">Request agency access <ArrowRight size={18} /></Link>
+                  <Link to="/agency/sign-in">Agency sign in <ArrowRight size={18} /></Link>
                 </Button>
               </div>
             </div>
