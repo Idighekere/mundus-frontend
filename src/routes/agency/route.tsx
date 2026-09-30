@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Bell, Buildings, CaretDoubleLeft, CaretDoubleRight, ListChecks, MagnifyingGlass, Megaphone, SignOut, SquaresFour, X } from '@phosphor-icons/react'
+import { Bell, Buildings, CaretDoubleLeft, CaretDoubleRight, ListChecks, MagnifyingGlass, Megaphone, SignOut, SquaresFour, Users, X } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { GlobalSearch } from '@/components/global-search'
 import {
@@ -76,7 +76,7 @@ function AgencyShell() {
     }
   }, [collapsed])
 
-  if (pathname === '/agency/sign-in' || pathname === '/agency/request-access') return <Outlet />
+  if (pathname === '/agency/sign-in') return <Outlet />
 
   if (!session) {
     // Same as contractor shell: only redirect inside this section; render
@@ -89,6 +89,11 @@ function AgencyShell() {
     signOut()
     navigate({ to: '/' })
   }
+
+  // Staff management is admin-only; the sidebar and mobile bar stay identical for everyone else.
+  const visibleLinks = session.isAdmin
+    ? [...links, { to: '/agency/staff' as const, label: 'Staff', icon: Users }]
+    : links
 
   return (
     <div className="min-h-screen bg-canvas font-body text-ink-soft">
@@ -121,7 +126,7 @@ function AgencyShell() {
           </button>
         ) : null}
         <nav className="flex-1 space-y-1 px-3">
-          {links.map((l) => (
+          {visibleLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}
@@ -206,6 +211,11 @@ function AgencyShell() {
                     <p className="truncate text-xs text-ink-soft">{session.email}</p>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  {session.isAdmin ? (
+                    <DropdownMenuItem onSelect={() => navigate({ to: '/agency/staff' })}>
+                      <Users size={18} /> Manage staff
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuItem onSelect={logout}>
                     <SignOut size={18} /> Log out
                   </DropdownMenuItem>
@@ -226,8 +236,8 @@ function AgencyShell() {
 
         {/* Mobile bottom bar — docked, rounded top corners */}
         <nav className="fixed inset-x-0 bottom-0 z-40 overflow-hidden border-t border-hairline bg-paper px-2 pb-[env(safe-area-inset-bottom)] pt-2 [border-radius:24px_24px_0_0] md:hidden">
-          <div className="grid grid-cols-4 gap-1">
-            {links.map((l) => {
+          <div className={cn('grid gap-1', visibleLinks.length > 4 ? 'grid-cols-5' : 'grid-cols-4')}>
+            {visibleLinks.map((l) => {
               const active = pathname.startsWith(l.to)
               return (
                 <Link
