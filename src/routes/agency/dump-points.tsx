@@ -104,8 +104,7 @@ function ManageDumpPointsPage() {
     const next: typeof errors = {}
     if (form.name.trim().length < 3) next.name = 'Site name needs at least 3 characters.'
     if (!form.contractorId) next.contractorId = 'Choose a contractor.'
-    if (!Number.isFinite(latNum) || latNum < -90 || latNum > 90) next.lat = 'Latitude must be between -90 and 90.'
-    if (!Number.isFinite(lngNum) || lngNum < -180 || lngNum > 180) next.lng = 'Longitude must be between -180 and 180.'
+    if (!validCoords) next.lat = 'Pin the location on the map or search for it above.'
     setErrors(next)
     if (Object.keys(next).length > 0) return
     if (!live) {
@@ -190,19 +189,7 @@ function ManageDumpPointsPage() {
           Supervisor: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.supervisor ?? '—'}</span>
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label htmlFor="site-lat" className="mb-1 block text-sm font-semibold text-ink">Latitude</label>
-          <Input id="site-lat" inputMode="decimal" value={form.lat} onChange={(e) => setForm({ ...form, lat: e.target.value })} placeholder="5.0450" />
-          {errors.lat ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.lat}</p> : null}
-        </div>
-        <div>
-          <label htmlFor="site-lng" className="mb-1 block text-sm font-semibold text-ink">Longitude</label>
-          <Input id="site-lng" inputMode="decimal" value={form.lng} onChange={(e) => setForm({ ...form, lng: e.target.value })} placeholder="7.9620" />
-          {errors.lng ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.lng}</p> : null}
-        </div>
-      </div>
-
+      <span className="mb-1 block text-sm font-semibold text-ink">Location</span>
       <PlaceSearch
         onPick={(pos) => { setLocateError(''); setForm((f) => ({ ...f, lat: String(pos.lat), lng: String(pos.lng) })) }}
       />
@@ -213,6 +200,7 @@ function ManageDumpPointsPage() {
         onChange={(pos) => { setLocateError(''); setForm((f) => ({ ...f, lat: String(pos.lat), lng: String(pos.lng) })) }}
         onLocateError={setLocateError}
       />
+      {errors.lat ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{errors.lat}</p> : null}
       {locateError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{locateError}</p> : null}
       {address ? (
         <p className="flex items-start gap-2 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
@@ -253,13 +241,12 @@ function ManageDumpPointsPage() {
         <>
           <div className="mt-4 hidden md:block">
             <Table>
-              <THead><TR className="hover:bg-transparent"><TH>Site name</TH><TH>Contractor</TH><TH>Coordinates</TH><TH>Actions</TH></TR></THead>
+              <THead><TR className="hover:bg-transparent"><TH>Site name</TH><TH>Contractor</TH><TH>Actions</TH></TR></THead>
               <TBody>
                 {displaySites.map((s) => (
                   <TR key={s.id}>
                     <TD className="font-semibold">{s.name}</TD>
                     <TD className="text-ink-soft">{directory.find((c) => c.id === s.contractorId)?.name ?? 'Unassigned'}</TD>
-                    <TD className="text-ink-soft">{s.lat.toFixed(4)}, {s.lng.toFixed(4)}</TD>
                     <TD>
                       <div className="flex gap-2">
                         <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimple size={16} /> Edit</Button>
