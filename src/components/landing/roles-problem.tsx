@@ -81,14 +81,12 @@ export function Problem() {
             <div className="space-y-4 leading-relaxed">
               <p>
                 The government pays for waste evacuation across Akwa Ibom's dump points. But there's
-                no way to confirm the work actually happened — collection is described as "occasional,"
-                and failures are only discovered after they've already caused damage.
+                no way to confirm the work actually happened — collection is "occasional," and failures
+                surface only after they've caused damage.
               </p>
               <p>
-                Organized estates get scheduled door-to-door pickup. Everywhere else, fixed dump points
-                are evacuated whenever assigned contractors get to them. The agency's own stated standard
-                is daily evacuation. Reality is undefined and unverified — failures surface by chance
-                inspection, not by any system.
+                The standard is daily evacuation. The reality is undefined and unverified — caught by
+                chance inspection, not by any system.
               </p>
             </div>
           </Reveal>

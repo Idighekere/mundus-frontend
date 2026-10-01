@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { CheckCircle, ShieldCheck, Tray, Truck } from '@phosphor-icons/react'
 import { CHAIN_STEPS, Eyebrow, MAXW, Reveal } from './shared'
 
 export function HowItWorks() {
@@ -134,51 +133,36 @@ export function HowItWorks() {
   )
 }
 
-const WHY_ITEMS = [
-  {
-    icon: Tray,
-    title: 'Invisible work, visible record',
-    body: 'Turns invisible, occasional evacuation into a visible, dated record the agency can plan around.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Protection for good contractors',
-    body: 'Gives contractors evidence protecting them from unfair blame when a site they cleared fills again.',
-  },
-  {
-    icon: Truck,
-    title: 'Data the agency has no other way to see',
-    body: 'Operational data — clearance dates, overdue streaks, flag history — the agency currently has no way to see.',
-  },
-  {
-    icon: CheckCircle,
-    title: 'Runs on its own schedule',
-    body: "Works with zero citizen participation required — it doesn't ask residents to discover what they already know.",
-  },
+const WHY_ITEMS: [string, string, string, string][] = [
+  ['01', 'Invisible work, visible record', 'Turns invisible, occasional evacuation into a visible, dated record the agency can plan around.', 'dated record · not claims'],
+  ['02', 'Protection for good contractors', 'Gives contractors evidence protecting them from unfair blame when a site they cleared fills again.', 'proof against unfair blame'],
+  ['03', 'Data the agency has no other way to see', 'Clearance dates, overdue streaks, flag history — operational data the agency currently has no way to see.', 'seen nowhere else today'],
+  ['04', 'Runs on its own schedule', "Works with zero citizen participation required — it doesn't ask residents to discover what they already know.", 'zero citizen input needed'],
 ]
 
 export function WhyItMatters() {
   return (
     <section className="py-14 md:py-20 lg:py-28">
       <div className={MAXW}>
-        <Reveal className="mx-auto max-w-2xl text-center">
+        <Reveal className="max-w-2xl">
           <Eyebrow>Why it matters</Eyebrow>
           <h2 className="mt-2 font-display text-4xl text-ink md:text-[48px]">Not another reporting app</h2>
           <p className="mt-3 leading-relaxed">Mundus treats waste evacuation as a service-verification problem, not a complaint box.</p>
         </Reveal>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_ITEMS.map((w, i) => (
-            <Reveal key={w.title} delay={i * 80}>
-              <article className="flex h-full flex-col rounded-2xl border border-hairline bg-paper p-6 shadow-card">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
-                  <w.icon size={22} weight="fill" />
-                </span>
-                <h3 className="mt-4 font-display text-xl leading-snug text-ink">{w.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed">{w.body}</p>
-              </article>
+        <ol className="mt-8 divide-y divide-hairline border-y border-hairline">
+          {WHY_ITEMS.map(([n, title, body, proof], i) => (
+            <Reveal key={n} delay={i * 80}>
+              <li className="grid gap-2 py-6 md:grid-cols-12 md:items-baseline md:gap-6 md:py-8">
+                <span className="font-display text-5xl text-primary/25 md:col-span-2 md:text-6xl">{n}</span>
+                <div className="md:col-span-6">
+                  <h3 className="font-display text-2xl text-ink md:text-[28px]">{title}</h3>
+                  <p className="mt-1 max-w-lg leading-relaxed">{body}</p>
+                </div>
+                <p className="font-mono text-sm text-primary md:col-span-4 md:text-right">{proof}</p>
+              </li>
             </Reveal>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )
