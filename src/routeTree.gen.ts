@@ -20,8 +20,8 @@ import { Route as AgencyManageDumpPointsRouteImport } from './routes/agency/mana
 import { Route as AgencyManageSitesRouteImport } from './routes/agency/manage-sites'
 import { Route as AgencyNotificationsRouteImport } from './routes/agency/notifications'
 import { Route as AgencyReportersRouteImport } from './routes/agency/reporters'
+import { Route as AgencySettingsRouteImport } from './routes/agency/settings'
 import { Route as AgencySignInRouteImport } from './routes/agency/sign-in'
-import { Route as AgencyStaffRouteImport } from './routes/agency/staff'
 import { Route as ContractorIndexRouteImport } from './routes/contractor/index'
 import { Route as ContractorAccountRouteImport } from './routes/contractor/account'
 import { Route as ContractorForgotPasswordRouteImport } from './routes/contractor/forgot-password'
@@ -89,14 +89,14 @@ const AgencyReportersRoute = AgencyReportersRouteImport.update({
   path: '/reporters',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
+const AgencySettingsRoute = AgencySettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
 const AgencySignInRoute = AgencySignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => AgencyRouteRoute,
-} as any)
-const AgencyStaffRoute = AgencyStaffRouteImport.update({
-  id: '/staff',
-  path: '/staff',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
 const ContractorIndexRoute = ContractorIndexRouteImport.update({
@@ -168,8 +168,8 @@ export interface FileRoutesByFullPath {
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
-  '/agency/staff': typeof AgencyStaffRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -192,8 +192,8 @@ export interface FileRoutesByTo {
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
-  '/agency/staff': typeof AgencyStaffRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -219,8 +219,8 @@ export interface FileRoutesById {
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
-  '/agency/staff': typeof AgencyStaffRoute
   '/contractor/account': typeof ContractorAccountRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
@@ -247,8 +247,8 @@ export interface FileRouteTypes {
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/settings'
     | '/agency/sign-in'
-    | '/agency/staff'
     | '/contractor/account'
     | '/contractor/forgot-password'
     | '/contractor/history'
@@ -271,8 +271,8 @@ export interface FileRouteTypes {
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/settings'
     | '/agency/sign-in'
-    | '/agency/staff'
     | '/contractor/account'
     | '/contractor/forgot-password'
     | '/contractor/history'
@@ -297,8 +297,8 @@ export interface FileRouteTypes {
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/settings'
     | '/agency/sign-in'
-    | '/agency/staff'
     | '/contractor/account'
     | '/contractor/forgot-password'
     | '/contractor/history'
@@ -399,18 +399,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgencyReportersRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
+    '/agency/settings': {
+      id: '/agency/settings'
+      path: '/settings'
+      fullPath: '/agency/settings'
+      preLoaderRoute: typeof AgencySettingsRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
     '/agency/sign-in': {
       id: '/agency/sign-in'
       path: '/sign-in'
       fullPath: '/agency/sign-in'
       preLoaderRoute: typeof AgencySignInRouteImport
-      parentRoute: typeof AgencyRouteRoute
-    }
-    '/agency/staff': {
-      id: '/agency/staff'
-      path: '/staff'
-      fullPath: '/agency/staff'
-      preLoaderRoute: typeof AgencyStaffRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
     '/contractor/': {
@@ -512,8 +512,8 @@ interface AgencyRouteRouteChildren {
   AgencyManageSitesRoute: typeof AgencyManageSitesRoute
   AgencyNotificationsRoute: typeof AgencyNotificationsRoute
   AgencyReportersRoute: typeof AgencyReportersRoute
+  AgencySettingsRoute: typeof AgencySettingsRoute
   AgencySignInRoute: typeof AgencySignInRoute
-  AgencyStaffRoute: typeof AgencyStaffRoute
   AgencyIndexRoute: typeof AgencyIndexRoute
   AgencySitesSiteIdRoute: typeof AgencySitesSiteIdRouteWithChildren
 }
@@ -526,8 +526,8 @@ const AgencyRouteRouteChildren: AgencyRouteRouteChildren = {
   AgencyManageSitesRoute: AgencyManageSitesRoute,
   AgencyNotificationsRoute: AgencyNotificationsRoute,
   AgencyReportersRoute: AgencyReportersRoute,
+  AgencySettingsRoute: AgencySettingsRoute,
   AgencySignInRoute: AgencySignInRoute,
-  AgencyStaffRoute: AgencyStaffRoute,
   AgencyIndexRoute: AgencyIndexRoute,
   AgencySitesSiteIdRoute: AgencySitesSiteIdRouteWithChildren,
 }

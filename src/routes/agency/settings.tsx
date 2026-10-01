@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 import { EnvelopeSimple, MagnifyingGlass, PauseCircle, PlayCircle, Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -13,8 +13,8 @@ import { useSession } from '@/lib/session'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/agency/staff')({
-  component: StaffPage,
+export const Route = createFileRoute('/agency/settings')({
+  component: SettingsPage,
 })
 
 function toMember(u: UserDto): StaffMember {
@@ -29,8 +29,9 @@ function toMember(u: UserDto): StaffMember {
   }
 }
 
-function StaffPage() {
+function SettingsPage() {
   const { session } = useSession()
+  const isAdmin = session?.isAdmin === true
   const [search, setSearch] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [name, setName] = useState('')
@@ -62,8 +63,6 @@ function StaffPage() {
   useEffect(() => {
     if (live) void loadLive()
   }, [live, loadLive])
-
-  if (session && !session.isAdmin) return <Navigate to="/agency/dashboard" replace />
 
   const members: StaffMember[] = liveStaff ? liveStaff.map(toMember) : mockStaff
   const q = search.trim().toLowerCase()
@@ -180,9 +179,27 @@ function StaffPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <h2 className="font-display text-4xl text-ink">Settings</h2>
+
+      <Card className="mt-4 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Signed in as</p>
+        <p className="mt-1 font-semibold text-ink">
+          {session?.name ?? '—'}{' '}
+          <span className={cn(
+            'ml-1 inline-flex rounded-full px-2 py-0.5 align-middle text-[11px] font-bold',
+            isAdmin ? 'bg-primary text-white' : 'bg-cloud text-ink',
+          )}>
+            {isAdmin ? 'Admin' : 'Staff'}
+          </span>
+        </p>
+        <p className="text-sm text-ink-soft">{session?.email ?? '—'}</p>
+      </Card>
+
+      {isAdmin ? (
+      <>
+      <div className="mt-8 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-4xl text-ink">Staff</h2>
+          <h3 className="font-display text-2xl text-ink">Staff</h3>
           <p className="mt-1 text-ink-soft">Agency accounts. New staff sign in with the login details emailed to them.</p>
         </div>
         <Button onClick={() => { resetForm(); setSentTo(null); setFormOpen(true) }}>
@@ -315,6 +332,10 @@ function StaffPage() {
         <BottomSheet open={formOpen} onOpenChange={setFormOpen} title="Invite staff" footer={formActions}>
           {formBody}
         </BottomSheet>
+      )}
+      </>
+      ) : (
+        <p className="mt-4 text-sm text-ink-soft">Only agency admins can manage staff. Ask your admin to change your account.</p>
       )}
     </div>
   )
