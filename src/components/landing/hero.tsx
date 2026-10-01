@@ -1,4 +1,3 @@
-import { CheckCircle, Flag } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Eyebrow, MAXW, Reveal } from './shared'
 import { cn } from '@/lib/utils'
@@ -31,48 +30,6 @@ export function Hero() {
           <Button asChild>
             <a href="#demo">Live demo</a>
           </Button>
-        </div>
-
-        {/* hero visual: console mock with flanking status cards (Cable-style) */}
-        <div className="anim-fade-up relative mx-auto mt-12 max-w-4xl" style={{ animationDelay: '360ms' }}>
-          <div className="relative z-10 mx-auto max-w-md rounded-2xl border border-hairline bg-paper p-5 text-left shadow-modal">
-            <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-ink-soft">Uyo Urban · ranked now</p>
-            <ul className="mt-3 space-y-2">
-              {(
-                [
-                  ['Nwaniba Road', '12d', true],
-                  ['IBB Way', '11d', true],
-                  ['Itam Junction', '8d · flagged', true],
-                  ['Akpan Andem', '4d', false],
-                ] as [string, string, boolean][]
-              ).map(([name, days, hot]) => (
-                <li key={name} className="flex items-center justify-between rounded-xl bg-canvas px-4 py-2.5">
-                  <span className="text-sm font-semibold text-ink">{name}</span>
-                  <span className={cn('font-mono text-xs font-bold', hot ? 'text-[#be3b3b]' : 'text-ink')}>{days}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden md:block">
-            <div className="anim-float absolute -left-2 top-6 w-56 rounded-2xl border border-hairline bg-paper p-4 text-left shadow-card" style={{ animationDuration: '7s' }}>
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-ink"><CheckCircle size={16} weight="fill" className="text-[#1d6f42]" /> Nwaniba cleared</p>
-              <p className="mt-1 font-mono text-[11px] text-ink-soft">pair verified · 2d ago</p>
-            </div>
-            <div className="anim-float absolute -right-2 bottom-6 w-56 rounded-2xl border border-hairline bg-paper p-4 text-left shadow-card" style={{ animationDuration: '5.6s' }}>
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-ink"><Flag size={16} weight="fill" className="text-[#c08014]" /> Itam flagged full</p>
-              <p className="mt-1 font-mono text-[11px] text-ink-soft">reporter · 3h ago · crew pinged</p>
-            </div>
-          </div>
-          <div className="mt-4 grid gap-3 text-left sm:grid-cols-2 md:hidden">
-            <div className="rounded-2xl border border-hairline bg-paper p-4 shadow-card">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-ink"><CheckCircle size={16} weight="fill" className="text-[#1d6f42]" /> Nwaniba cleared</p>
-              <p className="mt-1 font-mono text-[11px] text-ink-soft">pair verified · 2d ago</p>
-            </div>
-            <div className="rounded-2xl border border-hairline bg-paper p-4 shadow-card">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-ink"><Flag size={16} weight="fill" className="text-[#c08014]" /> Itam flagged full</p>
-              <p className="mt-1 font-mono text-[11px] text-ink-soft">reporter · 3h ago · crew pinged</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

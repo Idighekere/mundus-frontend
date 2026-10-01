@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { SiteFooter, SiteHeader } from '@/components/landing/chrome'
 import { Hero, InfraBand } from '@/components/landing/hero'
-import { Problem } from '@/components/landing/roles-problem'
+import { Problem, Roles } from '@/components/landing/roles-problem'
 import { HowItWorks, WhyItMatters } from '@/components/landing/how-it-works'
 import { Demo, Evidence } from '@/components/landing/evidence-demo'
 import { BuiltForUyo, Faq, FinalCta } from '@/components/landing/closing'
@@ -38,6 +38,7 @@ function LandingPage() {
       <main id="top">
         <Hero />
         <InfraBand />
+        <Roles />
         <Problem />
         <HowItWorks />
         <WhyItMatters />
