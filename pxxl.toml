@@ -11,3 +11,10 @@ spa = true
 source = "/assets/:path*"
 [headers.headers]
 Cache-Control = "public, max-age=31536000, immutable"
+
+# The field app needs camera + GPS. Pxxl disables them by default —
+# without this, contractor check-in cannot function on the live URL.
+[[headers]]
+source = "/:path*"
+[headers.headers]
+Permissions-Policy = "camera=(self), microphone=(self), geolocation=(self)"
