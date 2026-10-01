@@ -334,9 +334,7 @@ function SettingsPage() {
         </BottomSheet>
       )}
       </>
-      ) : (
-        <p className="mt-4 text-sm text-ink-soft">Only agency admins can manage staff. Ask your admin to change your account.</p>
-      )}
+      ) : null}
     </div>
   )
 }
