@@ -79,6 +79,12 @@ export function reactivateStaff(id: string): void {
   emit()
 }
 
+/** Mock-mode password change for the signed-in staff member. */
+export function updateStaffPassword(id: string, newPassword: string): void {
+  staff = staff.map((s) => (s.id === id ? { ...s, password: newPassword } : s))
+  emit()
+}
+
 /** Mock-mode sign-in check: active staff only, exact password match. */
 export function verifyStaff(email: string, password: string): StaffMember | undefined {
   const normalized = email.trim().toLowerCase()

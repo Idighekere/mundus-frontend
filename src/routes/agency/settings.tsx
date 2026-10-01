@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { EnvelopeSimple, MagnifyingGlass, PauseCircle, PlayCircle, Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import { addStaff, deactivateStaff, reactivateStaff, useStaff, type StaffMember } from '@/mocks/staff-store'
-import { hasLiveSession, staffApi, type UserDto } from '@/lib/api'
+import { addStaff, deactivateStaff, reactivateStaff, updateStaffPassword, useStaff, type StaffMember } from '@/mocks/staff-store'
+import { hasLiveSession, staffApi, usersApi, type UserDto } from '@/lib/api'
 import { useSession } from '@/lib/session'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
@@ -46,6 +46,12 @@ function SettingsPage() {
   const [liveLoading, setLiveLoading] = useState(false)
   const [liveError, setLiveError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [currentPw, setCurrentPw] = useState('')
+  const [newPw, setNewPw] = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [pwError, setPwError] = useState('')
+  const [pwOk, setPwOk] = useState(false)
+  const [pwSaving, setPwSaving] = useState(false)
   const live = hasLiveSession()
 
   const loadLive = useCallback(async () => {
@@ -113,6 +119,44 @@ function SettingsPage() {
       setFormError(err instanceof Error ? err.message : 'Could not send the invite.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const changePassword = async () => {
+    setPwError('')
+    setPwOk(false)
+    if (newPw.length < 6) {
+      setPwError('New password needs at least 6 characters.')
+      return
+    }
+    if (newPw !== confirmPw) {
+      setPwError('New passwords do not match.')
+      return
+    }
+    if (!live) {
+      const me = members.find((m) => m.email.toLowerCase() === session?.email.toLowerCase())
+      if (!me || me.password !== currentPw) {
+        setPwError('Current password is incorrect.')
+        return
+      }
+      updateStaffPassword(me.id, newPw)
+      setCurrentPw('')
+      setNewPw('')
+      setConfirmPw('')
+      setPwOk(true)
+      return
+    }
+    setPwSaving(true)
+    try {
+      await usersApi.changePassword(currentPw, newPw)
+      setCurrentPw('')
+      setNewPw('')
+      setConfirmPw('')
+      setPwOk(true)
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : 'Could not change your password.')
+    } finally {
+      setPwSaving(false)
     }
   }
 
@@ -193,6 +237,30 @@ function SettingsPage() {
           </span>
         </p>
         <p className="text-sm text-ink-soft">{session?.email ?? '—'}</p>
+      </Card>
+
+      <Card className="mt-4 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Security</p>
+        <p className="mt-1 font-semibold text-ink">Change password</p>
+        <div className="mt-3 space-y-3">
+          <div>
+            <label htmlFor="pw-current" className="mb-1 block text-sm font-semibold text-ink">Current password</label>
+            <PasswordInput id="pw-current" autoComplete="current-password" value={currentPw} onChange={(e) => { setCurrentPw(e.target.value); setPwError(''); setPwOk(false) }} placeholder="••••••••" />
+          </div>
+          <div>
+            <label htmlFor="pw-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
+            <PasswordInput id="pw-new" autoComplete="new-password" value={newPw} onChange={(e) => { setNewPw(e.target.value); setPwError(''); setPwOk(false) }} placeholder="At least 6 characters" />
+          </div>
+          <div>
+            <label htmlFor="pw-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
+            <PasswordInput id="pw-confirm" autoComplete="new-password" value={confirmPw} onChange={(e) => { setConfirmPw(e.target.value); setPwError(''); setPwOk(false) }} placeholder="Repeat the new password" />
+          </div>
+          {pwError ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{pwError}</p> : null}
+          {pwOk ? <p role="status" className="rounded-xl bg-[#e6f5ee] px-4 py-3 text-sm font-medium text-[#1d6f42]">Password changed.</p> : null}
+          <Button onClick={() => void changePassword()} disabled={pwSaving} className="w-full sm:w-auto">
+            {pwSaving ? 'Saving…' : 'Change password'}
+          </Button>
+        </div>
       </Card>
 
       {isAdmin ? (
