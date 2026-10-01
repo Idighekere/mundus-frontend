@@ -143,8 +143,10 @@ function AgencyShell() {
               aria-label="Settings"
               title="Settings"
               className={cn(
-                'mb-1 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-xl text-white/75 hover:bg-white/10 hover:text-white',
-                pathname.startsWith('/agency/settings') && 'bg-white/15 text-white',
+                'mb-1 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-xl border text-white/75 hover:bg-white/10 hover:text-white',
+                pathname.startsWith('/agency/settings')
+                  ? 'border-white/50 bg-white/10 text-white'
+                  : 'border-transparent',
               )}
             >
               <GearSix size={18} />
@@ -153,8 +155,10 @@ function AgencyShell() {
             <Link
               to="/agency/settings"
               className={cn(
-                'mb-1 flex min-h-[44px] w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white',
-                pathname.startsWith('/agency/settings') && 'bg-white/15 text-white',
+                'mb-1 flex min-h-[44px] w-full cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white',
+                pathname.startsWith('/agency/settings')
+                  ? 'border-white/50 bg-white/10 font-semibold text-white'
+                  : 'border-transparent',
               )}
             >
               <GearSix size={18} /> Settings
