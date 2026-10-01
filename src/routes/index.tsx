@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { SiteFooter, SiteHeader } from '@/components/landing/chrome'
 import { Hero, InfraBand } from '@/components/landing/hero'
-import { Problem, Roles } from '@/components/landing/roles-problem'
+import { Problem } from '@/components/landing/roles-problem'
 import { HowItWorks, WhyItMatters } from '@/components/landing/how-it-works'
 import { Demo, Evidence } from '@/components/landing/evidence-demo'
 import { BuiltForUyo, Faq, FinalCta } from '@/components/landing/closing'
@@ -16,7 +16,7 @@ function LandingPage() {
 
   // Scroll-spy for the pill nav.
   useEffect(() => {
-    const ids = ['how-it-works', 'evidence', 'demo', 'faq']
+    const ids = ['how-it-works', 'why-mundus', 'evidence', 'demo', 'faq']
     const observer = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -38,7 +38,6 @@ function LandingPage() {
       <main id="top">
         <Hero />
         <InfraBand />
-        <Roles />
         <Problem />
         <HowItWorks />
         <WhyItMatters />

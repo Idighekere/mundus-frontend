@@ -40,10 +40,10 @@ export function SiteHeader({ activeSection }: { activeSection: string }) {
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Button asChild variant="secondary" className="hidden min-h-[40px] py-2 md:inline-flex">
-            <Link to="/agency/sign-in">Sign in</Link>
+            <Link to="/agency/sign-in">Agency sign in</Link>
           </Button>
           <Button asChild className="hidden min-h-[40px] py-2 md:inline-flex">
-            <Link to="/agency/sign-in">Agency sign in</Link>
+            <a href="#demo">Live demo</a>
           </Button>
           <button
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -68,8 +68,8 @@ export function SiteHeader({ activeSection }: { activeSection: string }) {
             </a>
           ))}
           <div className="mt-1 grid grid-cols-2 gap-2 border-t border-hairline p-2">
-            <Button asChild variant="secondary"><Link to="/agency/sign-in">Sign in</Link></Button>
-            <Button asChild><Link to="/agency/sign-in">Agency sign in</Link></Button>
+            <Button asChild variant="secondary"><Link to="/agency/sign-in">Agency sign in</Link></Button>
+            <Button asChild><a href="#demo" onClick={() => setMenuOpen(false)}>Live demo</a></Button>
           </div>
         </div>
       ) : null}

@@ -142,7 +142,7 @@ const WHY_ITEMS: [string, string, string, string][] = [
 
 export function WhyItMatters() {
   return (
-    <section className="py-14 md:py-20 lg:py-28">
+    <section id="why-mundus" className="scroll-mt-24 py-14 md:py-20 lg:py-28">
       <div className={MAXW}>
         <Reveal className="max-w-2xl">
           <Eyebrow>Why it matters</Eyebrow>
