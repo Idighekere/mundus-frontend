@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Flag } from '@phosphor-icons/react'
+import { Flag, XCircle } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Eyebrow, MAXW, Reveal } from './shared'
 import { cn } from '@/lib/utils'
@@ -68,64 +68,95 @@ export function Roles() {
   )
 }
 
+const PROBLEM_COLS = [
+  {
+    title: 'Paid, never proven',
+    body: "The government pays for evacuation across Akwa Ibom's dump points, but has no way to confirm the work actually happened.",
+  },
+  {
+    title: 'Occasional by design',
+    body: 'Organized estates get scheduled door-to-door pickup. Everywhere else, contractors come whenever — the standard is daily, the reality is undefined.',
+  },
+  {
+    title: 'Caught by chance',
+    body: 'Failures surface by flood or surprise visit, never by a system. In July 2026, AKSEPWMA suspended contractors only after a flood exposed weeks of neglect.',
+  },
+]
+
+const FAILED_ALTERNATIVES: [string, string][] = [
+  ['Paper trip sheets', 'No verifiable record'],
+  ['Gallery photo uploads', 'Place + time unknown'],
+  ['Chance inspection', 'After the damage'],
+]
+
+const PROBLEM_STATS: [string, string][] = [
+  ['68.8%', 'of 9,000+ residents report real waste disposal problems'],
+  ['#1', 'complaint is distance to collection points'],
+  ['62.5%', 'say they would pay for reliable service'],
+]
+
 export function Problem() {
   return (
     <section className="grain relative overflow-hidden bg-primary-deep py-14 md:py-20 lg:py-28">
       <div aria-hidden="true" className="dot-grid-light absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]" />
       <div className={cn(MAXW, 'relative')}>
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-          <div>
-            <Reveal>
-              <p className="font-display text-sm uppercase tracking-[0.2em] text-[#ffa034]">The problem</p>
-              <h2 className="mt-2 font-display text-4xl leading-tight text-white md:text-[48px]">Paid for,<br />but never proven</h2>
-              <p className="mt-4 max-w-lg leading-relaxed text-white/80">
-                The government pays for waste evacuation across Akwa Ibom's dump points. But there's
-                no way to confirm the work actually happened — collection is described as "occasional,"
-                and failures are only discovered after they've already caused damage.
-              </p>
+        <Reveal className="max-w-2xl">
+          <p className="font-display text-sm uppercase tracking-[0.2em] text-[#ffa034]">The problem</p>
+          <h2 className="mt-2 font-display text-4xl leading-tight text-white md:text-[48px]">Paid for,<br />but never proven</h2>
+          <p className="mt-4 leading-relaxed text-white/80">
+            Collection is described as "occasional," and failures are only discovered after
+            they've already caused damage.
+          </p>
+        </Reveal>
+
+        <div className="mt-10 grid gap-8 md:grid-cols-3 md:gap-6">
+          {PROBLEM_COLS.map((c, i) => (
+            <Reveal key={c.title} delay={i * 80}>
+              <div className="border-t-2 border-[#ffa034]/60 pt-4">
+                <h3 className="font-display text-2xl leading-snug text-white">{c.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{c.body}</p>
+              </div>
             </Reveal>
-            <ul className="mt-8 space-y-5">
-              {[
-                ['Organized estates get scheduled door-to-door pickup.', 'Everywhere else, fixed dump points are evacuated whenever assigned contractors get to them.'],
-                ['The agency\u2019s own stated standard is daily evacuation.', 'Reality is undefined and unverified.'],
-                ['Failures surface by chance inspection,', 'not by any system.'],
-              ].map(([bold, rest], i) => (
-                <Reveal key={bold} delay={i * 80}>
-                  <li className="flex items-start gap-3">
-                    <span aria-hidden="true" className="mt-0.5 shrink-0 font-display text-xl leading-none text-[#ffa034]">→</span>
-                    <p className="leading-relaxed text-white/80">
-                      <span className="font-semibold text-white">{bold}</span> {rest}
-                    </p>
-                  </li>
-                </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={100}>
+          <div className="mt-12 rounded-2xl bg-white/10 p-6 backdrop-blur md:p-8">
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-[#ffa034]">Why nothing catches it today</p>
+            <ul className="mt-4 divide-y divide-white/10">
+              {FAILED_ALTERNATIVES.map(([label, note]) => (
+                <li key={label} className="flex items-center justify-between gap-4 py-3.5">
+                  <span className="font-semibold text-white">{label}</span>
+                  <span className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-white/50">
+                    <XCircle size={16} weight="fill" /> {note}
+                  </span>
+                </li>
               ))}
             </ul>
           </div>
-          <div className="flex flex-col justify-center">
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              {[
-                ['68.8%', 'of 9,000+ residents report real waste disposal problems'],
-                ['#1', 'complaint is distance to collection points'],
-                ['62.5%', 'say they would pay for reliable service'],
-              ].map(([stat, label], i) => (
-                <Reveal key={label} delay={i * 80}>
-                  <div className="h-full rounded-2xl bg-white/10 p-5 backdrop-blur">
-                    <p className="font-display text-4xl text-white">{stat}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-white/70">{label}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-white/60">
-              2024 landfill study · AKSEPWMA public reports. The same failure pattern is documented
-              in Lagos, Nasarawa and the FCT — structural, not local.
+        </Reveal>
+
+        <div className="mt-10 grid gap-6 border-t border-white/15 pt-8 sm:grid-cols-3">
+          {PROBLEM_STATS.map(([stat, label], i) => (
+            <Reveal key={label} delay={i * 80}>
+              <div>
+                <p className="font-display text-5xl text-white">{stat}</p>
+                <p className="mt-1 max-w-[26ch] text-sm leading-relaxed text-white/70">{label}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-white/60">
+          2024 landfill study · AKSEPWMA public reports. The same failure pattern is documented
+          in Lagos, Nasarawa and the FCT — structural, not local.
+        </p>
+
+        <Reveal delay={120}>
+          <div className="mt-10 rounded-2xl border border-[#ffa034]/40 bg-[#ffa034]/10 p-6 text-center md:p-8">
+            <p className="mx-auto max-w-2xl font-display text-2xl leading-snug text-white md:text-[28px]">
+              Government pays for evacuation. Government has no way to confirm evacuation happens.
             </p>
           </div>
-        </div>
-        <Reveal delay={120}>
-          <p className="mx-auto mt-12 max-w-2xl text-center font-display text-2xl leading-snug text-white md:text-[28px]">
-            Government pays for evacuation. Government has no way to confirm evacuation happens.
-          </p>
         </Reveal>
       </div>
     </section>
