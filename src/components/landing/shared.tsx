@@ -101,7 +101,7 @@ export const CHAIN_STEPS: ChainStep[] = [
   },
   {
     name: 'Ranking', title: 'Overdue computed at load', line: 'Node 04 · most overdue first',
-    body: 'The dashboard ranks every site by days since last clearance and flags anything overdue automatically. A designated reporter can flag a full site early — an accelerant, never a requirement.',
+    body: 'The dashboard ranks every site by days since last clearance and flags anything overdue automatically. A designated reporter can flag a full site early — speeding up response without ever being required.',
     figure: 'NOW − LAST = 12D', caption: 'Nwaniba Road · critical',
   },
 ]

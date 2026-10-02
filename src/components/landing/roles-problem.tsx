@@ -143,7 +143,8 @@ export function Problem() {
           </h2>
           <p className="mt-4 leading-relaxed text-white/80">
             Collection is described as "occasional," and failures are only
-            discovered after they've already caused damage.
+            discovered after they've already caused damage. Failures surface by
+            flood or surprise visit, never by a system.
           </p>
         </Reveal>
 

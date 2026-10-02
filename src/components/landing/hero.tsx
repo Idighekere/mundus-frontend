@@ -33,7 +33,7 @@ export function Hero() {
         )}
       >
         <Reveal className="anim-fade-up">
-          <Eyebrow>Waste evacuation, verified</Eyebrow>
+          <Eyebrow>Verifiable waste evacuation system</Eyebrow>
         </Reveal>
         <h1
           className="anim-fade-up mx-auto mt-4 max-w-3xl font-display text-5xl leading-[1.05] text-ink md:text-[68px]"
@@ -46,9 +46,10 @@ export function Hero() {
           style={{ animationDelay: "180ms" }}
         >
           The Akwa Ibom State Government pays contractors to evacuate roadside
-          dump points across Uyo. In July 2026, several were suspended after a
-          flood exposed sites left uncleared for weeks — despite regular
-          payment. Nobody knew until the flood forced an inspection.
+          dump points across Uyo. In July 2026, several contractors were
+          suspended after a flood exposed sites left uncleared for weeks
+          — despite regular payment. Nobody knew until the flood forced an
+          inspection.
         </p>
         <div
           className="anim-fade-up mt-8 flex flex-wrap justify-center gap-3"
