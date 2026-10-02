@@ -2,10 +2,10 @@ import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-ro
 import { useState } from 'react'
 import { ArrowLeft, Bell, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
+import { DemoAccounts } from '@/components/demo-accounts'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { useSession } from '@/lib/session'
-import { apiEnabled } from '@/lib/api'
 
 // Unlisted staff-only route — never linked from public pages except the footer.
 export const Route = createFileRoute('/agency/sign-in')({
@@ -28,11 +28,7 @@ function AgencySignIn() {
       setError('Enter your agency email to continue.')
       return
     }
-    if (!apiEnabled && password.length < 4) {
-      setError('Password needs at least 4 characters.')
-      return
-    }
-    if (apiEnabled && !password) {
+    if (!password) {
       setError('Enter your password to continue.')
       return
     }
@@ -106,11 +102,13 @@ function AgencySignIn() {
           <p className="mt-4 text-center text-sm">
             New to the agency? Ask your agency admin for an account.
           </p>
-          {!apiEnabled ? (
-            <p className="mt-3 rounded-xl bg-canvas px-3 py-2 text-center font-mono text-xs text-ink-soft">
-              Demo admin — idighsudo@gmail.com / admin123
-            </p>
-          ) : null}
+          <DemoAccounts
+            accounts={[
+              { email: 'idighsudo@gmail.com', name: 'Idighs Udo', role: 'Admin' },
+              { email: 'udomjosh04@gmail.com', name: 'Joshua Udom', role: 'Admin' },
+            ]}
+            onPick={(email) => { setEmail(email); setError('') }}
+          />
         </div>
       </div>
     </div>

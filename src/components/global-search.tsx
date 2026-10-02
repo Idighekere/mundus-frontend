@@ -2,7 +2,9 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { Buildings, FileText, MagnifyingGlass, MapPin } from '@phosphor-icons/react'
 import { Input } from '@/components/ui/input'
-import { globalSearch, type SearchResult } from '@/lib/search'
+import { globalSearch, type SearchIndex, type SearchResult } from '@/lib/search'
+import { contractorsApi, dashboardApi } from '@/lib/api'
+import { mapDumpPoint, mapDaysSince } from '@/lib/backend-map'
 
 const icons = {
   page: <FileText size={18} className="shrink-0 text-primary" />,
@@ -16,7 +18,29 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
   const [active, setActive] = useState(0)
   const navigate = useNavigate()
   const boxRef = useRef<HTMLDivElement>(null)
-  const results = globalSearch(query)
+  const [index, setIndex] = useState<SearchIndex>({ sites: [], contractors: [] })
+  const results = globalSearch(query, index)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [sites, contractors] = await Promise.all([dashboardApi.sites(), contractorsApi.list()])
+        if (cancelled) return
+        setIndex({
+          sites: sites.sites.map((d) => {
+            const s = mapDumpPoint(d)
+            const days = mapDaysSince(d, s.lastClearanceIso)
+            return { id: s.id, name: s.name, hint: `${d.assigned_contractor_name ?? 'Unassigned'} · ${days}d since clearance` }
+          }),
+          contractors: contractors.map((c) => ({ id: String(c.id), name: c.name })),
+        })
+      } catch {
+        // Search stays page-only rather than loud.
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {

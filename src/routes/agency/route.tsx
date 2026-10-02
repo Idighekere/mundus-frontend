@@ -38,7 +38,7 @@ function AgencyShell() {
   const input = useNoticesInput()
   const notices = buildNotices(
     { reports: input.reports, flagged: input.flagged, nominations: input.nominations },
-    input.sites ? { sites: input.sites } : undefined,
+    { sites: input.sites ?? [] },
   )
   const unreadCount = unreadIds(notices).length
   const [mobileSearch, setMobileSearch] = useState(false)

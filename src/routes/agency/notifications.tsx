@@ -4,6 +4,7 @@ import { Bell, CheckCircle, Flag, Megaphone, UserPlus, Warning } from '@phosphor
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { ListSkeleton } from '@/components/skeletons'
 import { buildNotices, markAllNoticesRead, markNoticeRead, unreadIds, useNoticesInput, type Notice } from '@/lib/notifications'
 import { cn } from '@/lib/utils'
 
@@ -27,11 +28,12 @@ function NotificationsPage() {
   const [tick, setTick] = useState(0)
   const input = useNoticesInput()
 
+  const loading = !input.sites
   const notices = useMemo(
     () =>
       buildNotices(
         { reports: input.reports, flagged: input.flagged, nominations: input.nominations },
-        input.sites ? { sites: input.sites } : undefined,
+        { sites: input.sites ?? [] },
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [input, tick],
@@ -78,7 +80,17 @@ function NotificationsPage() {
         ) : null}
       </div>
 
-      {notices.length === 0 ? (
+      {loading ? (
+        <ListSkeleton columns={['w-48', 'w-20']} rows={4} />
+      ) : input.liveError ? (
+        <Card className="mt-4 text-center">
+          <p className="mt-2 font-display text-[28px] text-ink">Could not load notifications</p>
+          <p className="mt-1">{input.liveError}</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </Card>
+      ) : notices.length === 0 ? (
         <Card className="mt-4 text-center">
           <Bell size={32} className="mx-auto text-ink-soft" />
           <p className="mt-2 font-display text-[28px] text-ink">Nothing to review</p>

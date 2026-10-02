@@ -1,5 +1,3 @@
-import { contractors, dumpPoints } from '@/mocks/data'
-
 export type SearchResult =
   | { kind: 'page'; id: string; title: string; hint: string; to: string }
   | { kind: 'site'; id: string; title: string; hint: string; to: string; params: { siteId: string } }
@@ -10,15 +8,6 @@ export interface SearchIndex {
   contractors: { id: string; name: string }[]
 }
 
-const mockIndex: SearchIndex = {
-  sites: dumpPoints.map((s) => ({
-    id: s.id,
-    name: s.name,
-    hint: `${s.supervisorName} · ${daysHint(s.lastClearanceIso)}`,
-  })),
-  contractors: contractors.map((c) => ({ id: c.id, name: c.name })),
-}
-
 const pages: Extract<SearchResult, { kind: 'page' }>[] = [
   { kind: 'page', id: 'dashboard', title: 'Dashboard', hint: 'Dump points overview', to: '/agency/dashboard' },
   { kind: 'page', id: 'contractors', title: 'Contractors', hint: 'Contractor coverage', to: '/agency/contractors' },
@@ -27,7 +16,7 @@ const pages: Extract<SearchResult, { kind: 'page' }>[] = [
 ]
 
 // Swap this body for a backend endpoint later — same return shape.
-export function globalSearch(query: string, index: SearchIndex = mockIndex): SearchResult[] {
+export function globalSearch(query: string, index: SearchIndex): SearchResult[] {
   const q = query.toLowerCase().trim()
   if (!q) return []
   const matchedPages = pages.filter(
@@ -55,7 +44,4 @@ export function globalSearch(query: string, index: SearchIndex = mockIndex): Sea
   return [...matchedPages, ...matchedSites, ...matchedContractors].slice(0, 12)
 }
 
-function daysHint(iso: string): string {
-  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
-  return `${d}d since clearance`
-}
+

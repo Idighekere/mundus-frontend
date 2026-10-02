@@ -16,11 +16,10 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import { contractorById, contractors, dumpPoints, type DumpPoint } from '@/mocks/data'
+import type { DumpPoint } from '@/mocks/data'
 import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
-import { latestReportForSite } from '@/mocks/reporter-store'
-import { daysSince, statusFor } from '@/lib/overdue'
-import { dashboardApi, hasLiveSession, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
+import { statusFor } from '@/lib/overdue'
+import { contractorsApi, dashboardApi, hasLiveSession, type ContractorDto, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
 import { hasReporterFlag, mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +43,7 @@ function DashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
   const [liveStats, setLiveStats] = useState<DashboardStatsDto | null>(null)
+  const [liveContractors, setLiveContractors] = useState<ContractorDto[] | null>(null)
   const [liveLoading, setLiveLoading] = useState(false)
   const [liveError, setLiveError] = useState('')
   const live = hasLiveSession()
@@ -53,9 +53,10 @@ function DashboardPage() {
     setLiveLoading(true)
     setLiveError('')
     try {
-      const [sites, stats] = await Promise.all([dashboardApi.sites(), dashboardApi.stats()])
+      const [sites, stats, contractors] = await Promise.all([dashboardApi.sites(), dashboardApi.stats(), contractorsApi.list()])
       setLiveSites(sites.sites)
       setLiveStats(stats)
+      setLiveContractors(contractors)
     } catch (err) {
       setLiveError(err instanceof Error ? err.message : 'Could not load dashboard.')
     } finally {
@@ -68,26 +69,14 @@ function DashboardPage() {
   }, [loadLive])
 
   const rows: Row[] = useMemo(() => {
-    if (liveSites) {
-      return liveSites.map((d) => {
-        const site = mapDumpPoint(d)
-        return {
-          ...site,
-          days: mapDaysSince(d, site.lastClearanceIso),
-          status: mapSiteStatus(d.status),
-          contractorName: d.assigned_contractor_name ?? (site.contractorId ? contractorById(site.contractorId).name : 'Unassigned'),
-          flagged: hasReporterFlag(d),
-        }
-      })
-    }
-    return dumpPoints.map((s) => {
-      const days = daysSince(s.lastClearanceIso)
+    return (liveSites ?? []).map((d) => {
+      const site = mapDumpPoint(d)
       return {
-        ...s,
-        days,
-        status: statusFor(days),
-        contractorName: contractorById(s.contractorId).name,
-        flagged: !!(s.reporterFlagIso || latestReportForSite(s.id)),
+        ...site,
+        days: mapDaysSince(d, site.lastClearanceIso),
+        status: mapSiteStatus(d.status),
+        contractorName: d.assigned_contractor_name ?? 'Unassigned',
+        flagged: hasReporterFlag(d),
       }
     })
   }, [liveSites])
@@ -233,8 +222,8 @@ function DashboardPage() {
               <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All contractors</SelectItem>
-                {contractors.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                {(liveContractors ?? []).map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

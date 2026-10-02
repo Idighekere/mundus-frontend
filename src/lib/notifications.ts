@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react'
-import { dumpPoints, siteById } from '@/mocks/data'
-import { allReports } from '@/mocks/reporter-store'
-import { useSubmissions, useContractorDirectory } from '@/mocks/contractor-store'
-import { useReporters, useReports } from '@/mocks/reporter-store'
-import { contractorsApi, dashboardApi, hasLiveSession, reportersApi, type DumpPointDto, type ReporterDto } from '@/lib/api'
+import { contractorsApi, dashboardApi, reportersApi, type DumpPointDto, type ReporterDto } from '@/lib/api'
 import { mapDumpPoint } from '@/lib/backend-map'
 import { daysSince } from '@/lib/overdue'
 
@@ -46,12 +42,12 @@ export function buildNotices(
     flagged: FlaggedSubmission[]
     nominations: PendingNomination[]
   },
-  opts?: { sites?: { id: string; name: string; lastClearanceIso: string }[] },
+  opts: { sites: { id: string; name: string; lastClearanceIso: string }[] },
 ) {
   const notices: Notice[] = []
-  const sites = opts?.sites
+  const sites = opts.sites
   const siteName = (id: string) =>
-    sites?.find((s) => s.id === id)?.name ?? siteById(id)?.name ?? 'A site'
+    sites.find((s) => s.id === id)?.name ?? 'A site'
 
   for (const r of input.reports.slice(0, 20)) {
     notices.push({
@@ -89,7 +85,7 @@ export function buildNotices(
     })
   }
 
-  for (const s of sites ?? dumpPoints) {
+  for (const s of sites) {
     const days = daysSince(s.lastClearanceIso)
     if (days > 10) {
       notices.push({
@@ -142,9 +138,6 @@ export function markAllNoticesRead(ids: string[]): void {
   }
 }
 
-// Re-export a reactive trigger: pages subscribe to the underlying stores.
-export { allReports }
-
 export interface NoticesInput {
   reports: { id: string; siteId: string; reporterId: string; reporterName?: string; photo?: string; atIso: string }[]
   flagged: FlaggedSubmission[]
@@ -152,23 +145,26 @@ export interface NoticesInput {
   sites?: { id: string; name: string; lastClearanceIso: string }[]
 }
 
+
+export interface NoticesInput {
+  reports: { id: string; siteId: string; reporterId: string; reporterName?: string; photo?: string; atIso: string }[]
+  flagged: FlaggedSubmission[]
+  nominations: PendingNomination[]
+  sites?: { id: string; name: string; lastClearanceIso: string }[]
+  liveError?: string
+}
+
 /**
- * Single source for agency notices. Mock stores in demo mode; backend
- * registry + reporter roster when signed in live. Both consumers (shell
- * badge, notifications page) share this so they can never disagree.
+ * Single source for agency notices, loaded from the backend registry and
+ * reporter roster. Failures surface as liveError — never mock data.
  */
 export function useNoticesInput(): NoticesInput {
-  const live = hasLiveSession()
-  const mockReports = useReports()
-  const mockSubmissions = useSubmissions()
-  const mockReporters = useReporters()
-  const mockDirectory = useContractorDirectory()
   const [liveReporters, setLiveReporters] = useState<ReporterDto[] | null>(null)
   const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
   const [liveContractors, setLiveContractors] = useState<{ id: string; name: string }[] | null>(null)
+  const [liveError, setLiveError] = useState('')
 
   useEffect(() => {
-    if (!live) return
     let cancelled = false
     void (async () => {
       try {
@@ -181,42 +177,24 @@ export function useNoticesInput(): NoticesInput {
         setLiveReporters(reporters)
         setLiveSites(sites.sites)
         setLiveContractors(contractors.map((c) => ({ id: String(c.id), name: c.name })))
-      } catch {
-        // Notices stay empty rather than loud — pages show their own errors.
+        setLiveError('')
+      } catch (err) {
+        if (!cancelled) setLiveError(err instanceof Error ? err.message : 'Could not load notifications.')
       }
     })()
     return () => { cancelled = true }
-  }, [live])
+  }, [])
 
-  if (!live) {
-    return {
-      reports: mockReports.map((r) => ({
-        ...r,
-        reporterName: mockReporters.find((x) => x.id === r.reporterId)?.name,
-      })),
-      flagged: mockSubmissions
-        .filter((s) => s.flagged)
-        .map((s) => ({
-          id: s.id, siteId: s.siteId, contractor: s.contractor,
-          type: s.type, flagReason: s.flagReason, distanceM: s.distanceM, atIso: s.atIso,
-        })),
-      nominations: mockReporters
-        .filter((r) => r.status === 'pending')
-        .map((r) => ({
-          id: r.id, name: r.name, phone: r.phone, siteId: r.siteId,
-          contractorName: mockDirectory.find((c) => c.id === r.contractorId)?.name ?? 'Unknown',
-          updatedAt: r.updatedAt,
-        })),
-    }
+  if (!liveSites || !liveReporters) {
+    return { reports: [], flagged: [], nominations: [], sites: [], liveError }
   }
-
-  const sites = (liveSites ?? []).map((d) => {
+  const sites = liveSites.map((d) => {
     const s = mapDumpPoint(d)
     return { id: s.id, name: s.name, lastClearanceIso: s.lastClearanceIso }
   })
   return {
     reports: [],
-    flagged: (liveSites ?? [])
+    flagged: liveSites
       .filter((d) => d.status === 'flagged')
       .map((d) => {
         const s = mapDumpPoint(d)
@@ -225,7 +203,7 @@ export function useNoticesInput(): NoticesInput {
           type: 'before' as const, flagReason: undefined, distanceM: 0, atIso: d.created_at,
         }
       }),
-    nominations: (liveReporters ?? [])
+    nominations: liveReporters
       .filter((r) => r.status === 'pending')
       .map((r) => ({
         id: String(r.id), name: r.name, phone: r.phone, siteId: String(r.site_id),
@@ -233,5 +211,6 @@ export function useNoticesInput(): NoticesInput {
         updatedAt: r.updated_at,
       })),
     sites,
+    liveError,
   }
 }

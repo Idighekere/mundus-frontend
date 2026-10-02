@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { apiEnabled, authApi, clearTokens, hasLiveSession, setTokens } from './api'
-import { verifyStaff } from '@/mocks/staff-store'
+import { authApi, clearTokens, hasLiveSession, setTokens } from './api'
 import { displayName } from './backend-map'
 
 interface Session {
@@ -40,14 +39,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         signIn: async (email: string, password?: string) => {
-          if (!apiEnabled) {
-            const member = verifyStaff(email, password ?? '')
-            if (!member) throw new Error('Unknown email or wrong password. Ask your agency admin for an account.')
-            const next = { email: member.email, name: member.name, isAdmin: member.isAdmin, live: false }
-            localStorage.setItem(KEY, JSON.stringify(next))
-            setSession(next)
-            return
-          }
           const token = await authApi.login(email, password ?? '')
           setTokens({ access_token: token.access_token, refresh_token: token.refresh_token })
           const next = {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { apiEnabled, authApi, clearTokens, contractorsApi, hasLiveSession, setTokens } from './api'
+import { authApi, clearTokens, contractorsApi, hasLiveSession, setTokens } from './api'
 
 interface ContractorSession {
   /** Display name — the person (or trade name) holding the phone. */
@@ -12,8 +12,7 @@ interface ContractorSession {
 
 interface Ctx {
   session: ContractorSession | null
-  signIn: (s: Omit<ContractorSession, 'live'>) => void
-  signInLive: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
   signOut: () => void
 }
 
@@ -37,13 +36,7 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
     <C.Provider
       value={{
         session,
-        signIn: (s) => {
-          const next = { ...s, live: false }
-          localStorage.setItem(KEY, JSON.stringify(next))
-          setSession(next)
-        },
-        signInLive: async (email: string, password: string) => {
-          if (!apiEnabled) throw new Error('Backend not configured (VITE_API_URL).')
+        signIn: async (email: string, password: string) => {
           const token = await authApi.login(email, password)
           if (token.user.role !== 'supervisor') throw new Error('This sign-in is for contractors.')
           setTokens({ access_token: token.access_token, refresh_token: token.refresh_token })
