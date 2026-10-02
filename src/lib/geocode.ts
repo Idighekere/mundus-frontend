@@ -59,7 +59,7 @@ export interface GeoFix {
   accuracyM: number | null
 }
 
-function once(timeoutMs: number): Promise<GeoFix> {
+function once(timeoutMs: number, highAccuracy = true): Promise<GeoFix> {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       (pos) =>
@@ -69,7 +69,7 @@ function once(timeoutMs: number): Promise<GeoFix> {
           accuracyM: Number.isFinite(pos.coords.accuracy) ? Math.round(pos.coords.accuracy) : null,
         }),
       (err) => reject(new Error(err.message || 'Could not read current location.')),
-      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 0 },
+      { enableHighAccuracy: highAccuracy, timeout: timeoutMs, maximumAge: highAccuracy ? 0 : 60_000 },
     )
   })
 }
@@ -111,11 +111,18 @@ export function currentPosition(): Promise<GeoFix> {
         }),
       () => {
         // Watch errors are non-fatal while we still have time — fall back
-        // to a single shot at the end if nothing arrived.
+        // to single shots at the end if nothing arrived. When precise (GPS)
+        // fixes are unavailable — e.g. the user granted approximate location
+        // only — a low-accuracy network fix still beats no fix: the UI shows
+        // its ±m accuracy and the pin stays draggable.
         if (!best) {
-          once(8000).then(
+          once(8000, true).then(
             (fix) => { best = fix; finish() },
-            (err) => { if (!settled) { settled = true; reject(err) } },
+            () =>
+              once(8000, false).then(
+                (fix) => { best = fix; finish() },
+                (err) => { if (!settled) { settled = true; reject(err) } },
+              ),
           )
         }
       },
