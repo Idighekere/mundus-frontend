@@ -151,15 +151,27 @@ export function Problem() {
         <Reveal delay={100}>
           <figure className="relative mt-10 overflow-hidden rounded-2xl">
             <img
-              src="/evidence/use-offot-junction.jpg"
-              alt="Overflowing roadside dump at Use Offot Junction, Uyo"
+              src="/evidence/AKSEPWMA-Chairman-Prince-Ikim-at-a-location-where-the-waste-was-not-evacuated.png"
+              alt="AKSEPWMA Chairman Prince Ikim at a location where the waste was not evacuated"
               className="h-72 w-full object-cover md:h-96"
               loading="lazy"
             />
-            <figcaption className="absolute left-3 top-3 rounded-full bg-ink/70 px-3 py-1 font-mono text-[11px] font-bold text-white">
-              USE OFFOT JUNCTION · 27 SEP 2026
+            <figcaption className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full bg-ink/70 px-3 py-1 font-mono text-[11px] font-bold text-white">
+              AKSEPWMA CHAIRMAN PRINCE IKIM · SITE LEFT UNCLEARED
             </figcaption>
           </figure>
+          <p className="mt-2 text-xs text-white/60">
+            AKSEPWMA Chairman Prince Ikim at a location where the waste was not evacuated. Photo:{" "}
+            <a
+              href="https://www.premiumtimesng.com/regional/south-south-regional/895907-akwa-ibom-suspends-waste-evacuation-officers-after-devastating-floods.html"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline hover:text-white"
+            >
+              Premium Times
+            </a>
+            .
+          </p>
         </Reveal>
 
         <Reveal delay={100}>
