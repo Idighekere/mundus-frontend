@@ -85,24 +85,19 @@ export interface ChainStep {
 
 export const CHAIN_STEPS: ChainStep[] = [
   {
-    name: 'Registry', title: 'Every dump point, written down', line: 'Node 01 · one record for the whole operation',
-    body: 'Name, coordinates, assigned contractor and supervisor. No parallel paper lists — every later step reads from this record.',
-    figure: '5.0450°N 7.9620°E', caption: 'Nwaniba Road · CleanCity Services',
-  },
-  {
-    name: 'Check-in', title: 'Camera only, on site', line: 'Node 02 · before + after, one visit',
-    body: 'Supervisors check in with a live, GPS-tagged, timestamped photo — before and after clearance. No gallery, no backdating.',
+    name: 'Check-in', title: 'Live photo, before and after', line: 'Step 01 · GPS-tagged, timestamped',
+    body: 'Contractors check in at assigned dump points with a live, GPS-tagged, timestamped photo — before and after clearance.',
     figure: 'BEFORE → AFTER', caption: 'Same site · same visit · paired',
   },
   {
-    name: 'Validation', title: 'Checked server-side, 100 m', line: 'Node 03 · kept and flagged, never dropped',
-    body: 'Geofence validation runs against the registry record. Outside the radius, the photo stays in the record with a location-mismatch flag for agency review.',
-    figure: '240 m → FLAGGED', caption: 'Distance recorded · agency sees it',
+    name: 'Ranking', title: 'Overdue, ranked automatically', line: 'Step 02 · most overdue first',
+    body: 'The dashboard tracks every site, ranked by days since last clearance, flagging anything overdue automatically.',
+    figure: 'NOW − LAST = 12D', caption: 'Nwaniba Road · critical',
   },
   {
-    name: 'Ranking', title: 'Overdue computed at load', line: 'Node 04 · most overdue first',
-    body: 'The dashboard ranks every site by days since last clearance and flags anything overdue automatically. A designated reporter can flag a full site early — speeding up response without ever being required.',
-    figure: 'NOW − LAST = 12D', caption: 'Nwaniba Road · critical',
+    name: 'Reporter', title: 'Flags it early', line: 'Step 03 · optional, never required',
+    body: 'A local reporter can flag a site early — a shop owner or keke stage operator already stationed nearby — speeding up response without ever being required.',
+    figure: 'SITE FULL → CREW PINGED', caption: 'Reporter · 3h ago · crew notified',
   },
 ]
 

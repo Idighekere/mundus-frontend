@@ -6,7 +6,7 @@ export function HowItWorks() {
   const chainRef = useRef<HTMLDivElement>(null)
 
   // Scroll drives the active step: progression starts as the
-  // section arrives (not after the header scrolls away) and walks 1 → 4.
+  // section arrives (not after the header scrolls away) and walks 1 → 3.
   useEffect(() => {
     const onScroll = () => {
       const el = chainRef.current
@@ -15,7 +15,7 @@ export function HowItWorks() {
       if (total <= 0) return
       const anchor = window.innerHeight * 0.65 - el.getBoundingClientRect().top
       const p = Math.min(1, Math.max(0, anchor / total))
-      setChainStep(Math.min(3, Math.floor(p * 4)))
+      setChainStep(Math.min(2, Math.floor(p * 3)))
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -32,10 +32,10 @@ export function HowItWorks() {
         <div className="grid gap-6 md:grid-cols-2 md:items-end">
           <div>
             <Eyebrow>How it works</Eyebrow>
-            <h2 className="mt-2 font-display text-4xl leading-tight text-ink md:text-[48px]">One pipeline,<br />claim to proof</h2>
+            <h2 className="mt-2 font-display text-4xl leading-tight text-ink md:text-[48px]">Check in.<br />Rank. Flag.</h2>
           </div>
           <div className="space-y-4 leading-relaxed">
-            <p>Every clearance travels the same four nodes — registry, check-in, validation, ranking. Each node does one job, and each hands a verifiable record to the next.</p>
+            <p>Three steps, same order every time. Each hands a verifiable record to the next — nothing silently dropped, nothing taken on trust.</p>
           </div>
         </div>
 
