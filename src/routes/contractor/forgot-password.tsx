@@ -141,7 +141,7 @@ function ContractorForgotPassword() {
                   <Input id="fp-email" type="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} placeholder="you@contractor.ng" />
                 </div>
                 {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-                <Button type="submit" disabled={sending} className="w-full">
+                <Button type="submit" disabled={sending} loading={sending} className="w-full">
                   {sending ? 'Sending…' : 'Send reset link'}
                 </Button>
               </form>

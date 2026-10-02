@@ -163,7 +163,7 @@ function ManageDumpPointsPage() {
 
   const formActions = (
     <div className="flex gap-2">
-      <Button onClick={() => void save()} disabled={saving} className="flex-1">
+      <Button onClick={() => void save()} disabled={saving} loading={saving} className="flex-1">
         {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add dump point'}
       </Button>
       <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>

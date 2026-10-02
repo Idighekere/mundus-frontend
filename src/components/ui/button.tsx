@@ -1,6 +1,7 @@
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { ButtonHTMLAttributes } from 'react'
+import { CircleNotch } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
@@ -23,9 +24,21 @@ export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  /** Shows a spinner, disables the button, and announces busy state. */
+  loading?: boolean
 }
 
-export function Button({ className, variant, asChild, ...props }: ButtonProps) {
+export function Button({ className, variant, asChild, loading, disabled, children, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : 'button'
-  return <Comp className={cn(buttonVariants({ variant }), className)} {...props} />
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant }), className)}
+      disabled={disabled ?? loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {loading && !asChild ? <CircleNotch size={18} weight="bold" className="animate-spin" aria-hidden="true" /> : null}
+      {children}
+    </Comp>
+  )
 }

@@ -19,6 +19,7 @@ function ContractorSignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   if (session) return <Navigate to="/contractor/sites" replace />
 
@@ -30,11 +31,14 @@ function ContractorSignIn() {
     }
     if (apiEnabled) {
       setError('')
+      setBusy(true)
       try {
         await signInLive(email, password)
         navigate({ to: '/contractor/sites', replace: true })
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
+      } finally {
+        setBusy(false)
       }
       return
     }
@@ -127,7 +131,7 @@ function ContractorSignIn() {
               />
             </div>
             {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-            <Button type="submit" className="w-full">Start shift <ArrowRight size={18} /></Button>
+            <Button type="submit" loading={busy} className="w-full">Start shift <ArrowRight size={18} /></Button>
           </form>
           <p className="mt-4 text-center text-sm">
             Trouble signing in? Contact your agency admin.

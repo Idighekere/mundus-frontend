@@ -215,7 +215,7 @@ function SettingsPage() {
 
   const formActions = (
     <div className="flex gap-2">
-      <Button onClick={() => void invite()} disabled={saving} className="flex-1">
+      <Button onClick={() => void invite()} disabled={saving} loading={saving} className="flex-1">
         <EnvelopeSimple size={18} /> {saving ? 'Sending…' : live ? 'Send invite' : 'Add staff'}
       </Button>
       <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
@@ -258,7 +258,7 @@ function SettingsPage() {
           </div>
           {pwError ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{pwError}</p> : null}
           {pwOk ? <p role="status" className="rounded-xl bg-[#e6f5ee] px-4 py-3 text-sm font-medium text-[#1d6f42]">Password changed.</p> : null}
-          <Button onClick={() => void changePassword()} disabled={pwSaving} className="w-full sm:w-auto">
+          <Button onClick={() => void changePassword()} disabled={pwSaving} loading={pwSaving} className="w-full sm:w-auto">
             {pwSaving ? 'Saving…' : 'Change password'}
           </Button>
         </div>

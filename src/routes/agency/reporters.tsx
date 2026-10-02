@@ -186,7 +186,7 @@ function ReportersPage() {
         />
       </div>
       <div className="flex gap-2">
-        <Button variant="danger" onClick={() => void doReject()} disabled={acting} className="flex-1">
+        <Button variant="danger" onClick={() => void doReject()} disabled={acting} loading={acting} className="flex-1">
           Reject nomination
         </Button>
         <Button variant="secondary" onClick={() => { setRejectId(null); setReason('') }}>Cancel</Button>
@@ -304,13 +304,13 @@ function ReportersPage() {
                     <TD>
                       <div className="flex flex-wrap gap-2">
                         {r.status === 'pending' || r.status === 'rejected' ? (
-                          <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting}><Check size={16} /> Approve</Button>
+                          <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting} loading={acting}><Check size={16} /> Approve</Button>
                         ) : null}
                         {r.status === 'pending' ? (
                           <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><X size={16} /> Reject</Button>
                         ) : null}
                         {r.status === 'approved' ? (
-                          <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting}>Revoke</Button>
+                          <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting} loading={acting}>Revoke</Button>
                         ) : null}
                       </div>
                     </TD>

@@ -96,7 +96,7 @@ function ContractorResetPassword() {
                   <PasswordInput id="rp-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
                 </div>
                 {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-                <Button type="submit" disabled={saving} className="w-full">
+                <Button type="submit" disabled={saving} loading={saving} className="w-full">
                   {saving ? 'Saving…' : 'Save new password'}
                 </Button>
               </form>

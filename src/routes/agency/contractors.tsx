@@ -257,7 +257,7 @@ function ContractorsPage() {
 
   const contractorActions = (
     <div className="flex gap-2">
-      <Button onClick={() => void saveContractor()} disabled={saving} className="flex-1">
+      <Button onClick={() => void saveContractor()} disabled={saving} loading={saving} className="flex-1">
         {saving ? 'Adding…' : 'Add contractor'}
       </Button>
       <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
