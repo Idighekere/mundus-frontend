@@ -153,7 +153,7 @@ export function Problem() {
             <img
               src="/evidence/AKSEPWMA-Chairman-Prince-Ikim-at-a-location-where-the-waste-was-not-evacuated.png"
               alt="AKSEPWMA Chairman Prince Ikim at a location where the waste was not evacuated"
-              className="w-full"
+              className="aspect-square w-full object-cover object-[50%_20%]"
               loading="lazy"
             />
             <figcaption className="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] rounded-full bg-ink/70 px-3 py-1 font-mono text-[11px] font-bold text-white">
