@@ -32,11 +32,10 @@ export function HowItWorks() {
         <div className="grid gap-6 md:grid-cols-2 md:items-end">
           <div>
             <Eyebrow>How it works</Eyebrow>
-            <h2 className="mt-2 font-display text-4xl leading-tight text-ink md:text-[48px]">Proof of delivery,<br />for waste evacuation</h2>
+            <h2 className="mt-2 font-display text-4xl leading-tight text-ink md:text-[48px]">One pipeline,<br />claim to proof</h2>
           </div>
           <div className="space-y-4 leading-relaxed">
-            <p>A lightweight verification platform, not a reporting app. The way a delivery app tracks a driver — every clearance travels the same four nodes, each handing a verifiable record to the next.</p>
-            <p>A break at any node is flagged in the open. Nothing is silently dropped, nothing is taken on trust.</p>
+            <p>Every clearance travels the same four nodes — registry, check-in, validation, ranking. Each node does one job, and each hands a verifiable record to the next.</p>
           </div>
         </div>
 

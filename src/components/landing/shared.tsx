@@ -109,7 +109,7 @@ export const CHAIN_STEPS: ChainStep[] = [
 export const NAV_LINKS = [
   { href: '#how-it-works', id: 'how-it-works', label: 'How it works' },
   { href: '#why-mundus', id: 'why-mundus', label: 'Why Mundus' },
-  { href: '#evidence', id: 'evidence', label: 'Evidence' },
+  { href: '#solution', id: 'solution', label: 'Solution' },
   { href: '#demo', id: 'demo', label: 'Demo' },
   { href: '#faq', id: 'faq', label: 'FAQ' },
 ]
