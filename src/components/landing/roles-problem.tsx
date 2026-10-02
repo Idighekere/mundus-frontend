@@ -160,7 +160,7 @@ export function Problem() {
               AKSEPWMA CHAIRMAN PRINCE IKIM · SITE LEFT UNCLEARED
             </figcaption>
           </figure>
-          <p className="mt-2 text-xs text-white/60">
+          <p className="mx-auto mt-2 max-w-md text-center text-xs text-white/60">
             AKSEPWMA Chairman Prince Ikim at a location where the waste was not evacuated. Photo:{" "}
             <a
               href="https://www.premiumtimesng.com/regional/south-south-regional/895907-akwa-ibom-suspends-waste-evacuation-officers-after-devastating-floods.html"
