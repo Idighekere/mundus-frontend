@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const DEMO_ROLES = [
   { role: 'Agency portal', body: 'Overdue ranking, timelines, contractors, reporters.', to: '/agency/dashboard' as const, params: undefined },
-  { role: 'Field app', body: 'Supervisor sign-in and before/after check-in.', to: '/contractor/sign-in' as const, params: undefined },
+  { role: 'Field app', body: 'Contractor sign-in and before/after check-in.', to: '/contractor/sign-in' as const, params: undefined },
   { role: 'Reporter link', body: 'Single-tap “site full” from an approved link.', to: '/r/$token' as const, params: { token: 'demo-nwaniba-reporter-link' } },
 ]
 

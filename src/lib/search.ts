@@ -30,12 +30,12 @@ export function globalSearch(query: string): SearchResult[] {
       params: { siteId: s.id },
     }))
   const matchedContractors: SearchResult[] = contractors
-    .filter((c) => c.name.toLowerCase().includes(q) || c.supervisor.toLowerCase().includes(q))
+    .filter((c) => c.name.toLowerCase().includes(q))
     .map((c) => ({
       kind: 'contractor' as const,
       id: `contractor-${c.id}`,
       title: c.name,
-      hint: `Supervisor ${c.supervisor}`,
+      hint: `Contractor · ${c.id}`,
       to: '/agency/contractors',
     }))
   return [...matchedPages, ...matchedSites, ...matchedContractors].slice(0, 12)

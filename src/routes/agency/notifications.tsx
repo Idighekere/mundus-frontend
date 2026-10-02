@@ -42,7 +42,7 @@ function NotificationsPage() {
         flagged: submissions
           .filter((s) => s.flagged)
           .map((s) => ({
-            id: s.id, siteId: s.siteId, supervisor: s.supervisor,
+            id: s.id, siteId: s.siteId, contractor: s.contractor,
             type: s.type, flagReason: s.flagReason, distanceM: s.distanceM, atIso: s.atIso,
           })),
         nominations: reporters

@@ -3,8 +3,8 @@ import { contractors as seedContractors } from '@/mocks/data'
 
 export interface DirectoryContractor {
   id: string
+  /** Person or trade name — the individual who signs in and checks in. */
   name: string
-  supervisor: string
   email: string
   password: string
 }
@@ -12,7 +12,7 @@ export interface DirectoryContractor {
 export interface Submission {
   id: string
   siteId: string
-  supervisor: string
+  contractor: string
   type: 'before' | 'after'
   photo: string
   lat: number
@@ -28,8 +28,8 @@ export interface Submission {
 
 // ---- Contractor directory (agency-created contractors appear everywhere) ----
 let directory: DirectoryContractor[] = [
-  { ...seedContractors[0], email: 'emmanuel.udo@cleancity.ng', password: 'supervisor123' },
-  { ...seedContractors[1], email: 'blessing.akpan@greenpath.ng', password: 'supervisor123' },
+  { ...seedContractors[0], email: 'idighekereudo@gmail.com', password: 'contractor123' },
+  { ...seedContractors[1], email: 'mfoniso.etim@example.com', password: 'contractor123' },
 ]
 const dirListeners = new Set<() => void>()
 
@@ -46,31 +46,26 @@ function getDirectory(): DirectoryContractor[] {
   return directory
 }
 
-export function addContractor(name: string, supervisor: string, email: string, password: string): DirectoryContractor {
+export function addContractor(name: string, email: string, password: string): DirectoryContractor {
   const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString(36)}`
-  const entry = { id, name: name.trim(), supervisor: supervisor.trim(), email: email.trim().toLowerCase(), password }
+  const entry = { id, name: name.trim(), email: email.trim().toLowerCase(), password }
   directory = [...directory, entry]
   emitDir()
   return entry
 }
 
-export function verifySupervisor(email: string, password: string): DirectoryContractor | undefined {
+export function verifyContractor(email: string, password: string): DirectoryContractor | undefined {
   const normalized = email.trim().toLowerCase()
   return getDirectory().find((c) => c.email.toLowerCase() === normalized && c.password === password)
 }
 
-export function updateSupervisorPassword(contractorId: string, newPassword: string): void {
+export function updateContractorPassword(contractorId: string, newPassword: string): void {
   directory = directory.map((c) => (c.id === contractorId ? { ...c, password: newPassword } : c))
   emitDir()
 }
 
 export function useContractorDirectory(): DirectoryContractor[] {
   return useSyncExternalStore(subscribeDir, getDirectory)
-}
-
-export function supervisorContractorId(supervisor: string): string | null {
-  const found = getDirectory().find((c) => c.supervisor === supervisor)
-  return found ? found.id : null
 }
 
 // ---- Field submissions (persisted locally for the demo) ----
@@ -118,10 +113,10 @@ export function useSubmissions(): Submission[] {
   return useSyncExternalStore(subscribeSubs, getSubmissions)
 }
 
-export function todaySubmissions(siteId: string, supervisor: string): { before?: Submission; after?: Submission } {
+export function todaySubmissions(siteId: string, contractor: string): { before?: Submission; after?: Submission } {
   const day = new Date().toDateString()
   const mine = submissions.filter(
-    (s) => s.siteId === siteId && s.supervisor === supervisor && new Date(s.atIso).toDateString() === day,
+    (s) => s.siteId === siteId && s.contractor === contractor && new Date(s.atIso).toDateString() === day,
   )
   return {
     before: mine.find((s) => s.type === 'before'),

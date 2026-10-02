@@ -158,7 +158,7 @@ function ContractorHome() {
   return (
     <div className="mt-4">
       <p className="text-sm text-ink-soft">{session.contractorName}</p>
-      <h1 className="text-xl font-normal text-ink">Hello, {session.supervisor.split(' ')[0]}</h1>
+      <h1 className="text-xl font-normal text-ink">Hello, {session.name.split(' ')[0]}</h1>
       <div className="mt-3 grid grid-cols-2 gap-3">
         <Card className="p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Assigned</p>

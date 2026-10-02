@@ -320,7 +320,7 @@ export const dumpPointsApi = {
   history: (id: number) => request<unknown>(`/dump-points/history/${id}`, { auth: true }),
 }
 
-/** POST /media/* — photo uploads (supervisor JWT). */
+/** POST /media/* — photo uploads (contractor JWT). */
 export const mediaApi = {
   uploadPhoto: (file: Blob, filename = 'photo.jpg') => {
     const form = new FormData()
@@ -329,7 +329,7 @@ export const mediaApi = {
   },
 }
 
-/** /check-ins/* — before/after clearance evidence (supervisor JWT). */
+/** /check-ins/* — before/after clearance evidence (contractor JWT). */
 export const checkInsApi = {
   submit: (body: { site_id: number; type: 'before' | 'after'; photo_url: string; photo_hash: string; latitude: number; longitude: number; device_timestamp: string }) =>
     request<CheckInDto>('/check-ins/new', { method: 'POST', body, auth: true }),
@@ -347,9 +347,9 @@ export const contractorsApi = {
   },
   create: (body: { name: string; supervisor_name: string; supervisor_email: string; password: string }) =>
     request<ContractorDto>('/contractors', { method: 'POST', body, auth: true }),
-  /** Assigned sites for the logged-in supervisor, most overdue first. */
+  /** Assigned sites for the logged-in contractor, most overdue first. */
   sites: () => request<DumpPointDto[]>('/contractor/sites', { auth: true }),
-  /** Supervisor history grouped into before/after pairs. */
+  /** Contractor history grouped into before/after pairs. */
   submissions: (site_id?: number, status?: string) => {
     const p = new URLSearchParams()
     if (site_id !== undefined) p.set('site_id', String(site_id))

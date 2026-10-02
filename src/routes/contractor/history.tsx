@@ -55,14 +55,14 @@ function dayLabel(day: string): string {
 
 type StatusFilter = 'all' | 'complete' | 'pending' | 'flagged'
 
-function pairToSubmissions(pair: SubmissionPairDto, supervisor: string): Submission[] {
+function pairToSubmissions(pair: SubmissionPairDto, contractor: string): Submission[] {
   const out: Submission[] = []
   const push = (c: CheckInDto | null | undefined) => {
     if (!c) return
     out.push({
       id: `srv-${c.id}`,
       siteId: String(pair.site_id),
-      supervisor,
+      contractor,
       type: c.type,
       photo: c.photo_url,
       lat: c.latitude,
@@ -112,8 +112,8 @@ function ContractorHistory() {
   }, [live, loadHistory])
 
   const all = useMemo<Submission[]>(() => {
-    if (livePairs && session) return livePairs.flatMap((p) => pairToSubmissions(p, session.supervisor))
-    return mockAll.filter((s) => s.supervisor === session?.supervisor)
+    if (livePairs && session) return livePairs.flatMap((p) => pairToSubmissions(p, session.name))
+    return mockAll.filter((s) => s.contractor === session?.name)
   }, [livePairs, mockAll, session])
 
   const siteNameOf = (siteId: string): string => {

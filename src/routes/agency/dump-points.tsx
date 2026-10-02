@@ -28,7 +28,7 @@ interface FormState {
   lng: string
 }
 
-const empty: FormState = { name: '', contractorId: 'cleancity', lat: '', lng: '' }
+const empty: FormState = { name: '', contractorId: 'idighs-udo', lat: '', lng: '' }
 
 function ManageDumpPointsPage() {
   const [sites, setSites] = useState(seed)
@@ -69,7 +69,7 @@ function ManageDumpPointsPage() {
 
   const displaySites: DumpPoint[] = liveSites ? liveSites.map(mapDumpPoint) : sites
   const directory = liveDirectory
-    ? liveDirectory.map((c) => ({ id: String(c.id), name: c.name, supervisor: c.supervisor_name }))
+    ? liveDirectory.map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
     : mockDirectory
 
   const latNum = Number(form.lat)
@@ -186,7 +186,7 @@ function ManageDumpPointsPage() {
         </Select>
         {errors.contractorId ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.contractorId}</p> : null}
         <p className="mt-1.5 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
-          Supervisor: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.supervisor ?? '—'}</span>
+          Contact: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.email ?? '—'}</span>
         </p>
       </div>
       <span className="mb-1 block text-sm font-semibold text-ink">Location</span>

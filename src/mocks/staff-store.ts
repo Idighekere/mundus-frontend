@@ -10,24 +10,23 @@ export interface StaffMember {
   createdAt: string
 }
 
-// Seeded agency team (demo): one admin, one staff. The admin can add and
-// deactivate staff from the Staff page. Real teams come from the backend.
+// Seeded agency team (demo): two admins. Real teams come from the backend.
 let staff: StaffMember[] = [
   {
     id: 'admin-1',
-    name: 'Agency Admin',
-    email: 'admin@aksepwma.gov',
+    name: 'Idighs Udo',
+    email: 'idighsudo@gmail.com',
     password: 'admin123',
     isAdmin: true,
     isActive: true,
     createdAt: new Date().toISOString(),
   },
   {
-    id: 'staff-1',
-    name: 'Adaeze Ekong',
-    email: 'adaeze@aksepwma.gov',
-    password: 'staff123',
-    isAdmin: false,
+    id: 'admin-2',
+    name: 'Joshua Udom',
+    email: 'udomjosh04@gmail.com',
+    password: 'admin123',
+    isAdmin: true,
     isActive: true,
     createdAt: new Date().toISOString(),
   },

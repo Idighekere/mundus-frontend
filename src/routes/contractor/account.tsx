@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/misc'
 import { PasswordInput } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
 import { usersApi } from '@/lib/api'
-import { updateSupervisorPassword, useContractorDirectory } from '@/mocks/contractor-store'
+import { updateContractorPassword, useContractorDirectory } from '@/mocks/contractor-store'
 
 export const Route = createFileRoute('/contractor/account')({
   component: ContractorAccount,
@@ -64,7 +64,7 @@ function ContractorAccount() {
       setError('New passwords do not match.')
       return
     }
-    updateSupervisorPassword(entry.id, next)
+    updateContractorPassword(entry.id, next)
     setCurrent('')
     setNext('')
     setConfirm('')
@@ -76,7 +76,7 @@ function ContractorAccount() {
     <div className="mt-4 space-y-3">
       <Card>
         <p className="text-sm text-ink-soft">{session.contractorName}</p>
-        <p className="text-lg font-semibold text-ink">{session.supervisor}</p>
+        <p className="text-lg font-semibold text-ink">{session.name}</p>
         <p className="text-sm text-ink-soft">{entry?.email ?? session.email ?? ''}</p>
       </Card>
 

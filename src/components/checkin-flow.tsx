@@ -35,11 +35,11 @@ function fmtDateTime(iso: string): string {
 }
 
 export function CheckinFlow({
-  type, site, supervisor, simulateGps, live, onDone,
+  type, site, contractor, simulateGps, live, onDone,
 }: {
   type: 'before' | 'after'
   site: DumpPoint
-  supervisor: string
+  contractor: string
   simulateGps: boolean
   live?: boolean
   onDone: (next?: 'after' | 'sites') => void
@@ -160,7 +160,7 @@ export function CheckinFlow({
       const isOffTarget = res.status === 'location_mismatch' || serverDistance > 100
       const entry = recordSubmission({
         siteId: site.id,
-        supervisor,
+        contractor,
         type,
         photo: shot.dataUrl,
         lat: shot.lat, lng: shot.lng,
@@ -207,7 +207,7 @@ export function CheckinFlow({
       const distanceM = Math.round(haversineMeters({ lat: site.lat, lng: site.lng }, { lat: shot.lat, lng: shot.lng }))
       const entry = recordSubmission({
         siteId: site.id,
-        supervisor,
+        contractor,
         type,
         photo: shot.dataUrl,
         lat: shot.lat, lng: shot.lng,

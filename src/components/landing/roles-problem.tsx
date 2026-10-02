@@ -59,9 +59,9 @@ export function Roles() {
           </Reveal>
           <Reveal delay={100}>
             <article className="flex h-full flex-col rounded-2xl border border-hairline bg-canvas p-6">
-              <Eyebrow>Supervisor</Eyebrow>
+              <Eyebrow>Contractor</Eyebrow>
               <h3 className="mt-1 font-display text-2xl text-ink">
-                Proves it on site
+                Does the round
               </h3>
               <p className="mt-1 text-sm leading-relaxed">
                 In-app camera, GPS locked at capture, before → after.

@@ -5,7 +5,7 @@ import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { apiEnabled, authApi } from '@/lib/api'
-import { updateSupervisorPassword, useContractorDirectory } from '@/mocks/contractor-store'
+import { updateContractorPassword, useContractorDirectory } from '@/mocks/contractor-store'
 
 export const Route = createFileRoute('/contractor/forgot-password')({
   component: ContractorForgotPassword,
@@ -63,7 +63,7 @@ function ContractorForgotPassword() {
       setError('New passwords do not match.')
       return
     }
-    updateSupervisorPassword(entry.id, next)
+    updateContractorPassword(entry.id, next)
     setError('')
     setDone(true)
   }

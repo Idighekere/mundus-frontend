@@ -3,7 +3,7 @@ import { Eyebrow, MAXW, Reveal } from './shared'
 import { cn } from '@/lib/utils'
 
 const SOLUTION_ROWS: [string, string, string][] = [
-  ['01', 'Live check-in, before and after', 'Supervisors check in at assigned sites with a live, GPS-tagged, timestamped photo.'],
+  ['01', 'Live check-in, before and after', 'Contractors check in at assigned sites with a live, GPS-tagged, timestamped photo.'],
   ['02', 'Overdue, ranked automatically', 'The dashboard ranks every site by days-since-last-clearance, flagging overdue ones.'],
   ['03', 'Early flags, never required', 'A designated local reporter can flag a full site early — optional, never required.'],
 ]

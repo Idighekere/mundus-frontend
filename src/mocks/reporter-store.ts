@@ -12,7 +12,7 @@ export interface Reporter {
   token: string | null
   reason?: string
   updatedAt: string
-  /** Live-backend share link (present when the token is masked for supervisors). */
+  /** Live-backend share link (present when the token is masked for contractors). */
   whatsappLink?: string
 }
 
@@ -49,7 +49,7 @@ const demoReporters: Reporter[] = [
     name: 'Adaeze Okoro',
     phone: '08031234567',
     siteId: 'nwaniba-road',
-    contractorId: 'cleancity',
+    contractorId: 'idighs-udo',
     status: 'approved',
     token: 'demo-nwaniba-reporter-link',
     updatedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
@@ -59,7 +59,7 @@ const demoReporters: Reporter[] = [
     name: 'Emeka Bassey',
     phone: '08039876543',
     siteId: 'itam-junction',
-    contractorId: 'greenpath',
+    contractorId: 'mfoniso-etim',
     status: 'pending',
     token: null,
     updatedAt: new Date(Date.now() - 5 * 3_600_000).toISOString(),
@@ -227,7 +227,7 @@ export function latestReportForSite(siteId: string): SiteReport | undefined {
   return reports.filter((r) => r.siteId === siteId).sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))[0]
 }
 
-// In-app "push": reports the supervisor hasn't opened yet. Real push/SMS
+// In-app "push": reports the contractor hasn't opened yet. Real push/SMS
 // needs the backend; until then the home screen shouts instead.
 function readSeen(): string[] {
   try {

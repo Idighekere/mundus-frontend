@@ -113,7 +113,7 @@ function VisitPage() {
 
       <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-canvas p-4 sm:grid-cols-3">
         <div><p className="text-xs uppercase tracking-wide text-ink-soft">Visit date</p><p className="font-semibold text-ink">{fmtDateTime(visit.dateIso)}</p></div>
-        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Supervisor</p><p className="font-semibold text-ink">{visit.supervisor}</p></div>
+        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{visit.contractor}</p></div>
         <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{contractorName}</p></div>
       </div>
 

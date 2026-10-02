@@ -129,7 +129,7 @@ function SiteDetailPage() {
                 <span className="font-semibold text-ink">{contractorName}</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
-                <span className="text-sm text-ink-soft">Supervisor</span>
+                <span className="text-sm text-ink-soft">Contractor</span>
                 <span className="font-semibold text-ink">{site.supervisorName}</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
@@ -188,8 +188,8 @@ function SiteDetailPage() {
                       {isOpen ? (
                         <div className="border-t border-hairline p-4 pt-3">
                           <p className="text-sm text-ink">
-                            {v.status === 'reported-full' ? 'Reporter: ' : 'Supervisor: '}
-                            <span className="font-semibold">{v.supervisor}</span>
+                            {v.status === 'reported-full' ? 'Reporter: ' : 'Contractor: '}
+                            <span className="font-semibold">{v.contractor}</span>
                           </p>
                           <p className="mt-1 text-ink-soft">{v.note}</p>
                           {count > 0 && (v.before || v.after) ? (
@@ -217,7 +217,7 @@ function SiteDetailPage() {
                                 <Images size={18} /> Open comparison <ArrowRight size={16} />
                               </Link>
                             ) : (
-                              <span className="text-sm text-ink-soft">No supervisor photos{v.ticket ? ` · Ticket #${v.ticket}` : ''}</span>
+                              <span className="text-sm text-ink-soft">No contractor photos{v.ticket ? ` · Ticket #${v.ticket}` : ''}</span>
                             )}
                             {v.status === 'location-mismatch' && v.before ? (
                               <span className="font-mono text-xs text-[#be3b3b]">{v.before.distanceM} m from site</span>

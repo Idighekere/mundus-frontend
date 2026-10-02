@@ -57,7 +57,7 @@ function pairVisit(siteId: number, day: string, items: CheckInDto[]): Visit {
     id: `live-${siteId}-${new Date(day).getTime()}`,
     siteId: String(siteId),
     dateIso: new Date(atIso).toISOString(),
-    supervisor: `Supervisor #${supervisorId}`,
+    contractor: `Contractor #${supervisorId}`,
     status,
     note,
     before: before ? toPhoto(before) : undefined,
@@ -70,7 +70,7 @@ function flagVisit(siteId: number, f: ReporterFlagDto): Visit {
     id: `flag-${f.id}`,
     siteId: String(siteId),
     dateIso: f.timestamp,
-    supervisor: f.reporter_name ?? 'Community report',
+    contractor: f.reporter_name ?? 'Community report',
     status: 'reported-full',
     note: f.note?.trim() ? f.note : 'Dump point reported overflowing.',
   }

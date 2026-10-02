@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import { contractorById, dumpPoints, type DumpPoint } from '@/mocks/data'
+import { contractorById, contractors, dumpPoints, type DumpPoint } from '@/mocks/data'
 import { latestReportForSite } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { dashboardApi, hasLiveSession, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
@@ -109,10 +109,7 @@ function DashboardPage() {
         accessorKey: 'name',
         header: 'Site',
         cell: ({ row }) => (
-          <div>
-            <p className="font-semibold">{row.original.name}</p>
-            <p className="text-xs text-ink-soft">{row.original.supervisorName}</p>
-          </div>
+          <p className="font-semibold">{row.original.name}</p>
         ),
       },
       {
@@ -161,7 +158,7 @@ function DashboardPage() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: (row, _col, value) =>
-      `${row.original.name} ${row.original.contractorName} ${row.original.supervisorName}`
+      `${row.original.name} ${row.original.contractorName}`
         .toLowerCase()
         .includes(String(value).toLowerCase()),
   })
@@ -228,8 +225,9 @@ function DashboardPage() {
               <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All contractors</SelectItem>
-                <SelectItem value="cleancity">CleanCity Services</SelectItem>
-                <SelectItem value="greenpath">GreenPath Ltd</SelectItem>
+                {contractors.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -306,7 +304,7 @@ function DashboardPage() {
               <TBody>
                 {visible.map((r) => (
                   <TR key={r.id} className="cursor-pointer" onClick={() => openSite(r.original.id)}>
-                    <TD><p className="font-semibold">{r.original.name}</p><p className="text-xs text-ink-soft">{r.original.supervisorName}</p></TD>
+                    <TD><p className="font-semibold">{r.original.name}</p></TD>
                     <TD className="text-ink-soft">{r.original.contractorName}</TD>
                     <TD><span className={cn('font-semibold', r.original.days > 7 && 'text-[#be3b3b]')}>{r.original.days}d</span></TD>
                     <TD>
@@ -332,7 +330,7 @@ function DashboardPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-ink">{r.original.name}</p>
-                    <p className="text-xs text-ink-soft">{r.original.contractorName} · {r.original.supervisorName}</p>
+                    <p className="text-xs text-ink-soft">{r.original.contractorName}</p>
                   </div>
                   <StatusBadge status={r.original.status} />
                 </div>

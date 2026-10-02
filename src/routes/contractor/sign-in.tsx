@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
 import { apiEnabled } from '@/lib/api'
-import { useContractorDirectory, verifySupervisor } from '@/mocks/contractor-store'
+import { useContractorDirectory, verifyContractor } from '@/mocks/contractor-store'
 
 export const Route = createFileRoute('/contractor/sign-in')({
   component: ContractorSignIn,
@@ -38,15 +38,15 @@ function ContractorSignIn() {
       }
       return
     }
-    // Demo mode: registered credentials sign in as that supervisor,
-    // anything else signs in as the first supervisor.
-    const entry = verifySupervisor(email, password) ?? directory[0]
+    // Demo mode: registered credentials sign in as that contractor,
+    // anything else signs in as the first contractor.
+    const entry = verifyContractor(email, password) ?? directory[0]
     if (!entry) {
       setError('No contractors exist yet — ask the agency to register one.')
       return
     }
     setError('')
-    signIn({ supervisor: entry.supervisor, contractorId: entry.id, contractorName: entry.name })
+    signIn({ name: entry.name, contractorId: entry.id, contractorName: entry.name, email: entry.email })
     navigate({ to: '/contractor/sites', replace: true })
   }
 
@@ -93,7 +93,7 @@ function ContractorSignIn() {
           <Link to="/" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
             <ArrowLeft size={16} /> Back home
           </Link>
-          <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Supervisor sign in</p>
+          <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Contractor sign in</p>
           <h1 className="mt-1 font-display text-4xl text-ink md:text-[48px]">Start your round</h1>
           <p className="mt-2 leading-relaxed">Sign in with the email and password the agency registered for you. You will only see your own contractor's sites.</p>
           {!apiEnabled ? (
@@ -101,25 +101,25 @@ function ContractorSignIn() {
           ) : null}
           <form className="mt-6 space-y-4" onSubmit={submit}>
             <div>
-              <label htmlFor="supervisor-email" className="mb-1 block text-sm font-semibold text-ink">Email</label>
+              <label htmlFor="contractor-email" className="mb-1 block text-sm font-semibold text-ink">Email</label>
               <Input
-                id="supervisor-email"
+                id="contractor-email"
                 type="email"
                 autoComplete="username"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError('') }}
-                placeholder="you@contractor.ng"
+                placeholder="you@example.com"
               />
             </div>
             <div>
               <div className="mb-1 flex items-center justify-between gap-2">
-                <label htmlFor="supervisor-password" className="text-sm font-semibold text-ink">Password</label>
+                <label htmlFor="contractor-password" className="text-sm font-semibold text-ink">Password</label>
                 <Link to="/contractor/forgot-password" className="min-h-[44px] py-2 text-sm font-semibold text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
               <PasswordInput
-                id="supervisor-password"
+                id="contractor-password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError('') }}

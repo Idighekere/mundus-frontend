@@ -2,7 +2,8 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 import { apiEnabled, authApi, clearTokens, contractorsApi, hasLiveSession, setTokens } from './api'
 
 interface ContractorSession {
-  supervisor: string
+  /** Display name — the person (or trade name) holding the phone. */
+  name: string
   contractorId: string
   contractorName: string
   email?: string
@@ -44,7 +45,7 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
         signInLive: async (email: string, password: string) => {
           if (!apiEnabled) throw new Error('Backend not configured (VITE_API_URL).')
           const token = await authApi.login(email, password)
-          if (token.user.role !== 'supervisor') throw new Error('This sign-in is for field supervisors.')
+          if (token.user.role !== 'supervisor') throw new Error('This sign-in is for contractors.')
           setTokens({ access_token: token.access_token, refresh_token: token.refresh_token })
           const name = token.user.full_name?.trim() || email.split('@')[0]
           let contractorId = `user-${token.user.id}`
@@ -59,7 +60,7 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
           } catch {
             // Directory lookup is best-effort — login already succeeded.
           }
-          const next = { supervisor: name, contractorId, contractorName, email: email.trim().toLowerCase(), live: true }
+          const next = { name, contractorId, contractorName, email: email.trim().toLowerCase(), live: true }
           localStorage.setItem(KEY, JSON.stringify(next))
           setSession(next)
         },

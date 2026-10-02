@@ -86,7 +86,7 @@ function AgencySignIn() {
           </Link>
           <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Agency access only</p>
           <h1 className="mt-1 font-display text-4xl text-ink md:text-[48px]">Agency sign in</h1>
-          <p className="mt-2 leading-relaxed">Restricted to agency staff. Supervisors and reporters use the field app.</p>
+          <p className="mt-2 leading-relaxed">Restricted to agency staff. Contractors and reporters use the field app.</p>
           <form className="mt-6 space-y-4" onSubmit={submit}>
             <div>
               <label htmlFor="email" className="mb-1 block text-sm font-semibold text-ink">Work email</label>
@@ -104,7 +104,7 @@ function AgencySignIn() {
           </p>
           {!apiEnabled ? (
             <p className="mt-3 rounded-xl bg-canvas px-3 py-2 text-center font-mono text-xs text-ink-soft">
-              Demo admin — admin@aksepwma.gov / admin123
+              Demo admin — idighsudo@gmail.com / admin123
             </p>
           ) : null}
         </div>

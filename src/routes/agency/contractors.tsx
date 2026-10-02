@@ -47,7 +47,6 @@ function ContractorsPage() {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'critical', desc: true }])
   const [formOpen, setFormOpen] = useState(false)
   const [name, setName] = useState('')
-  const [supervisor, setSupervisor] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
@@ -79,7 +78,7 @@ function ContractorsPage() {
   }, [live, loadLive])
 
   const directory: DirectoryContractor[] = liveContractors
-    ? liveContractors.map((c) => ({ id: String(c.id), name: c.name, supervisor: c.supervisor_name, email: c.supervisor_email, password: '' }))
+    ? liveContractors.map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email, password: '' }))
     : mockDirectory
   const allSites: DumpPoint[] = useMemo(
     () => (liveSites ? liveSites.map(mapDumpPoint) : dumpPoints),
@@ -91,7 +90,6 @@ function ContractorsPage() {
       return liveContractors.map((c) => ({
         id: String(c.id),
         name: c.name,
-        supervisor: c.supervisor_name,
         email: c.supervisor_email,
         password: '',
         siteCount: c.site_count,
@@ -132,14 +130,9 @@ function ContractorsPage() {
       {
         accessorKey: 'name',
         header: 'Contractor',
-        cell: ({ row }) => <p className="font-semibold">{row.original.name}</p>,
-      },
-      {
-        accessorKey: 'supervisor',
-        header: 'Supervisor',
         cell: ({ row }) => (
           <span>
-            <span className="block text-ink">{row.original.supervisor}</span>
+            <span className="block font-semibold text-ink">{row.original.name}</span>
             <span className="block text-xs text-ink-soft">{row.original.email}</span>
           </span>
         ),
@@ -191,16 +184,12 @@ function ContractorsPage() {
       setFormError('Contractor name needs at least 2 characters.')
       return
     }
-    if (supervisor.trim().length < 2) {
-      setFormError('Supervisor name needs at least 2 characters.')
-      return
-    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setFormError('Enter a valid supervisor email.')
+      setFormError('Enter a valid contractor email.')
       return
     }
     if (password.length < 6) {
-      setFormError('Password needs at least 6 characters. The supervisor can change it later.')
+      setFormError('Password needs at least 6 characters. The contractor can change it later.')
       return
     }
     if (directory.some((c) => c.name.toLowerCase() === name.trim().toLowerCase())) {
@@ -208,13 +197,12 @@ function ContractorsPage() {
       return
     }
     if (directory.some((c) => c.email.toLowerCase() === email.trim().toLowerCase())) {
-      setFormError('This email is already registered to another supervisor.')
+      setFormError('This email is already registered to another contractor.')
       return
     }
     if (!live) {
-      addContractor(name, supervisor, email, password)
+      addContractor(name, email, password)
       setName('')
-      setSupervisor('')
       setEmail('')
       setPassword('')
       setFormError('')
@@ -224,15 +212,16 @@ function ContractorsPage() {
     setSaving(true)
     setFormError('')
     try {
+      // Backend still models the contractor login as a supervisor user —
+      // mirror the person's details into those fields. No UI shows them.
       await contractorsApi.create({
         name: name.trim(),
-        supervisor_name: supervisor.trim(),
+        supervisor_name: name.trim(),
         supervisor_email: email.trim().toLowerCase(),
         password,
       })
       await loadLive()
       setName('')
-      setSupervisor('')
       setEmail('')
       setPassword('')
       setFormOpen(false)
@@ -246,24 +235,20 @@ function ContractorsPage() {
   const contractorForm = (
     <div className="space-y-4">
       <p className="text-sm text-ink-soft">
-        The new contractor appears immediately in site assignment and supervisor sign-in. Assign them to dump points from Manage Dump Points.
+        The new contractor signs in with these details and appears immediately in site assignment. Assign them to dump points from Manage Dump Points.
       </p>
       <div>
         <label htmlFor="contractor-name" className="mb-1 block text-sm font-semibold text-ink">Contractor name</label>
-        <Input id="contractor-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="CleanCity Services" />
+        <Input id="contractor-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Idighs Udo — person or trade name" />
       </div>
       <div>
-        <label htmlFor="contractor-supervisor" className="mb-1 block text-sm font-semibold text-ink">Field supervisor</label>
-        <Input id="contractor-supervisor" value={supervisor} onChange={(e) => setSupervisor(e.target.value)} placeholder="Emmanuel Udo" />
-      </div>
-      <div>
-        <label htmlFor="contractor-email" className="mb-1 block text-sm font-semibold text-ink">Supervisor email</label>
-        <Input id="contractor-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="supervisor@contractor.ng" />
+        <label htmlFor="contractor-email" className="mb-1 block text-sm font-semibold text-ink">Contractor email</label>
+        <Input id="contractor-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contractor@example.com" />
       </div>
       <div>
         <label htmlFor="contractor-password" className="mb-1 block text-sm font-semibold text-ink">Temporary password</label>
         <PasswordInput id="contractor-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
-        <p className="mt-1 text-xs text-ink-soft">The supervisor signs in with these details and can change the password afterwards.</p>
+        <p className="mt-1 text-xs text-ink-soft">The contractor signs in with these details and can change the password afterwards.</p>
       </div>
       {formError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{formError}</p> : null}
     </div>
@@ -283,9 +268,9 @@ function ContractorsPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-display text-4xl text-ink">Contractors</h2>
-          <p className="mt-1 text-ink-soft">Registered waste evacuation contractors. Expand a row to see assigned dump points.</p>
+          <p className="mt-1 text-ink-soft">Registered contractors — the individuals who sign in and check in. Expand a row to see assigned dump points.</p>
         </div>
-        <Button onClick={() => { setName(''); setSupervisor(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
+        <Button onClick={() => { setName(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
           <Plus size={18} /> Add contractor
         </Button>
       </div>
@@ -324,7 +309,7 @@ function ContractorsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search contractors or supervisors…"
+            placeholder="Search contractors…"
             className="pl-10"
             aria-label="Search contractors"
           />
@@ -445,7 +430,7 @@ function ContractorsPage() {
                   <button onClick={() => r.toggleExpanded()} aria-expanded={open} className="flex w-full cursor-pointer items-center justify-between gap-2 text-left">
                     <span>
                       <span className="block font-semibold text-ink">{r.original.name}</span>
-                      <span className="block text-xs text-ink-soft">{r.original.supervisor} · {r.original.siteCount} sites</span>
+                      <span className="block text-xs text-ink-soft">{r.original.siteCount} sites</span>
                     </span>
                     <span className="flex items-center gap-2">
                       <StatusBadge status={r.original.worst} />
@@ -482,7 +467,7 @@ function ContractorsPage() {
           open={formOpen}
           onOpenChange={setFormOpen}
           title="Add contractor"
-          description="Register a waste evacuation contractor and their field supervisor."
+          description="Register a contractor — the individual who signs in and checks in."
           footer={contractorActions}
         >
           {contractorForm}

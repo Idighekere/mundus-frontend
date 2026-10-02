@@ -70,9 +70,9 @@ function ContractorSiteDetail() {
     if (live) void loadField()
   }, [live, loadField])
   const visit = useMemo(
-    () => (session ? todaySubmissions(siteId, session.supervisor) : { before: undefined, after: undefined }),
+    () => (session ? todaySubmissions(siteId, session.name) : { before: undefined, after: undefined }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [siteId, session?.supervisor, tick],
+    [siteId, session?.name, tick],
   )
 
   if (live && liveError && !liveSites) {
@@ -127,7 +127,7 @@ function ContractorSiteDetail() {
           key={capturing}
           type={capturing}
           site={site}
-          supervisor={session.supervisor}
+          contractor={session.name}
           simulateGps={simulateGps}
           live={live}
           onDone={flowDone}

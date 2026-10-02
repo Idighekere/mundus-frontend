@@ -16,7 +16,7 @@ export interface Notice {
 export interface FlaggedSubmission {
   id: string
   siteId: string
-  supervisor: string
+  contractor: string
   type: 'before' | 'after'
   flagReason?: 'location' | 'duplicate'
   distanceM: number
@@ -58,7 +58,7 @@ export function buildNotices(input: {
       id: `flag-${s.id}`,
       kind: 'flag',
       title: s.flagReason === 'duplicate' ? 'Duplicate photo flagged' : 'Location mismatch flagged',
-      body: `${siteById(s.siteId)?.name ?? 'A site'} · ${s.type} by ${s.supervisor}${s.flagReason === 'location' ? ` · ${s.distanceM} m off-target` : ''}`,
+      body: `${siteById(s.siteId)?.name ?? 'A site'} · ${s.type} by ${s.contractor}${s.flagReason === 'location' ? ` · ${s.distanceM} m off-target` : ''}`,
       atIso: s.atIso,
       to: '/agency/sites/$siteId',
       params: { siteId: s.siteId },

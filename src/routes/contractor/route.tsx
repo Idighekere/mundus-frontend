@@ -57,12 +57,12 @@ function ContractorShell() {
           aria-label="Open profile menu"
           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-semibold text-white"
         >
-          {initials(session.supervisor)}
+          {initials(session.name)}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>
-          <p className="truncate text-sm font-semibold text-ink">{session.supervisor}</p>
+          <p className="truncate text-sm font-semibold text-ink">{session.name}</p>
           <p className="truncate text-xs text-ink-soft">{session.contractorName}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -111,7 +111,7 @@ function ContractorShell() {
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <span className="text-right">
-              <span className="block text-[13px] font-semibold leading-tight text-ink">{session.supervisor}</span>
+              <span className="block text-[13px] font-semibold leading-tight text-ink">{session.name}</span>
               <span className="block max-w-44 truncate text-[11px] text-ink-soft">{session.contractorName}</span>
             </span>
             {profileMenu}
