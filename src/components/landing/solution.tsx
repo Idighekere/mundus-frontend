@@ -1,22 +1,34 @@
 import { Badge } from '@/components/ui/badge'
-import { Eyebrow, MAXW } from './shared'
+import { Eyebrow, MAXW, Reveal } from './shared'
 import { cn } from '@/lib/utils'
+
+const SOLUTION_ROWS: [string, string, string][] = [
+  ['01', 'Live check-in, before and after', 'Supervisors check in at assigned sites with a live, GPS-tagged, timestamped photo.'],
+  ['02', 'Overdue, ranked automatically', 'The dashboard ranks every site by days-since-last-clearance, flagging overdue ones.'],
+  ['03', 'Early flags, never required', 'A designated local reporter can flag a full site early — optional, never required.'],
+]
 
 export function Solution() {
   return (
     <section id="solution" className="scroll-mt-24 bg-paper py-14 md:py-20 lg:py-28">
       <div className={MAXW}>
-        <div className="grid gap-6 md:grid-cols-2 md:items-end">
-          <div>
-            <Eyebrow>The solution</Eyebrow>
-            <h2 className="mt-2 font-display text-4xl leading-tight text-ink md:text-[48px]">Proof of delivery,<br />for waste evacuation</h2>
-          </div>
-          <div className="space-y-4 leading-relaxed">
-            <p>A lightweight verification platform, not a reporting app. The way a delivery app tracks a driver — every clearance travels the same four nodes, each handing a verifiable record to the next.</p>
-            <p>A break at any node is flagged in the open. Nothing is silently dropped, nothing is taken on trust.</p>
-          </div>
-        </div>
-        <div className={cn('mt-8 overflow-hidden rounded-2xl border border-hairline bg-paper shadow-card')}>
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>The solution</Eyebrow>
+          <h2 className="mt-2 font-display text-4xl text-ink md:text-[48px]">A lightweight verification platform, not a reporting app</h2>
+        </Reveal>
+        <ol className="mx-auto mt-8 max-w-3xl divide-y divide-hairline border-y border-hairline">
+          {SOLUTION_ROWS.map(([n, title, body], i) => (
+            <Reveal key={n} delay={i * 80}>
+              <li className="grid gap-1 py-5 sm:grid-cols-12 sm:items-baseline sm:gap-4">
+                <span className="font-mono text-sm text-primary sm:col-span-1">{n}</span>
+                <p className="leading-relaxed sm:col-span-11">
+                  <span className="font-semibold text-ink">{title} — </span>{body}
+                </p>
+              </li>
+            </Reveal>
+          ))}
+        </ol>
+        <div className={cn('mx-auto mt-8 max-w-3xl overflow-hidden rounded-2xl border border-hairline bg-paper shadow-card')}>
           <div className="grid sm:grid-cols-2">
             <figure className="relative">
               <img src="/evidence/before.jpg" alt="Overflowing roadside dump before evacuation" className="aspect-[4/3] w-full object-cover" loading="lazy" />
