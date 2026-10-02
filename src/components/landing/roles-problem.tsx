@@ -149,14 +149,14 @@ export function Problem() {
         </Reveal>
 
         <Reveal delay={100}>
-          <figure className="relative mt-10 overflow-hidden rounded-2xl">
+          <figure className="relative mx-auto mt-10 w-full max-w-md overflow-hidden rounded-2xl">
             <img
               src="/evidence/AKSEPWMA-Chairman-Prince-Ikim-at-a-location-where-the-waste-was-not-evacuated.png"
               alt="AKSEPWMA Chairman Prince Ikim at a location where the waste was not evacuated"
-              className="h-72 w-full object-cover md:h-96"
+              className="w-full"
               loading="lazy"
             />
-            <figcaption className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] rounded-full bg-ink/70 px-3 py-1 font-mono text-[11px] font-bold text-white">
+            <figcaption className="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] rounded-full bg-ink/70 px-3 py-1 font-mono text-[11px] font-bold text-white">
               AKSEPWMA CHAIRMAN PRINCE IKIM · SITE LEFT UNCLEARED
             </figcaption>
           </figure>
