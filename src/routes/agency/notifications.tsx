@@ -4,9 +4,7 @@ import { Bell, CheckCircle, Flag, Megaphone, UserPlus, Warning } from '@phosphor
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { useContractorDirectory, useSubmissions } from '@/mocks/contractor-store'
-import { useReporters, useReports } from '@/mocks/reporter-store'
-import { buildNotices, markAllNoticesRead, markNoticeRead, unreadIds, type Notice } from '@/lib/notifications'
+import { buildNotices, markAllNoticesRead, markNoticeRead, unreadIds, useNoticesInput, type Notice } from '@/lib/notifications'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agency/notifications')({
@@ -25,36 +23,18 @@ function dayGroup(iso: string): string {
 }
 
 function NotificationsPage() {
-  const reports = useReports()
-  const submissions = useSubmissions()
-  const reporters = useReporters()
-  const directory = useContractorDirectory()
   const navigate = useNavigate()
   const [tick, setTick] = useState(0)
+  const input = useNoticesInput()
 
   const notices = useMemo(
     () =>
-      buildNotices({
-        reports: reports.map((r) => ({
-          ...r,
-          reporterName: reporters.find((x) => x.id === r.reporterId)?.name,
-        })),
-        flagged: submissions
-          .filter((s) => s.flagged)
-          .map((s) => ({
-            id: s.id, siteId: s.siteId, contractor: s.contractor,
-            type: s.type, flagReason: s.flagReason, distanceM: s.distanceM, atIso: s.atIso,
-          })),
-        nominations: reporters
-          .filter((r) => r.status === 'pending')
-          .map((r) => ({
-            id: r.id, name: r.name, phone: r.phone, siteId: r.siteId,
-            contractorName: directory.find((c) => c.id === r.contractorId)?.name ?? 'Unknown',
-            updatedAt: r.updatedAt,
-          })),
-      }),
+      buildNotices(
+        { reports: input.reports, flagged: input.flagged, nominations: input.nominations },
+        input.sites ? { sites: input.sites } : undefined,
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [reports, submissions, reporters, directory, tick],
+    [input, tick],
   )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -46,6 +46,7 @@ function DashboardPage() {
   const [liveStats, setLiveStats] = useState<DashboardStatsDto | null>(null)
   const [liveLoading, setLiveLoading] = useState(false)
   const [liveError, setLiveError] = useState('')
+  const live = hasLiveSession()
   const navigate = useNavigate()
 
   const loadLive = useCallback(async () => {
@@ -174,18 +175,24 @@ function DashboardPage() {
       <h2 className="font-display text-4xl text-ink">Dashboard</h2>
       <p className="mt-1 text-ink-soft">All registered dump points, most overdue first. Select a site for its full audit timeline.</p>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {[
-          { label: 'Dump points', value: String(total) },
-          { label: 'Overdue', value: String(overdueCount) },
-          { label: 'Critical', value: String(criticalCount) },
-        ].map((s) => (
-          <Card key={s.label} className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">{s.label}</p>
-            <p className="mt-1 font-display text-4xl text-ink">{s.value}</p>
-          </Card>
-        ))}
-      </div>
+      {live && !liveSites ? (
+        <div className="mt-4">
+          <StatCardsSkeleton />
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[
+            { label: 'Dump points', value: String(total) },
+            { label: 'Overdue', value: String(overdueCount) },
+            { label: 'Critical', value: String(criticalCount) },
+          ].map((s) => (
+            <Card key={s.label} className="p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">{s.label}</p>
+              <p className="mt-1 font-display text-4xl text-ink">{s.value}</p>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <div className="mt-4 flex gap-2">
         <div className="relative flex-1">

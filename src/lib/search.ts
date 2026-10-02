@@ -5,6 +5,20 @@ export type SearchResult =
   | { kind: 'site'; id: string; title: string; hint: string; to: string; params: { siteId: string } }
   | { kind: 'contractor'; id: string; title: string; hint: string; to: string }
 
+export interface SearchIndex {
+  sites: { id: string; name: string; hint: string }[]
+  contractors: { id: string; name: string }[]
+}
+
+const mockIndex: SearchIndex = {
+  sites: dumpPoints.map((s) => ({
+    id: s.id,
+    name: s.name,
+    hint: `${s.supervisorName} · ${daysHint(s.lastClearanceIso)}`,
+  })),
+  contractors: contractors.map((c) => ({ id: c.id, name: c.name })),
+}
+
 const pages: Extract<SearchResult, { kind: 'page' }>[] = [
   { kind: 'page', id: 'dashboard', title: 'Dashboard', hint: 'Dump points overview', to: '/agency/dashboard' },
   { kind: 'page', id: 'contractors', title: 'Contractors', hint: 'Contractor coverage', to: '/agency/contractors' },
@@ -13,23 +27,23 @@ const pages: Extract<SearchResult, { kind: 'page' }>[] = [
 ]
 
 // Swap this body for a backend endpoint later — same return shape.
-export function globalSearch(query: string): SearchResult[] {
+export function globalSearch(query: string, index: SearchIndex = mockIndex): SearchResult[] {
   const q = query.toLowerCase().trim()
   if (!q) return []
   const matchedPages = pages.filter(
     (p) => p.title.toLowerCase().includes(q) || p.hint.toLowerCase().includes(q),
   )
-  const matchedSites: SearchResult[] = dumpPoints
+  const matchedSites: SearchResult[] = index.sites
     .filter((s) => s.name.toLowerCase().includes(q))
     .map((s) => ({
       kind: 'site' as const,
       id: `site-${s.id}`,
       title: s.name,
-      hint: `${s.supervisorName} · ${daysHint(s.lastClearanceIso)}`,
+      hint: s.hint,
       to: '/agency/sites/$siteId',
       params: { siteId: s.id },
     }))
-  const matchedContractors: SearchResult[] = contractors
+  const matchedContractors: SearchResult[] = index.contractors
     .filter((c) => c.name.toLowerCase().includes(q))
     .map((c) => ({
       kind: 'contractor' as const,

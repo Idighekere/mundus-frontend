@@ -183,10 +183,11 @@ function SiteDetailPage() {
                       </button>
                       {isOpen ? (
                         <div className="border-t border-hairline p-4 pt-3">
-                          <p className="text-sm text-ink">
-                            {v.status === 'reported-full' ? 'Reporter: ' : 'Contractor: '}
-                            <span className="font-semibold">{v.contractor}</span>
-                          </p>
+                          {v.status === 'reported-full' ? (
+                            <p className="text-sm text-ink">
+                              Reporter: <span className="font-semibold">{v.contractor}</span>
+                            </p>
+                          ) : null}
                           <p className="mt-1 text-ink-soft">{v.note}</p>
                           {count > 0 && (v.before || v.after) ? (
                             <Link {...to} className="mt-3 grid grid-cols-2 gap-2" aria-label={`View photos for visit on ${new Date(v.dateIso).toLocaleDateString()}`}>

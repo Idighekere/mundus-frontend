@@ -12,9 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useSession } from '@/lib/session'
-import { buildNotices, unreadIds } from '@/lib/notifications'
-import { useSubmissions, useContractorDirectory } from '@/mocks/contractor-store'
-import { useReporters, useReports } from '@/mocks/reporter-store'
+import { buildNotices, unreadIds, useNoticesInput } from '@/lib/notifications'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agency')({
@@ -37,27 +35,11 @@ function AgencyShell() {
   const { pathname } = useLocation()
   const { session, signOut } = useSession()
   const navigate = useNavigate()
-  const reports = useReports()
-  const submissions = useSubmissions()
-  const reporters = useReporters()
-  const directory = useContractorDirectory()
-
-  const notices = buildNotices({
-    reports: reports.map((r) => ({ ...r })),
-    flagged: submissions
-      .filter((s) => s.flagged)
-      .map((s) => ({
-        id: s.id, siteId: s.siteId, contractor: s.contractor,
-        type: s.type, flagReason: s.flagReason, distanceM: s.distanceM, atIso: s.atIso,
-      })),
-    nominations: reporters
-      .filter((r) => r.status === 'pending')
-      .map((r) => ({
-        id: r.id, name: r.name, phone: r.phone, siteId: r.siteId,
-        contractorName: directory.find((c) => c.id === r.contractorId)?.name ?? 'Unknown',
-        updatedAt: r.updatedAt,
-      })),
-  })
+  const input = useNoticesInput()
+  const notices = buildNotices(
+    { reports: input.reports, flagged: input.flagged, nominations: input.nominations },
+    input.sites ? { sites: input.sites } : undefined,
+  )
   const unreadCount = unreadIds(notices).length
   const [mobileSearch, setMobileSearch] = useState(false)
   const [collapsed, setCollapsed] = useState(() => {

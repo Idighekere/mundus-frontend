@@ -4,6 +4,7 @@ import { Check, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-ic
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { StatCardsSkeleton } from '@/components/skeletons'
 import { ListSkeleton } from '@/components/skeletons'
 import { Input } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
@@ -199,20 +200,26 @@ function ReportersPage() {
       <h2 className="font-display text-4xl text-ink">Reporters</h2>
       <p className="mt-1 text-ink-soft">Approve contractor-nominated reporters. Approved reporters get a personal single-site link by message.</p>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Awaiting review</p>
-          <p className="mt-1 font-display text-4xl text-ink">{pendingCount}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Approved</p>
-          <p className="mt-1 font-display text-4xl text-ink">{reporters.filter((r) => r.status === 'approved').length}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Total nominated</p>
-          <p className="mt-1 font-display text-4xl text-ink">{reporters.length}</p>
-        </Card>
-      </div>
+      {live && !liveReporters ? (
+        <div className="mt-4">
+          <StatCardsSkeleton />
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Card className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Awaiting review</p>
+            <p className="mt-1 font-display text-4xl text-ink">{pendingCount}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Approved</p>
+            <p className="mt-1 font-display text-4xl text-ink">{reporters.filter((r) => r.status === 'approved').length}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Total nominated</p>
+            <p className="mt-1 font-display text-4xl text-ink">{reporters.length}</p>
+          </Card>
+        </div>
+      )}
 
       {justApproved ? (
         <Card className="mt-4 border-[#1d6f42]">

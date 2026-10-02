@@ -291,18 +291,24 @@ function ContractorsPage() {
         </Card>
       ) : (
         <>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {[
-          { label: 'Contractors', value: String(rows.length) },
-          { label: 'Dump points', value: String(totalSites) },
-          { label: 'Need attention', value: String(rows.reduce((n, r) => n + r.overdue + r.critical, 0)) },
-        ].map((s) => (
-          <Card key={s.label} className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">{s.label}</p>
-            <p className="mt-1 font-display text-4xl text-ink">{s.value}</p>
-          </Card>
-        ))}
-      </div>
+          {live && !liveContractors ? (
+            <div className="mt-4">
+              <StatCardsSkeleton />
+            </div>
+          ) : (
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {[
+                { label: 'Contractors', value: String(rows.length) },
+                { label: 'Dump points', value: String(totalSites) },
+                { label: 'Need attention', value: String(rows.reduce((n, r) => n + r.overdue + r.critical, 0)) },
+              ].map((s) => (
+                <Card key={s.label} className="p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">{s.label}</p>
+                  <p className="mt-1 font-display text-4xl text-ink">{s.value}</p>
+                </Card>
+              ))}
+            </div>
+          )}
 
       <div className="mt-4 flex gap-2">
         <div className="relative flex-1">
