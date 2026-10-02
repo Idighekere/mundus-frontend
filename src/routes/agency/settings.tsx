@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { EnvelopeSimple, MagnifyingGlass, PauseCircle, PlayCircle, Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { ListSkeleton } from '@/components/skeletons'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
@@ -285,10 +286,7 @@ function SettingsPage() {
       ) : null}
 
       {liveLoading && !liveStaff ? (
-        <Card className="mt-4 text-center">
-          <p className="font-display text-[28px] text-ink">Loading staff…</p>
-          <p className="mt-1">Fetching the team from the server.</p>
-        </Card>
+        <ListSkeleton columns={['w-40', 'w-20', 'w-24']} rows={3} />
       ) : liveError && !liveStaff ? (
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load staff</p>

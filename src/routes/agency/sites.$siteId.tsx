@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Camera, CaretDown, Images } from '@phosphor-icon
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { SiteDetailSkeleton } from '@/components/skeletons'
 import { SiteMiniMap } from '@/components/site-mini-map'
 import { VisitStatusBadge, photoCount, visitNodeColor } from '@/components/visit-status'
 import { contractorById, siteById, visitsForSite, type Visit } from '@/mocks/data'
@@ -58,10 +59,9 @@ function SiteDetailPage() {
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
           <ArrowLeft size={16} /> Dashboard
         </Link>
-        <Card className="mt-4 text-center">
-          <p className="font-display text-[28px] text-ink">Loading site…</p>
-          <p className="mt-1">Fetching the site profile and timeline.</p>
-        </Card>
+        <div className="mt-2">
+          <SiteDetailSkeleton />
+        </div>
       </div>
     )
   }
@@ -127,10 +127,6 @@ function SiteDetailPage() {
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-ink-soft">Contractor</span>
                 <span className="font-semibold text-ink">{contractorName}</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5">
-                <span className="text-sm text-ink-soft">Contractor</span>
-                <span className="font-semibold text-ink">{site.supervisorName}</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="text-sm text-ink-soft">Clearance interval</span>

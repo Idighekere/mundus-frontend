@@ -4,6 +4,7 @@ import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { HistorySkeleton } from '@/components/skeletons'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useContractorSession } from '@/lib/contractor-session'
@@ -202,10 +203,7 @@ function ContractorHistory() {
       </div>
 
       {liveLoading && !livePairs ? (
-        <Card className="mt-3 text-center">
-          <p className="text-lg text-ink">Loading submissions…</p>
-          <p className="mt-1 text-sm text-ink-soft">Fetching your history from the server.</p>
-        </Card>
+        <HistorySkeleton />
       ) : liveError && !livePairs ? (
         <Card className="mt-3 text-center">
           <p className="text-lg text-ink">Could not load submissions</p>

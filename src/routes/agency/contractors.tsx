@@ -19,6 +19,7 @@ import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
+import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
 import { dumpPoints, type DumpPoint } from '@/mocks/data'
 import { addContractor, useContractorDirectory, type DirectoryContractor } from '@/mocks/contractor-store'
 import { contractorsApi, dumpPointsApi, hasLiveSession, type ContractorDto, type DumpPointDto } from '@/lib/api'
@@ -276,10 +277,10 @@ function ContractorsPage() {
       </div>
 
       {liveLoading && !liveContractors ? (
-        <Card className="mt-4 text-center">
-          <p className="font-display text-[28px] text-ink">Loading contractors…</p>
-          <p className="mt-1">Fetching the live directory from the server.</p>
-        </Card>
+        <div className="mt-4 space-y-4">
+          <StatCardsSkeleton />
+          <ListSkeleton columns={['w-40', 'w-16', 'w-16', 'w-24']} rows={4} />
+        </div>
       ) : liveError && !liveContractors ? (
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load contractors</p>

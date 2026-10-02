@@ -4,6 +4,7 @@ import { Check, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-ic
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { ListSkeleton } from '@/components/skeletons'
 import { Input } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
@@ -261,10 +262,7 @@ function ReportersPage() {
       ) : null}
 
       {liveLoading && !liveReporters ? (
-        <Card className="mt-4 text-center">
-          <p className="mt-2 font-display text-[28px] text-ink">Loading reporters…</p>
-          <p className="mt-1">Fetching the live roster from the server.</p>
-        </Card>
+        <ListSkeleton columns={['w-40', 'w-28', 'w-28', 'w-20']} rows={3} />
       ) : liveError && !liveReporters ? (
         <Card className="mt-4 text-center">
           <p className="mt-2 font-display text-[28px] text-ink">Could not load reporters</p>

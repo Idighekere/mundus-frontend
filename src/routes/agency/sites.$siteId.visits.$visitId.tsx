@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Camera, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { VisitSkeleton } from '@/components/skeletons'
 import { Card } from '@/components/ui/misc'
 import { VisitStatusBadge } from '@/components/visit-status'
 import { contractorById, siteById, visitById, type Visit, type VisitPhoto } from '@/mocks/data'
@@ -60,6 +62,7 @@ function VisitPage() {
   const liveMode = hasLiveSession() && Number.isFinite(numericId)
   const [liveDetail, setLiveDetail] = useState<LiveSiteDetail | null>(null)
   const [liveError, setLiveError] = useState('')
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     if (!liveMode) return
@@ -67,18 +70,23 @@ function VisitPage() {
       (d) => setLiveDetail(d),
       (err) => setLiveError(err instanceof Error ? err.message : 'Could not load this visit.'),
     )
-  }, [liveMode, numericId, siteId])
+  }, [liveMode, numericId, siteId, attempt])
 
   const site = liveMode ? liveDetail?.site : siteById(siteId)
   const visit: Visit | undefined = liveMode
     ? liveDetail?.timeline.find((v) => v.id === visitId)
     : visitById(siteId, visitId)
   if (liveMode && !liveDetail) {
-    return (
+    return liveError ? (
       <div>
-        <p className="font-display text-4xl text-ink">{liveError ? 'Could not load this visit' : 'Loading visit…'}</p>
-        {liveError ? <p className="mt-1 text-ink-soft">{liveError}</p> : null}
+        <p className="font-display text-4xl text-ink">Could not load this visit</p>
+        <p className="mt-1 text-ink-soft">{liveError}</p>
+        <Button variant="secondary" className="mt-4" onClick={() => { setLiveError(''); setAttempt((a) => a + 1) }}>
+          Retry
+        </Button>
       </div>
+    ) : (
+      <VisitSkeleton />
     )
   }
   if (!site || !visit) throw notFound()

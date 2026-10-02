@@ -4,6 +4,7 @@ import { ArrowRight, X } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { ContractorHomeSkeleton } from '@/components/skeletons'
 import { useContractorSession } from '@/lib/contractor-session'
 import { dumpPoints, siteById } from '@/mocks/data'
 import { markSiteReportsSeen, unseenReports, useReports } from '@/mocks/reporter-store'
@@ -147,10 +148,7 @@ function ContractorHome() {
   if (live && !liveSites) {
     return (
       <div className="mt-4">
-        <Card className="text-center">
-          <p className="font-display text-[28px] text-ink">Loading your sites…</p>
-          <p className="mt-1 text-sm text-ink-soft">Fetching your assigned dump points.</p>
-        </Card>
+        <ContractorHomeSkeleton />
       </div>
     )
   }

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
+import { ListSkeleton } from '@/components/skeletons'
 import { MapPicker } from '@/components/map-picker'
 import { PlaceSearch } from '@/components/place-search'
 import { useMediaQuery } from '@/lib/use-media-query'
@@ -225,10 +226,7 @@ function ManageDumpPointsPage() {
       </div>
 
       {liveLoading && !liveSites ? (
-        <Card className="mt-4 text-center">
-          <p className="font-display text-[28px] text-ink">Loading dump points…</p>
-          <p className="mt-1">Fetching the live registry from the server.</p>
-        </Card>
+        <ListSkeleton columns={['w-40', 'w-32']} rows={5} search={false} />
       ) : liveError && !liveSites ? (
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load dump points</p>

@@ -1,8 +1,10 @@
 import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
 import { LogoMark } from '@/components/logo'
+import { NotFoundPage } from '@/components/not-found'
 
 export const Route = createRootRoute({
   component: RootLayout,
+  notFoundComponent: NotFoundPage,
 })
 
 function RootLayout() {

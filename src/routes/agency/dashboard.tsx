@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { contractorById, contractors, dumpPoints, type DumpPoint } from '@/mocks/data'
+import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
 import { latestReportForSite } from '@/mocks/reporter-store'
 import { daysSince, statusFor } from '@/lib/overdue'
 import { dashboardApi, hasLiveSession, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
@@ -252,10 +253,10 @@ function DashboardPage() {
       ) : null}
 
       {liveLoading && !liveSites ? (
-        <Card className="mt-4 text-center">
-          <p className="font-display text-[28px] text-ink">Loading live data…</p>
-          <p className="mt-1">Fetching the latest dump points from the server.</p>
-        </Card>
+        <div className="mt-4 space-y-4">
+          <StatCardsSkeleton />
+          <ListSkeleton columns={['w-32', 'w-24', 'w-16', 'w-20']} rows={5} />
+        </div>
       ) : liveError && !liveSites ? (
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load dashboard</p>
