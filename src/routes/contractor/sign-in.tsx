@@ -117,9 +117,10 @@ function ContractorSignIn() {
           </form>
           <DemoAccounts
             accounts={[
-              { email: 'idighekereudo@gmail.com', name: 'Idighs Udo', role: 'Contractor' },
+              { email: 'supervisor@mundus.org', password: 'Password123!', name: 'Emmanuel Udo', role: 'Contractor' },
+              { email: 'blessing@mundus.org', password: 'Password123!', name: 'Blessing Akpan', role: 'Contractor' },
             ]}
-            onPick={(email) => { setEmail(email); setError('') }}
+            onPick={(email, password) => { setEmail(email); setPassword(password); setError('') }}
           />
           <p className="mt-4 text-center text-sm">
             Trouble signing in? Contact your agency admin.

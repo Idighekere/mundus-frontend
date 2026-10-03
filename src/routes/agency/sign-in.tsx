@@ -109,10 +109,9 @@ function AgencySignIn() {
           </p>
           <DemoAccounts
             accounts={[
-              { email: 'idighsudo@gmail.com', name: 'Idighs Udo', role: 'Admin' },
-              { email: 'udomjosh04@gmail.com', name: 'Joshua Udom', role: 'Admin' },
+              { email: 'agency@mundus.org', password: 'Password123!', name: 'State Agency Admin', role: 'Admin' },
             ]}
-            onPick={(email) => { setEmail(email); setError('') }}
+            onPick={(email, password) => { setEmail(email); setPassword(password); setError('') }}
           />
         </div>
       </div>
