@@ -258,12 +258,12 @@ export const authApi = {
   register: (email: string, password: string, full_name?: string, role?: UserRole) =>
     request<TokenDto>('/auth/register', { method: 'POST', body: { email, password, full_name, role } }),
   me: () => request<UserDto>('/auth/me', { auth: true }),
-  /** Public — sends a reset link. Always resolves so emails can't be enumerated. */
+  /** Public — emails a 6-digit OTP (15-min expiry). Always resolves so emails can't be enumerated. */
   forgotPassword: (email: string) =>
     request<void>('/auth/forgot-password', { method: 'POST', body: { email } }),
-  /** Public — consumes an emailed reset token. */
-  resetPassword: (token: string, new_password: string) =>
-    request<void>('/auth/reset-password', { method: 'POST', body: { token, new_password } }),
+  /** Public — consumes the emailed OTP code (not a link token). */
+  resetPassword: (email: string, otp: string, new_password: string) =>
+    request<void>('/auth/reset-password', { method: 'POST', body: { email, otp, new_password } }),
 }
 
 /** PATCH /users/* — password management. */
@@ -298,15 +298,16 @@ export const dashboardApi = {
   sites: (status?: string, search?: string) => {
     const q = new URLSearchParams()
     if (status && status !== 'all') q.set('status', status)
-    if (search) q.set('search', search)
-    const suffix = q.toString() ? `?${q.toString()}` : ''
+    if (search) q.set('q', search)
+    q.set('limit', '100')
+    const suffix = `?${q.toString()}`
     return request<DashboardSummaryDto>(`/dashboard/sites${suffix}`, { auth: true })
   },
 }
 
 /** /dump-points/* — site registry CRUD + assignment (agency JWT). */
 export const dumpPointsApi = {
-  all: () => request<DumpPointDto[]>('/dump-points/all', { auth: true }),
+  all: () => request<DumpPointDto[]>('/dump-points/all?limit=100', { auth: true }),
   detail: (id: number) => request<DumpPointDto>(`/dump-points/detail/${id}`, { auth: true }),
   create: (body: { name: string; latitude: number; longitude: number; code?: string; sector?: string; assigned_contractor_id?: string }) =>
     request<DumpPointDto>('/dump-points/create', { method: 'POST', body, auth: true }),
@@ -315,9 +316,9 @@ export const dumpPointsApi = {
   remove: (id: number) =>
     request<void>(`/dump-points/delete/${id}`, { method: 'DELETE', auth: true }),
   assign: (id: number, body: { assigned_contractor_id?: string; assigned_supervisor_id?: number }) =>
-    request<DumpPointDto>(`/dump-points/assign/${id}`, { method: 'PUT', body, auth: true }),
+    request<DumpPointDto>(`/dump-points/${id}/assign`, { method: 'PUT', body, auth: true }),
   /** Backend history schema is still untyped — returns raw events, may be an array or object. */
-  history: (id: number) => request<unknown>(`/dump-points/history/${id}`, { auth: true }),
+  history: (id: number) => request<unknown>(`/dump-points/${id}/history`, { auth: true }),
 }
 
 /** POST /media/* — photo uploads (contractor JWT). */
@@ -342,11 +343,12 @@ export const contractorsApi = {
     const p = new URLSearchParams()
     if (q) p.set('q', q)
     if (status && status !== 'all') p.set('status', status)
-    const suffix = p.toString() ? `?${p.toString()}` : ''
-    return request<ContractorDto[]>(`/contractors${suffix}`, { auth: true })
+    p.set('limit', '100')
+    const suffix = `?${p.toString()}`
+    return request<ContractorDto[]>(`/contractors/all${suffix}`, { auth: true })
   },
   create: (body: { name: string; supervisor_name: string; supervisor_email: string; password: string }) =>
-    request<ContractorDto>('/contractors', { method: 'POST', body, auth: true }),
+    request<ContractorDto>('/contractors/new', { method: 'POST', body, auth: true }),
   /** Assigned sites for the logged-in contractor, most overdue first. */
   sites: () => request<DumpPointDto[]>('/contractor/sites', { auth: true }),
   /** Contractor history grouped into before/after pairs. */
@@ -354,7 +356,8 @@ export const contractorsApi = {
     const p = new URLSearchParams()
     if (site_id !== undefined) p.set('site_id', String(site_id))
     if (status && status !== 'all') p.set('status', status)
-    const suffix = p.toString() ? `?${p.toString()}` : ''
+    p.set('limit', '100')
+    const suffix = `?${p.toString()}`
     return request<SubmissionPairDto[]>(`/contractor/submissions${suffix}`, { auth: true })
   },
   alerts: () => request<ContractorAlertDto[]>('/contractor/alerts', { auth: true }),
@@ -371,7 +374,8 @@ export const reportersApi = {
     if (site_id !== undefined) p.set('site_id', String(site_id))
     if (status && status !== 'all') p.set('status', status)
     if (q) p.set('q', q)
-    const suffix = p.toString() ? `?${p.toString()}` : ''
+    p.set('limit', '100')
+    const suffix = `?${p.toString()}`
     return request<ReporterDto[]>(`/reporters${suffix}`, { auth: true })
   },
   approve: (id: number) =>
@@ -382,7 +386,7 @@ export const reportersApi = {
     request<ReporterDto>(`/reporters/${id}/revoke`, { method: 'POST', auth: true }),
   /** Public — resolves a personal reporter link. */
   resolveToken: (token: string) => request<PublicReporterSiteDto>(`/r/${token}`),
-  /** Public via reporter_token — includes the mandatory report photo once the backend accepts it. */
+  /** Public via reporter_token — photo_url is accepted, stored, and returned with the flag. */
   flag: (body: { site_id: number; reporter_token?: string; photo_url?: string; note?: string }) =>
     request<ReporterFlagDto>('/reporters/flag-site', { method: 'POST', body }),
   siteFlags: (siteId: number) => request<ReporterFlagDto[]>(`/reporters/site/${siteId}/flags`, { auth: true }),

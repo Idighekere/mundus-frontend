@@ -3,19 +3,21 @@ import { useState } from 'react'
 import { ArrowLeft, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
-import { PasswordInput } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { apiEnabled, authApi } from '@/lib/api'
 
 export const Route = createFileRoute('/contractor/reset-password')({
   validateSearch: (search: Record<string, unknown>) => ({
-    token: typeof search.token === 'string' ? search.token : '',
+    email: typeof search.email === 'string' ? search.email : '',
   }),
   component: ContractorResetPassword,
 })
 
 function ContractorResetPassword() {
-  const { token } = Route.useSearch()
+  const { email: prefill } = Route.useSearch()
   const navigate = useNavigate()
+  const [email, setEmail] = useState(prefill)
+  const [code, setCode] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
@@ -24,6 +26,14 @@ function ContractorResetPassword() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Enter the email the code was sent to.')
+      return
+    }
+    if (code.trim().length < 4) {
+      setError('Enter the 6-digit code from your email.')
+      return
+    }
     if (next.length < 6) {
       setError('New password needs at least 6 characters.')
       return
@@ -35,10 +45,11 @@ function ContractorResetPassword() {
     setError('')
     setSaving(true)
     try {
-      await authApi.resetPassword(token, next)
+      // Live backend verifies a 6-digit OTP (15-min expiry) — no link token.
+      await authApi.resetPassword(email.trim(), code.trim(), next)
       setDone(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'This link is invalid or expired. Request a new one.')
+      setError(err instanceof Error ? err.message : 'This code is invalid or expired. Request a new one.')
     } finally {
       setSaving(false)
     }
@@ -65,12 +76,12 @@ function ContractorResetPassword() {
           <button onClick={() => navigate({ to: '/contractor/sign-in' })} className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
             <ArrowLeft size={16} /> Back to sign in
           </button>
-          {!apiEnabled || !token ? (
+          {!apiEnabled ? (
             <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-              <h1 className="font-display text-3xl text-ink">Reset links come by email</h1>
-              <p className="mt-2 leading-relaxed">Start from the forgot-password page and follow the link we send you.</p>
+              <h1 className="font-display text-3xl text-ink">Reset codes come by email</h1>
+              <p className="mt-2 leading-relaxed">Start from the forgot-password page and enter the code we send you.</p>
               <Button asChild className="mt-4 w-full">
-                <Link to="/contractor/forgot-password">Request a link</Link>
+                <Link to="/contractor/forgot-password">Request a code</Link>
               </Button>
             </div>
           ) : done ? (
@@ -87,6 +98,14 @@ function ContractorResetPassword() {
               <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Set a new password</p>
               <h1 className="mt-1 font-display text-4xl text-ink">Choose a password</h1>
               <form className="mt-6 space-y-4" onSubmit={submit}>
+                <div>
+                  <label htmlFor="rp-email" className="mb-1 block text-sm font-semibold text-ink">Email</label>
+                  <Input id="rp-email" type="email" autoComplete="username" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} placeholder="you@contractor.ng" />
+                </div>
+                <div>
+                  <label htmlFor="rp-code" className="mb-1 block text-sm font-semibold text-ink">6-digit code</label>
+                  <Input id="rp-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError('') }} placeholder="123456" />
+                </div>
                 <div>
                   <label htmlFor="rp-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
                   <PasswordInput id="rp-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />

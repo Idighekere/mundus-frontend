@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, EnvelopeSimple, Key } from '@phosphor-icons/react'
+import { ArrowLeft, CheckCircle, Key } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
@@ -17,10 +17,12 @@ function ContractorForgotPassword() {
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [code, setCode] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [done, setDone] = useState(false)
   const [sending, setSending] = useState(false)
+  const [verifying, setVerifying] = useState(false)
 
   const requestLink = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,9 +44,36 @@ function ContractorForgotPassword() {
       await authApi.forgotPassword(email.trim())
       setSent(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not send the reset link.')
+      setError(err instanceof Error ? err.message : 'Could not send the reset code.')
     } finally {
       setSending(false)
+    }
+  }
+
+  const verifyCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (code.trim().length < 4) {
+      setError('Enter the code from your email.')
+      return
+    }
+    if (next.length < 6) {
+      setError('New password needs at least 6 characters.')
+      return
+    }
+    if (next !== confirm) {
+      setError('New passwords do not match.')
+      return
+    }
+    setError('')
+    setVerifying(true)
+    try {
+      // Live backend issues a 6-digit OTP (15-min expiry) — no link token.
+      await authApi.resetPassword(email.trim(), code.trim(), next)
+      setDone(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'This code is invalid or expired. Request a new one.')
+    } finally {
+      setVerifying(false)
     }
   }
 
@@ -80,7 +109,7 @@ function ContractorForgotPassword() {
             <div className="mt-4 hidden rounded-2xl bg-white/10 p-5 backdrop-blur md:block">
               <div className="flex items-center gap-3">
                 <Key size={24} className="shrink-0 text-white/80" />
-                <p className="leading-relaxed text-white/80">Enter your email and follow the reset link. Back on round in a minute.</p>
+                <p className="leading-relaxed text-white/80">Enter your email and enter the 6-digit code. Back on round in a minute.</p>
               </div>
             </div>
           </div>
@@ -104,14 +133,32 @@ function ContractorForgotPassword() {
               </Button>
             </div>
           ) : sent ? (
-            <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-              <EnvelopeSimple size={44} className="mx-auto text-primary" />
-              <h1 className="mt-2 font-display text-3xl text-ink">Check your email</h1>
-              <p className="mt-2 leading-relaxed">If <span className="font-mono text-sm">{email}</span> is registered, a reset link is on its way.</p>
-              <Button asChild variant="secondary" className="mt-4 w-full">
-                <Link to="/contractor/sign-in">Back to sign in</Link>
-              </Button>
-            </div>
+            <>
+              <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Check your email</p>
+              <h1 className="mt-1 font-display text-4xl text-ink">Enter the code</h1>
+              <p className="mt-2 leading-relaxed">If <span className="font-mono text-sm">{email}</span> is registered, a 6-digit code is on its way (expires in 15 minutes).</p>
+              <form className="mt-6 space-y-4" onSubmit={verifyCode}>
+                <div>
+                  <label htmlFor="fp-code" className="mb-1 block text-sm font-semibold text-ink">6-digit code</label>
+                  <Input id="fp-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setError('') }} placeholder="123456" />
+                </div>
+                <div>
+                  <label htmlFor="fp-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
+                  <PasswordInput id="fp-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
+                </div>
+                <div>
+                  <label htmlFor="fp-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
+                  <PasswordInput id="fp-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
+                </div>
+                {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
+                <Button type="submit" disabled={verifying} loading={verifying} className="w-full">
+                  {verifying ? 'Verifying…' : 'Verify code & save password'}
+                </Button>
+                <Button type="button" variant="secondary" className="w-full" onClick={() => { setSent(false); setCode(''); setError('') }}>
+                  Resend a new code
+                </Button>
+              </form>
+            </>
           ) : resetting ? (
             <>
               <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Set a new password</p>
@@ -134,7 +181,7 @@ function ContractorForgotPassword() {
             <>
               <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Reset password</p>
               <h1 className="mt-1 font-display text-4xl text-ink md:text-[48px]">Forgot password?</h1>
-              <p className="mt-2 leading-relaxed">Enter the email the agency registered for you and we'll send a reset link.</p>
+              <p className="mt-2 leading-relaxed">Enter the email the agency registered for you and we'll send a 6-digit code.</p>
               <form className="mt-6 space-y-4" onSubmit={requestLink}>
                 <div>
                   <label htmlFor="fp-email" className="mb-1 block text-sm font-semibold text-ink">Email</label>
@@ -142,7 +189,7 @@ function ContractorForgotPassword() {
                 </div>
                 {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
                 <Button type="submit" disabled={sending} loading={sending} className="w-full">
-                  {sending ? 'Sending…' : 'Send reset link'}
+                  {sending ? 'Sending…' : 'Send reset code'}
                 </Button>
               </form>
             </>
