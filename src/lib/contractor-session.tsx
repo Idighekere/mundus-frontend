@@ -42,7 +42,7 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
           setTokens({ access_token: token.access_token, refresh_token: token.refresh_token })
           const name = token.user.full_name?.trim() || email.split('@')[0]
           let contractorId = `user-${token.user.id}`
-          let contractorName = 'Unassigned contractor'
+          let contractorName = name
           try {
             const directory = await contractorsApi.list()
             const match = directory.find((c) => c.supervisor_email.toLowerCase() === email.trim().toLowerCase())

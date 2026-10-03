@@ -58,7 +58,12 @@ function AgencyShell() {
     }
   }, [collapsed])
 
-  if (pathname === '/agency/sign-in') return <Outlet />
+  if (
+    pathname === '/agency/sign-in' ||
+    pathname === '/agency/forgot-password' ||
+    pathname === '/agency/reset-password'
+  )
+    return <Outlet />
 
   if (!session) {
     // Same as contractor shell: only redirect inside this section; render

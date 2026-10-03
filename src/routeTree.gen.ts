@@ -16,10 +16,12 @@ import { Route as AgencyIndexRouteImport } from './routes/agency/index'
 import { Route as AgencyContractorsRouteImport } from './routes/agency/contractors'
 import { Route as AgencyDashboardRouteImport } from './routes/agency/dashboard'
 import { Route as AgencyDumpPointsRouteImport } from './routes/agency/dump-points'
+import { Route as AgencyForgotPasswordRouteImport } from './routes/agency/forgot-password'
 import { Route as AgencyManageDumpPointsRouteImport } from './routes/agency/manage-dump-points'
 import { Route as AgencyManageSitesRouteImport } from './routes/agency/manage-sites'
 import { Route as AgencyNotificationsRouteImport } from './routes/agency/notifications'
 import { Route as AgencyReportersRouteImport } from './routes/agency/reporters'
+import { Route as AgencyResetPasswordRouteImport } from './routes/agency/reset-password'
 import { Route as AgencySettingsRouteImport } from './routes/agency/settings'
 import { Route as AgencySignInRouteImport } from './routes/agency/sign-in'
 import { Route as ContractorIndexRouteImport } from './routes/contractor/index'
@@ -69,6 +71,11 @@ const AgencyDumpPointsRoute = AgencyDumpPointsRouteImport.update({
   path: '/dump-points',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
+const AgencyForgotPasswordRoute = AgencyForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
 const AgencyManageDumpPointsRoute = AgencyManageDumpPointsRouteImport.update({
   id: '/manage-dump-points',
   path: '/manage-dump-points',
@@ -87,6 +94,11 @@ const AgencyNotificationsRoute = AgencyNotificationsRouteImport.update({
 const AgencyReportersRoute = AgencyReportersRouteImport.update({
   id: '/reporters',
   path: '/reporters',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
+const AgencyResetPasswordRoute = AgencyResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
 const AgencySettingsRoute = AgencySettingsRouteImport.update({
@@ -164,10 +176,12 @@ export interface FileRoutesByFullPath {
   '/agency/contractors': typeof AgencyContractorsRoute
   '/agency/dashboard': typeof AgencyDashboardRoute
   '/agency/dump-points': typeof AgencyDumpPointsRoute
+  '/agency/forgot-password': typeof AgencyForgotPasswordRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
@@ -188,10 +202,12 @@ export interface FileRoutesByTo {
   '/agency/contractors': typeof AgencyContractorsRoute
   '/agency/dashboard': typeof AgencyDashboardRoute
   '/agency/dump-points': typeof AgencyDumpPointsRoute
+  '/agency/forgot-password': typeof AgencyForgotPasswordRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
@@ -215,10 +231,12 @@ export interface FileRoutesById {
   '/agency/contractors': typeof AgencyContractorsRoute
   '/agency/dashboard': typeof AgencyDashboardRoute
   '/agency/dump-points': typeof AgencyDumpPointsRoute
+  '/agency/forgot-password': typeof AgencyForgotPasswordRoute
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
   '/agency/reporters': typeof AgencyReportersRoute
+  '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
@@ -243,10 +261,12 @@ export interface FileRouteTypes {
     | '/agency/contractors'
     | '/agency/dashboard'
     | '/agency/dump-points'
+    | '/agency/forgot-password'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
@@ -267,10 +287,12 @@ export interface FileRouteTypes {
     | '/agency/contractors'
     | '/agency/dashboard'
     | '/agency/dump-points'
+    | '/agency/forgot-password'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
@@ -293,10 +315,12 @@ export interface FileRouteTypes {
     | '/agency/contractors'
     | '/agency/dashboard'
     | '/agency/dump-points'
+    | '/agency/forgot-password'
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
     | '/agency/reporters'
+    | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
@@ -371,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgencyDumpPointsRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
+    '/agency/forgot-password': {
+      id: '/agency/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/agency/forgot-password'
+      preLoaderRoute: typeof AgencyForgotPasswordRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
     '/agency/manage-dump-points': {
       id: '/agency/manage-dump-points'
       path: '/manage-dump-points'
@@ -397,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/reporters'
       fullPath: '/agency/reporters'
       preLoaderRoute: typeof AgencyReportersRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
+    '/agency/reset-password': {
+      id: '/agency/reset-password'
+      path: '/reset-password'
+      fullPath: '/agency/reset-password'
+      preLoaderRoute: typeof AgencyResetPasswordRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
     '/agency/settings': {
@@ -508,10 +546,12 @@ interface AgencyRouteRouteChildren {
   AgencyContractorsRoute: typeof AgencyContractorsRoute
   AgencyDashboardRoute: typeof AgencyDashboardRoute
   AgencyDumpPointsRoute: typeof AgencyDumpPointsRoute
+  AgencyForgotPasswordRoute: typeof AgencyForgotPasswordRoute
   AgencyManageDumpPointsRoute: typeof AgencyManageDumpPointsRoute
   AgencyManageSitesRoute: typeof AgencyManageSitesRoute
   AgencyNotificationsRoute: typeof AgencyNotificationsRoute
   AgencyReportersRoute: typeof AgencyReportersRoute
+  AgencyResetPasswordRoute: typeof AgencyResetPasswordRoute
   AgencySettingsRoute: typeof AgencySettingsRoute
   AgencySignInRoute: typeof AgencySignInRoute
   AgencyIndexRoute: typeof AgencyIndexRoute
@@ -522,10 +562,12 @@ const AgencyRouteRouteChildren: AgencyRouteRouteChildren = {
   AgencyContractorsRoute: AgencyContractorsRoute,
   AgencyDashboardRoute: AgencyDashboardRoute,
   AgencyDumpPointsRoute: AgencyDumpPointsRoute,
+  AgencyForgotPasswordRoute: AgencyForgotPasswordRoute,
   AgencyManageDumpPointsRoute: AgencyManageDumpPointsRoute,
   AgencyManageSitesRoute: AgencyManageSitesRoute,
   AgencyNotificationsRoute: AgencyNotificationsRoute,
   AgencyReportersRoute: AgencyReportersRoute,
+  AgencyResetPasswordRoute: AgencyResetPasswordRoute,
   AgencySettingsRoute: AgencySettingsRoute,
   AgencySignInRoute: AgencySignInRoute,
   AgencyIndexRoute: AgencyIndexRoute,

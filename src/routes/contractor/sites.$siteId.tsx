@@ -103,7 +103,7 @@ function ContractorSiteDetail() {
   const site = resolvedSite
   const days = liveDto ? mapDaysSince(liveDto, resolvedSite.lastClearanceIso) : daysSince(resolvedSite.lastClearanceIso)
   const status = liveDto ? mapSiteStatus(liveDto.status) : statusFor(days)
-  const assigned = resolvedSite.contractorId === session.contractorId
+  const assigned = live ? !!liveDto : resolvedSite.contractorId === session.contractorId
   const complete = !!(visit.before && visit.after)
   const flagged = visit.before?.flagged || visit.after?.flagged
   const siteReport = site

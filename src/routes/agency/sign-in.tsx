@@ -93,7 +93,12 @@ function AgencySignIn() {
               <Input id="email" type="email" autoComplete="username" placeholder="adaeze@aksepwma.gov" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} />
             </div>
             <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-semibold text-ink">Password</label>
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <label htmlFor="password" className="text-sm font-semibold text-ink">Password</label>
+                <Link to="/agency/forgot-password" className="min-h-[44px] py-2 text-sm font-semibold text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <PasswordInput id="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} />
             </div>
             {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
