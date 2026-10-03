@@ -29,16 +29,20 @@ export interface ButtonProps
 }
 
 export function Button({ className, variant, asChild, loading, disabled, children, ...props }: ButtonProps) {
-  const Comp = asChild ? Slot : 'button'
+  const classes = cn(buttonVariants({ variant }), className)
+  if (asChild) {
+    // Slot requires exactly one child element — never inject the spinner here.
+    return <Slot className={classes} {...props}>{children}</Slot>
+  }
   return (
-    <Comp
-      className={cn(buttonVariants({ variant }), className)}
+    <button
+      className={classes}
       disabled={disabled ?? loading}
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading && !asChild ? <CircleNotch size={18} weight="bold" className="animate-spin" aria-hidden="true" /> : null}
+      {loading ? <CircleNotch size={18} weight="bold" className="animate-spin" aria-hidden="true" /> : null}
       {children}
-    </Comp>
+    </button>
   )
 }
