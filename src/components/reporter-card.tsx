@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
 import {
-  nominateReporter, reportersForSite, reporterMessage, reporterWhatsappUrl, useReporters,
+  nominateReporter, reportersForSite, reporterLink, reporterMessage, reporterWhatsappUrl, useReporters,
   type Reporter,
 } from '@/mocks/reporter-store'
 import { reportersApi, type ReporterDto } from '@/lib/api'
@@ -140,9 +140,14 @@ export function ReporterCard({ siteId, contractorId, siteName: siteNameProp, liv
               ) : null}
               {reporter.status === 'approved' && (reporter.token || reporter.whatsappLink) ? (
                 <div className="mt-2">
-                  <p className="rounded-lg bg-paper px-2.5 py-2 font-mono text-[11px] leading-relaxed text-ink">
+                  <a
+                    href={reporter.token ? reporterLink(reporter.token) : (reporter.whatsappLink ?? '#')}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block break-all rounded-lg bg-paper px-2.5 py-2 font-mono text-[11px] leading-relaxed text-primary hover:underline"
+                  >
                     {reporter.token ? reporterMessage(siteName, reporter.token) : reporter.whatsappLink}
-                  </p>
+                  </a>
                   <div className="mt-2 flex gap-2">
                     <Button
                       variant="secondary"
