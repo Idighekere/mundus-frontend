@@ -44,9 +44,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           const next = {
             email: token.user.email,
             name: displayName(token.user.email, token.user.full_name),
-            // Backend has no staff/admin distinction yet (see handoff) —
-            // every agency login manages the agency until is_admin lands.
-            isAdmin: token.user.is_admin !== false,
+            // Backend flags admins via is_admin / is_agency_staff when present;
+            // absent flags default open so agency staff are never locked out.
+            isAdmin: token.user.is_admin ?? token.user.is_agency_staff ?? true,
             live: true,
           }
           localStorage.setItem(KEY, JSON.stringify(next))

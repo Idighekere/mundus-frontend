@@ -24,7 +24,7 @@ function toMember(u: UserDto): StaffMember {
     name: u.full_name ?? u.email,
     email: u.email,
     password: '',
-    isAdmin: u.is_admin === true,
+    isAdmin: u.is_admin ?? u.is_agency_staff ?? true,
     isActive: u.is_active,
     createdAt: u.created_at,
   }

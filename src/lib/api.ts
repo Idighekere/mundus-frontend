@@ -19,6 +19,7 @@ export interface UserDto {
   is_active: boolean
   /** Agency admins can invite and deactivate staff. Absent = non-admin. */
   is_admin?: boolean | null
+  is_agency_staff?: boolean | null
   created_at: string
 }
 
