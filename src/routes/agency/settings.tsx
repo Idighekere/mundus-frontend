@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { EnvelopeSimple, MagnifyingGlass, PauseCircle, PlayCircle, Plus } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -8,8 +8,8 @@ import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import { addStaff, deactivateStaff, reactivateStaff, updateStaffPassword, useStaff, type StaffMember } from '@/mocks/staff-store'
-import { hasLiveSession, staffApi, usersApi, type UserDto } from '@/lib/api'
+import { qk, useStaffList, useInvalidate } from '@/lib/live-queries'
+import { staffApi, usersApi, type UserDto } from '@/lib/api'
 import { useSession } from '@/lib/session'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
@@ -18,12 +18,20 @@ export const Route = createFileRoute('/agency/settings')({
   component: SettingsPage,
 })
 
+interface StaffMember {
+  id: string
+  name: string
+  email: string
+  isAdmin: boolean
+  isActive: boolean
+  createdAt: string
+}
+
 function toMember(u: UserDto): StaffMember {
   return {
     id: String(u.id),
     name: u.full_name ?? u.email,
     email: u.email,
-    password: '',
     isAdmin: u.is_admin ?? u.is_agency_staff ?? true,
     isActive: u.is_active,
     createdAt: u.created_at,
@@ -42,10 +50,6 @@ function SettingsPage() {
   const [sentTo, setSentTo] = useState<string | null>(null)
   const [actionError, setActionError] = useState('')
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const mockStaff = useStaff()
-  const [liveStaff, setLiveStaff] = useState<UserDto[] | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
   const [saving, setSaving] = useState(false)
   const [currentPw, setCurrentPw] = useState('')
   const [newPw, setNewPw] = useState('')
@@ -53,25 +57,12 @@ function SettingsPage() {
   const [pwError, setPwError] = useState('')
   const [pwOk, setPwOk] = useState(false)
   const [pwSaving, setPwSaving] = useState(false)
-  const live = hasLiveSession()
+  const invalidate = useInvalidate()
+  const { data: liveStaff, isPending, isError, error, refetch } = useStaffList()
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load staff.') : ''
 
-  const loadLive = useCallback(async () => {
-    setLiveLoading(true)
-    setLiveError('')
-    try {
-      setLiveStaff(await staffApi.list())
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load staff.')
-    } finally {
-      setLiveLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (live) void loadLive()
-  }, [live, loadLive])
-
-  const members: StaffMember[] = liveStaff ? liveStaff.map(toMember) : mockStaff
+  const members: StaffMember[] = (liveStaff ?? []).map(toMember)
   const q = search.trim().toLowerCase()
   const rows = members.filter(
     (m) => !q || m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
@@ -97,13 +88,6 @@ function SettingsPage() {
       setFormError('This email is already on the team.')
       return
     }
-    if (!live) {
-      addStaff(name, email, 'staff123', makeAdmin)
-      setSentTo(null)
-      resetForm()
-      setFormOpen(false)
-      return
-    }
     setSaving(true)
     setFormError('')
     try {
@@ -112,7 +96,7 @@ function SettingsPage() {
         email: email.trim().toLowerCase(),
         make_admin: makeAdmin,
       })
-      await loadLive()
+      await invalidate(qk.staff)
       setSentTo(created.email)
       resetForm()
       setFormOpen(false)
@@ -132,19 +116,6 @@ function SettingsPage() {
     }
     if (newPw !== confirmPw) {
       setPwError('New passwords do not match.')
-      return
-    }
-    if (!live) {
-      const me = members.find((m) => m.email.toLowerCase() === session?.email.toLowerCase())
-      if (!me || me.password !== currentPw) {
-        setPwError('Current password is incorrect.')
-        return
-      }
-      updateStaffPassword(me.id, newPw)
-      setCurrentPw('')
-      setNewPw('')
-      setConfirmPw('')
-      setPwOk(true)
       return
     }
     setPwSaving(true)
@@ -167,19 +138,10 @@ function SettingsPage() {
       setActionError('You cannot deactivate your own account.')
       return
     }
-    if (!live) {
-      if (m.isActive) {
-        const ok = deactivateStaff(m.id)
-        if (!ok) setActionError('The last active admin cannot be deactivated.')
-      } else {
-        reactivateStaff(m.id)
-      }
-      return
-    }
     try {
       if (m.isActive) await staffApi.deactivate(Number(m.id))
       else await staffApi.reactivate(Number(m.id))
-      await loadLive()
+      await invalidate(qk.staff)
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Could not update this account.')
     }
@@ -188,9 +150,7 @@ function SettingsPage() {
   const formBody = (
     <div className="space-y-4">
       <p className="text-sm text-ink-soft">
-        {live
-          ? 'The backend creates the account and emails the login details to this address.'
-          : 'Demo mode — the account works immediately here. Email invites send once the backend is connected.'}
+        The backend creates the account and emails the login details to this address.
       </p>
       <div>
         <label htmlFor="staff-name" className="mb-1 block text-sm font-semibold text-ink">Full name</label>
@@ -216,7 +176,7 @@ function SettingsPage() {
   const formActions = (
     <div className="flex gap-2">
       <Button onClick={() => void invite()} disabled={saving} loading={saving} className="flex-1">
-        <EnvelopeSimple size={18} /> {saving ? 'Sending…' : live ? 'Send invite' : 'Add staff'}
+        <EnvelopeSimple size={18} /> {saving ? 'Sending…' : 'Send invite'}
       </Button>
       <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
     </div>
@@ -291,7 +251,7 @@ function SettingsPage() {
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load staff</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+          <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>

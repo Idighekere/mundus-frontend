@@ -8,7 +8,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowsDownUp, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,10 +16,10 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/misc'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
-import type { DumpPoint } from '@/mocks/data'
+import type { DumpPoint } from '@/lib/models'
 import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
 import { statusFor } from '@/lib/overdue'
-import { contractorsApi, dashboardApi, hasLiveSession, type ContractorDto, type DashboardStatsDto, type DumpPointDto } from '@/lib/api'
+import { useDashboard } from '@/lib/live-queries'
 import { hasReporterFlag, mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
 
@@ -41,32 +41,14 @@ function DashboardPage() {
   const [overdueOnly, setOverdueOnly] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([{ id: 'days', desc: true }])
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
-  const [liveStats, setLiveStats] = useState<DashboardStatsDto | null>(null)
-  const [liveContractors, setLiveContractors] = useState<ContractorDto[] | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
-  const live = hasLiveSession()
   const navigate = useNavigate()
+  const { data, isPending, isError, error, refetch } = useDashboard()
 
-  const loadLive = useCallback(async () => {
-    setLiveLoading(true)
-    setLiveError('')
-    try {
-      const [sites, stats, contractors] = await Promise.all([dashboardApi.sites(), dashboardApi.stats(), contractorsApi.list()])
-      setLiveSites(sites.sites)
-      setLiveStats(stats)
-      setLiveContractors(contractors)
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load dashboard.')
-    } finally {
-      setLiveLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (hasLiveSession()) void loadLive()
-  }, [loadLive])
+  const liveSites = data?.sites
+  const liveStats = data?.stats
+  const liveContractors = data?.contractors
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load dashboard.') : ''
 
   const rows: Row[] = useMemo(() => {
     return (liveSites ?? []).map((d) => {
@@ -164,7 +146,7 @@ function DashboardPage() {
       <h2 className="font-display text-4xl text-ink">Dashboard</h2>
       <p className="mt-1 text-ink-soft">All registered dump points, most overdue first. Select a site for its full audit timeline.</p>
 
-      {live && !liveSites ? (
+      {!liveSites && !liveError ? (
         <div className="mt-4">
           <StatCardsSkeleton />
         </div>
@@ -223,8 +205,13 @@ function DashboardPage() {
               <SelectContent>
                 <SelectItem value="all">All contractors</SelectItem>
                 {(liveContractors ?? []).map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
                 ))}
+                {[...new Set(rows.map((r) => r.contractorName))]
+                  .filter((n) => n !== 'Unassigned' && !(liveContractors ?? []).some((c) => c.name === n))
+                  .map((n) => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -257,7 +244,7 @@ function DashboardPage() {
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load dashboard</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+          <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>

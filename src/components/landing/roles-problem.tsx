@@ -103,11 +103,8 @@ export function Roles() {
                 </p>
               </div>
               <Button asChild variant="secondary" className="mt-4 w-full">
-                <Link
-                  to="/r/$token"
-                  params={{ token: "demo-nwaniba-reporter-link" }}
-                >
-                  Example report link
+                <Link to="/agency/reporters">
+                  Review nominations
                 </Link>
               </Button>
             </article>

@@ -1,14 +1,12 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
 import { ArrowLeft, Camera, CheckCircle, XCircle } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { VisitSkeleton } from '@/components/skeletons'
 import { Card } from '@/components/ui/misc'
 import { VisitStatusBadge } from '@/components/visit-status'
-import { contractorById, siteById, visitById, type Visit, type VisitPhoto } from '@/mocks/data'
-import { hasLiveSession } from '@/lib/api'
-import { fetchLiveSiteDetail, type LiveSiteDetail } from '@/lib/live-timeline'
+import type { Visit, VisitPhoto } from '@/lib/models'
+import { useSiteDetail } from '@/lib/live-queries'
 
 export const Route = createFileRoute('/agency/sites/$siteId/visits/$visitId')({
   component: VisitPage,
@@ -59,29 +57,18 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
 function VisitPage() {
   const { siteId, visitId } = Route.useParams()
   const numericId = Number(siteId)
-  const liveMode = hasLiveSession() && Number.isFinite(numericId)
-  const [liveDetail, setLiveDetail] = useState<LiveSiteDetail | null>(null)
-  const [liveError, setLiveError] = useState('')
-  const [attempt, setAttempt] = useState(0)
+  if (!Number.isFinite(numericId)) throw notFound()
+  const { data: liveDetail, isError, error, refetch } = useSiteDetail(numericId)
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load this visit.') : ''
 
-  useEffect(() => {
-    if (!liveMode) return
-    fetchLiveSiteDetail(numericId).then(
-      (d) => setLiveDetail(d),
-      (err) => setLiveError(err instanceof Error ? err.message : 'Could not load this visit.'),
-    )
-  }, [liveMode, numericId, siteId, attempt])
-
-  const site = liveMode ? liveDetail?.site : siteById(siteId)
-  const visit: Visit | undefined = liveMode
-    ? liveDetail?.timeline.find((v) => v.id === visitId)
-    : visitById(siteId, visitId)
-  if (liveMode && !liveDetail) {
+  const site = liveDetail?.site
+  const visit: Visit | undefined = liveDetail?.timeline.find((v) => v.id === visitId)
+  if (!liveDetail) {
     return liveError ? (
       <div>
         <p className="font-display text-4xl text-ink">Could not load this visit</p>
         <p className="mt-1 text-ink-soft">{liveError}</p>
-        <Button variant="secondary" className="mt-4" onClick={() => { setLiveError(''); setAttempt((a) => a + 1) }}>
+        <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
           Retry
         </Button>
       </div>
@@ -90,7 +77,7 @@ function VisitPage() {
     )
   }
   if (!site || !visit) throw notFound()
-  const contractorName = liveDetail ? liveDetail.contractorName : contractorById(site.contractorId).name
+  const contractorName = liveDetail.contractorName
 
   const geofencePass = visit.before && visit.after
     ? visit.before.distanceM <= 100 && visit.after.distanceM <= 100

@@ -1,16 +1,14 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate } from '@tanstack/react-router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { ArrowRight, X } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { ContractorHomeSkeleton } from '@/components/skeletons'
 import { useContractorSession } from '@/lib/contractor-session'
-import { dumpPoints, siteById } from '@/mocks/data'
-import { markSiteReportsSeen, unseenReports, useReports } from '@/mocks/reporter-store'
-import { contractorsApi, type ContractorAlertDto, type DumpPointDto } from '@/lib/api'
+import { qk, useField, useInvalidate } from '@/lib/live-queries'
+import { contractorsApi } from '@/lib/api'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
-import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/contractor/sites')({
@@ -19,48 +17,24 @@ export const Route = createFileRoute('/contractor/sites')({
 
 function ContractorHome() {
   const { session } = useContractorSession()
-  const reportsState = useReports()
   const navigate = useNavigate()
-  const live = session?.live ?? false
-  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
-  const [liveAlerts, setLiveAlerts] = useState<ContractorAlertDto[] | null>(null)
-  const [liveError, setLiveError] = useState('')
+  const invalidate = useInvalidate()
+  const { data, isError, error, refetch } = useField()
+  const liveSites = data?.sites
+  const liveAlerts = data?.alerts
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load your sites.') : ''
   // Site detail is a nested route — render it in place of the list.
   const siteMatch = useMatch({ from: '/contractor/sites/$siteId', shouldThrow: false })
 
-  const loadField = useCallback(async () => {
-    try {
-      const [sites, alerts] = await Promise.all([contractorsApi.sites(), contractorsApi.alerts()])
-      setLiveSites(sites)
-      setLiveAlerts(alerts)
-      setLiveError('')
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load your sites.')
-    }
-  }, [])
-
-  useEffect(() => {
-    if (live) void loadField()
-  }, [live, loadField])
-
   const sites = useMemo(() => {
-    if (liveSites) {
-      return liveSites
-        .map((d) => {
-          const s = mapDumpPoint(d)
-          const days = mapDaysSince(d, s.lastClearanceIso)
-          return { ...s, days, status: mapSiteStatus(d.status) }
-        })
-        .sort((a, b) => b.days - a.days)
-    }
-    return dumpPoints
-      .filter((s) => s.contractorId === session?.contractorId)
-      .map((s) => {
-        const days = daysSince(s.lastClearanceIso)
-        return { ...s, days, status: statusFor(days) }
+    return (liveSites ?? [])
+      .map((d) => {
+        const s = mapDumpPoint(d)
+        const days = mapDaysSince(d, s.lastClearanceIso)
+        return { ...s, days, status: mapSiteStatus(d.status) }
       })
       .sort((a, b) => b.days - a.days)
-  }, [session?.contractorId, liveSites])
+  }, [liveSites])
 
   const overdue = sites.filter((s) => s.days > 7).length
 
@@ -73,79 +47,52 @@ function ContractorHome() {
   }
 
   const alerts: AlertVM[] = useMemo(() => {
-    if (liveAlerts) {
-      return liveAlerts
-        .filter((a) => !a.is_seen)
-        .map((a) => ({
-          key: `alert-${a.id}`,
-          siteId: String(a.site_id),
-          title: a.site_name ? `${a.site_name} reported full` : a.message,
-          atIso: a.created_at,
-        }))
-    }
-    if (!session) return []
-    return unseenReports(sites.map((s) => s.id)).map((r) => ({
-      key: r.id,
-      siteId: r.siteId,
-      title: `${siteById(r.siteId)?.name ?? 'A site'} reported full`,
-      atIso: r.atIso,
-      photo: r.photo ?? undefined,
-    }))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.contractorId, sites, reportsState, liveAlerts])
-
-  const refreshAlerts = useCallback(async () => {
-    try {
-      setLiveAlerts(await contractorsApi.alerts())
-    } catch {
-      // Keep the previous alerts.
-    }
-  }, [])
+    return (liveAlerts ?? [])
+      .filter((a) => !a.is_seen)
+      .map((a) => ({
+        key: `alert-${a.id}`,
+        siteId: String(a.site_id),
+        title: a.site_name ? `${a.site_name} reported full` : a.message,
+        atIso: a.created_at,
+      }))
+  }, [liveAlerts])
 
   const openAlert = async (a: AlertVM) => {
-    if (live) {
-      try {
-        await contractorsApi.markAlertSeen(Number(a.siteId))
-      } catch {
-        // Best-effort — still navigate.
-      }
-      await refreshAlerts()
-    } else {
-      markSiteReportsSeen(a.siteId)
+    try {
+      await contractorsApi.markAlertSeen(Number(a.siteId))
+    } catch {
+      // Best-effort — still navigate.
     }
+    await invalidate(qk.field)
     navigate({ to: '/contractor/sites/$siteId', params: { siteId: a.siteId } })
   }
 
   const dismissAlert = async (a: AlertVM) => {
-    if (live) {
-      try {
-        await contractorsApi.markAlertSeen(Number(a.siteId))
-      } catch {
-        // Best-effort.
-      }
-      await refreshAlerts()
-    } else {
-      markSiteReportsSeen(a.siteId)
+    try {
+      await contractorsApi.markAlertSeen(Number(a.siteId))
+    } catch {
+      // Best-effort.
     }
+    await invalidate(qk.field)
   }
 
   if (!session) return null
   // Site detail is a nested route — render it in place of the list.
   if (siteMatch) return <Outlet />
-  if (live && liveError && !liveSites) {
+  if (liveError && !liveSites) {
     return (
       <div className="mt-4">
         <Card className="text-center">
           <p className="font-display text-[28px] text-ink">Could not load your sites</p>
           <p className="mt-1 text-sm text-ink-soft">{liveError}</p>
-          <Button variant="secondary" onClick={() => void loadField()} className="mt-4 w-full">
+          <Button variant="secondary" onClick={() => void refetch()} className="mt-4 w-full">
             Retry
           </Button>
         </Card>
       </div>
     )
   }
-  if (live && !liveSites) {
+  if (!liveSites) {
     return (
       <div className="mt-4">
         <ContractorHomeSkeleton />

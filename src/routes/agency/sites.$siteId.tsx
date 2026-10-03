@@ -7,10 +7,8 @@ import { Card } from '@/components/ui/misc'
 import { SiteDetailSkeleton } from '@/components/skeletons'
 import { SiteMiniMap } from '@/components/site-mini-map'
 import { VisitStatusBadge, photoCount, visitNodeColor } from '@/components/visit-status'
-import { contractorById, siteById, visitsForSite, type Visit } from '@/mocks/data'
-import { daysSince, statusFor } from '@/lib/overdue'
-import { hasLiveSession } from '@/lib/api'
-import { fetchLiveSiteDetail, type LiveSiteDetail } from '@/lib/live-timeline'
+import type { Visit } from '@/lib/models'
+import { useSiteDetail } from '@/lib/live-queries'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/agency/sites/$siteId')({
@@ -23,26 +21,14 @@ function SiteDetailPage() {
   const { siteId } = Route.useParams()
   const visitMatch = useMatch({ from: '/agency/sites/$siteId/visits/$visitId', shouldThrow: false })
   const numericId = Number(siteId)
-  const liveMode = hasLiveSession() && Number.isFinite(numericId)
+  if (!Number.isFinite(numericId)) throw notFound()
   const [page, setPage] = useState(0)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
-  const [liveDetail, setLiveDetail] = useState<LiveSiteDetail | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
-
-  useEffect(() => {
-    if (!liveMode) return
-    setLiveLoading(true)
-    setLiveError('')
-    setLiveDetail(null)
-    fetchLiveSiteDetail(numericId).then(
-      (d) => { setLiveDetail(d); setLiveLoading(false) },
-      (err) => { setLiveError(err instanceof Error ? err.message : 'Could not load this site.'); setLiveLoading(false) },
-    )
-  }, [liveMode, numericId, siteId])
-
-  const site = liveMode ? liveDetail?.site : siteById(siteId)
-  const timeline: Visit[] = liveDetail ? liveDetail.timeline : site ? visitsForSite(site.id) : []
+  const { data: liveDetail, isPending, isError, error, refetch } = useSiteDetail(numericId)
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load this site.') : ''
+    const site = liveDetail?.site
+  const timeline: Visit[] = liveDetail ? liveDetail.timeline : []
   const pageCount = Math.max(1, Math.ceil(timeline.length / PAGE_SIZE))
   const visible = timeline.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
 
@@ -53,7 +39,7 @@ function SiteDetailPage() {
   }, [siteId, timeline.length])
 
   if (visitMatch) return <Outlet />
-  if (liveMode && (liveLoading || !liveDetail)) {
+  if (liveLoading || !liveDetail) {
     return (
       <div>
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
@@ -65,7 +51,7 @@ function SiteDetailPage() {
       </div>
     )
   }
-  if (liveMode && liveError) {
+  if (liveError) {
     return (
       <div>
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
@@ -74,7 +60,7 @@ function SiteDetailPage() {
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load this site</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+          <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>
@@ -82,10 +68,10 @@ function SiteDetailPage() {
     )
   }
   if (!site) throw notFound()
-  const days = liveDetail ? liveDetail.days : daysSince(site.lastClearanceIso)
-  const status = liveDetail ? liveDetail.status : statusFor(days)
-  const contractorName = liveDetail ? liveDetail.contractorName : contractorById(site.contractorId).name
-  const intervalLabel = liveDetail ? `${liveDetail.intervalDays} days` : '7 days · red-flag 10'
+  const days = liveDetail.days
+  const status = liveDetail.status
+  const contractorName = liveDetail.contractorName
+  const intervalLabel = `${liveDetail.intervalDays} days`
 
   const toggle = (id: string) =>
     setExpanded((prev) => {

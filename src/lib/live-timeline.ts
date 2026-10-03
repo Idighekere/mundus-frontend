@@ -5,7 +5,7 @@
 import { checkInsApi, dumpPointsApi, reportersApi, type CheckInDto, type ReporterFlagDto } from './api'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from './backend-map'
 import type { SiteStatus } from './overdue'
-import type { DumpPoint, Visit, VisitPhoto } from '@/mocks/data'
+import type { DumpPoint, Visit, VisitPhoto } from '@/lib/models'
 
 export interface LiveSiteDetail {
   site: DumpPoint

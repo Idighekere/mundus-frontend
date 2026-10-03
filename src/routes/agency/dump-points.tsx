@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { MapPin, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { RightSheet } from '@/components/ui/right-sheet'
@@ -13,9 +13,9 @@ import { MapPicker } from '@/components/map-picker'
 import { PlaceSearch } from '@/components/place-search'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { reverseGeocode } from '@/lib/geocode'
-import { dumpPoints as seed, type DumpPoint } from '@/mocks/data'
-import { useContractorDirectory } from '@/mocks/contractor-store'
-import { contractorsApi, dumpPointsApi, hasLiveSession, type ContractorDto, type DumpPointDto } from '@/lib/api'
+import type { DumpPoint } from '@/lib/models'
+import { dumpPointsApi } from '@/lib/api'
+import { qk, useDumpPointsPage, useInvalidate } from '@/lib/live-queries'
 import { mapDumpPoint } from '@/lib/backend-map'
 
 export const Route = createFileRoute('/agency/dump-points')({
@@ -29,10 +29,9 @@ interface FormState {
   lng: string
 }
 
-const empty: FormState = { name: '', contractorId: 'idighs-udo', lat: '', lng: '' }
+const empty: FormState = { name: '', contractorId: '', lat: '', lng: '' }
 
 function ManageDumpPointsPage() {
-  const [sites, setSites] = useState(seed)
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(empty)
@@ -41,37 +40,24 @@ function ManageDumpPointsPage() {
   const [locateError, setLocateError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
-  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
-  const [liveDirectory, setLiveDirectory] = useState<ContractorDto[] | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const mockDirectory = useContractorDirectory()
-  const live = hasLiveSession()
+  const invalidate = useInvalidate()
+  const { data, isPending, isError, error, refetch } = useDumpPointsPage()
+
+  const liveSites = data?.sites
+  const liveDirectory = data?.contractors
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load dump points.') : ''
+  const [removeError, setRemoveError] = useState('')
   const geoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const loadLive = useCallback(async () => {
-    setLiveLoading(true)
-    setLiveError('')
-    try {
-      const [sites, directory] = await Promise.all([dumpPointsApi.all(), contractorsApi.list()])
-      setLiveSites(sites)
-      setLiveDirectory(directory)
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load dump points.')
-    } finally {
-      setLiveLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (live) void loadLive()
-  }, [live, loadLive])
-
-  const displaySites: DumpPoint[] = liveSites ? liveSites.map(mapDumpPoint) : sites
-  const directory = liveDirectory
-    ? liveDirectory.map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
-    : mockDirectory
+  const displaySites: DumpPoint[] = useMemo(
+    () => (liveSites ?? []).map(mapDumpPoint),
+    [liveSites],
+  )
+  // Backend stores the contractor NAME on the site — the form works in
+  // names end to end, with directory ids for React keys only.
+  const directory = (liveDirectory ?? []).map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
 
   const latNum = Number(form.lat)
   const lngNum = Number(form.lng)
@@ -108,25 +94,6 @@ function ManageDumpPointsPage() {
     if (!validCoords) next.lat = 'Pin the location on the map or search for it above.'
     setErrors(next)
     if (Object.keys(next).length > 0) return
-    if (!live) {
-      if (editingId) {
-        setSites((prev) => prev.map((s) => (s.id === editingId ? { ...s, name: form.name.trim(), contractorId: form.contractorId, lat: latNum, lng: lngNum } : s)))
-      } else {
-        setSites((prev) => [
-          ...prev,
-          {
-            id: form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            code: 'AK-UYO-NEW', sector: 'Unassigned sector',
-            name: form.name.trim(), lat: latNum, lng: lngNum,
-            contractorId: form.contractorId,
-            supervisorId: 'unassigned', supervisorName: 'Unassigned',
-            lastClearanceIso: new Date().toISOString(),
-          },
-        ])
-      }
-      setFormOpen(false)
-      return
-    }
     setSaving(true)
     setSaveError('')
     try {
@@ -139,7 +106,7 @@ function ManageDumpPointsPage() {
           assigned_contractor_id: form.contractorId || undefined,
         })
       }
-      await loadLive()
+      await invalidate(qk.dumpPoints, qk.dashboard, qk.contractors, qk.searchIndex)
       setFormOpen(false)
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Could not save the dump point.')
@@ -149,15 +116,12 @@ function ManageDumpPointsPage() {
   }
 
   const removeSite = async (id: string) => {
-    if (!live) {
-      setSites((prev) => prev.filter((x) => x.id !== id))
-      return
-    }
+    setRemoveError('')
     try {
       await dumpPointsApi.remove(Number(id))
-      await loadLive()
+      await invalidate(qk.dumpPoints, qk.dashboard, qk.contractors, qk.searchIndex)
     } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not remove the dump point.')
+      setRemoveError(err instanceof Error ? err.message : 'Could not remove the dump point.')
     }
   }
 
@@ -182,12 +146,15 @@ function ManageDumpPointsPage() {
         <Select value={form.contractorId} onValueChange={(v) => setForm({ ...form, contractorId: v })}>
           <SelectTrigger><SelectValue placeholder="Choose a contractor" /></SelectTrigger>
           <SelectContent>
-            {directory.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            {directory.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+            {[...new Set(displaySites.map((s) => s.contractorId))]
+              .filter((n): n is string => !!n && !directory.some((c) => c.name === n))
+              .map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
           </SelectContent>
         </Select>
         {errors.contractorId ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.contractorId}</p> : null}
         <p className="mt-1.5 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
-          Contact: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.email ?? '—'}</span>
+          Contact: <span className="font-semibold">{directory.find((c) => c.name === form.contractorId)?.email ?? '—'}</span>
         </p>
       </div>
       <span className="mb-1 block text-sm font-semibold text-ink">Location</span>
@@ -219,7 +186,7 @@ function ManageDumpPointsPage() {
         <div>
           <h2 className="font-display text-4xl text-ink">Manage Dump Points</h2>
           <p className="mt-1 text-ink-soft">
-            {live ? 'Live registry of municipal disposal locations.' : 'Active registry of municipal disposal locations. Demo edits stay in memory.'}
+            Live registry of municipal disposal locations.
           </p>
         </div>
         <Button onClick={openAdd}><Plus size={18} /> Add dump point</Button>
@@ -231,12 +198,15 @@ function ManageDumpPointsPage() {
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load dump points</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+          <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>
       ) : (
         <>
+          {removeError ? (
+            <p role="alert" className="mt-4 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{removeError}</p>
+          ) : null}
           <div className="mt-4 hidden md:block">
             <Table>
               <THead><TR className="hover:bg-transparent"><TH>Site name</TH><TH>Contractor</TH><TH>Actions</TH></TR></THead>
@@ -244,7 +214,7 @@ function ManageDumpPointsPage() {
                 {displaySites.map((s) => (
                   <TR key={s.id}>
                     <TD className="font-semibold">{s.name}</TD>
-                    <TD className="text-ink-soft">{directory.find((c) => c.id === s.contractorId)?.name ?? 'Unassigned'}</TD>
+                    <TD className="text-ink-soft">{s.contractorId || 'Unassigned'}</TD>
                     <TD>
                       <div className="flex gap-2">
                         <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimple size={16} /> Edit</Button>
@@ -262,7 +232,7 @@ function ManageDumpPointsPage() {
               <Card key={s.id} className="flex items-center justify-between gap-2 p-4">
                 <div>
                   <p className="font-semibold text-ink">{s.name}</p>
-                  <p className="text-xs text-ink-soft">{directory.find((c) => c.id === s.contractorId)?.name ?? 'Unassigned'}</p>
+                  <p className="text-xs text-ink-soft">{s.contractorId || 'Unassigned'}</p>
                 </div>
                 <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimple size={16} /> Edit</Button>
               </Card>

@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle, Key } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
-import { apiEnabled, authApi } from '@/lib/api'
+import { authApi } from '@/lib/api'
 
 export const Route = createFileRoute('/agency/forgot-password')({
   component: AgencyForgotPassword,
@@ -28,11 +28,6 @@ function AgencyForgotPassword() {
       return
     }
     setError('')
-    if (!apiEnabled) {
-      // Demo mode: no backend to send a code — same generic screen, no enumeration.
-      setSent(true)
-      return
-    }
     setSending(true)
     try {
       await authApi.forgotPassword(email.trim())
@@ -107,7 +102,6 @@ function AgencyForgotPassword() {
               </Button>
             </div>
           ) : sent ? (
-            apiEnabled ? (
               <>
                 <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Check your email</p>
                 <h1 className="mt-1 font-display text-4xl text-ink">Enter the code</h1>
@@ -134,15 +128,6 @@ function AgencyForgotPassword() {
                   </Button>
                 </form>
               </>
-            ) : (
-              <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-                <h1 className="font-display text-3xl text-ink">Demo mode</h1>
-                <p className="mt-2 leading-relaxed">Password reset needs the live backend. Ask your agency admin to reset it, or sign in with a demo account.</p>
-                <Button asChild className="mt-4 w-full">
-                  <Link to="/agency/sign-in">Back to sign in</Link>
-                </Button>
-              </div>
-            )
           ) : (
             <>
               <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Reset password</p>

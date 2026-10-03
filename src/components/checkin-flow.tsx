@@ -6,11 +6,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { currentPosition, type GeoFix } from '@/lib/geocode'
-import { haversineMeters } from '@/lib/haversine'
-import { sha256Hex } from '@/lib/photo-hash'
 import { checkInsApi, mediaApi } from '@/lib/api'
-import { recordSubmission, useSubmissions, type Submission } from '@/mocks/contractor-store'
-import { contractorById, type DumpPoint } from '@/mocks/data'
+import type { DumpPoint } from '@/lib/models'
 
 type Stage =
   | 'primer' | 'live' | 'review' | 'uploading'
@@ -34,14 +31,22 @@ function fmtDateTime(iso: string): string {
   return `${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
 }
 
+interface UploadResult {
+  photo: string
+  lat: number
+  lng: number
+  distanceM: number
+  flagged: boolean
+}
+
 export function CheckinFlow({
-  type, site, contractor, simulateGps, live, onDone,
+  type, site, contractor, simulateGps, onDone,
 }: {
   type: 'before' | 'after'
   site: DumpPoint
+  /** Display name of the signed-in contractor. */
   contractor: string
   simulateGps: boolean
-  live?: boolean
   onDone: (next?: 'after' | 'sites') => void
 }) {
   const [stage, setStage] = useState<Stage>('primer')
@@ -49,10 +54,9 @@ export function CheckinFlow({
   const [fix, setFix] = useState<GeoFix | null>(null)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState('')
-  const [result, setResult] = useState<Submission | null>(null)
+  const [result, setResult] = useState<UploadResult | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const submissions = useSubmissions()
   const label = type === 'before' ? 'Before' : 'After'
 
   const stopStream = () => {
@@ -134,8 +138,8 @@ export function CheckinFlow({
     }
   }
 
-  // Live upload: photo → media service → check-in record. The result is
-  // also stored locally so today's flow state and history keep working.
+  // Upload: photo → media service → check-in record. The server verdict
+  // (valid / flagged / location mismatch) drives the result stages.
   const uploadLive = async (shot: Shot) => {
     const siteId = Number(site.id)
     if (!Number.isFinite(siteId)) {
@@ -158,23 +162,16 @@ export function CheckinFlow({
       const serverDistance = Math.round(res.distance_from_site_meters)
       const isDuplicate = res.status === 'flagged'
       const isOffTarget = res.status === 'location_mismatch' || serverDistance > 100
-      const entry = recordSubmission({
-        siteId: site.id,
-        contractor,
-        type,
+      setResult({
         photo: shot.dataUrl,
-        lat: shot.lat, lng: shot.lng,
-        accuracyM: shot.accuracyM,
-        simulated: shot.simulated,
+        lat: shot.lat,
+        lng: shot.lng,
         distanceM: serverDistance,
         flagged: isDuplicate || isOffTarget,
-        flagReason: isDuplicate ? 'duplicate' : isOffTarget ? 'location' : undefined,
-        hash: up.photo_hash,
       })
       setProgress(100)
       await new Promise((r) => setTimeout(r, 250))
       stopStream()
-      setResult(entry)
       if (isDuplicate) setStage('flagged-duplicate')
       else if (isOffTarget) setStage('flagged-location')
       else setStage(type === 'before' ? 'success-before' : 'success-complete')
@@ -198,33 +195,7 @@ export function CheckinFlow({
         await new Promise((r) => setTimeout(r, 320))
         setProgress(p)
       }
-      const hash = await sha256Hex(shot.dataUrl)
-      if (live) {
-        await uploadLive(shot)
-        return
-      }
-      const duplicate = hash ? submissions.find((s) => s.hash === hash) : undefined
-      const distanceM = Math.round(haversineMeters({ lat: site.lat, lng: site.lng }, { lat: shot.lat, lng: shot.lng }))
-      const entry = recordSubmission({
-        siteId: site.id,
-        contractor,
-        type,
-        photo: shot.dataUrl,
-        lat: shot.lat, lng: shot.lng,
-        accuracyM: shot.accuracyM,
-        simulated: shot.simulated,
-        distanceM,
-        flagged: !!duplicate || distanceM > 100,
-        flagReason: duplicate ? 'duplicate' : distanceM > 100 ? 'location' : undefined,
-        hash: hash ?? undefined,
-      })
-      setProgress(100)
-      await new Promise((r) => setTimeout(r, 250))
-      stopStream()
-      setResult(entry)
-      if (duplicate) setStage('flagged-duplicate')
-      else if (distanceM > 100) setStage('flagged-location')
-      else setStage(type === 'before' ? 'success-before' : 'success-complete')
+      await uploadLive(shot)
     } catch {
       setStage('server-error')
     }
@@ -446,7 +417,7 @@ export function CheckinFlow({
         <Card className="text-center">
           <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-xl font-bold text-ink">Before photo submitted</h2>
-          <p className="text-sm text-ink-soft">Submitted {fmtDateTime(result?.atIso ?? new Date().toISOString())}</p>
+          <p className="text-sm text-ink-soft">Submitted {fmtDateTime(new Date().toISOString())}</p>
           <p className="mx-auto mt-3 max-w-sm rounded-xl bg-canvas px-3 py-2 text-sm text-ink">Step 1 complete. Take the after photo once clearance is finished.</p>
           <div className="mt-4 flex gap-2">
             <Button variant="secondary" onClick={() => onDone()} className="flex-1">Back to site</Button>
@@ -458,7 +429,6 @@ export function CheckinFlow({
   }
 
   if (stage === 'success-complete' && result) {
-    const contractor = contractorById(site.contractorId)
     return (
       <div className="mt-4">
         {backHeader(site.name)}
@@ -476,8 +446,8 @@ export function CheckinFlow({
             ))}
           </div>
           <div className="mt-2 space-y-1.5 text-left text-sm">
-            <div className="flex justify-between"><span className="text-ink-soft">Contractor</span><span className="font-semibold text-ink">{contractor.name}</span></div>
-            <div className="flex justify-between"><span className="text-ink-soft">Time</span><span className="font-semibold text-ink">{fmtDateTime(result.atIso)}</span></div>
+            <div className="flex justify-between"><span className="text-ink-soft">Contractor</span><span className="font-semibold text-ink">{contractor}</span></div>
+            <div className="flex justify-between"><span className="text-ink-soft">Time</span><span className="font-semibold text-ink">{fmtDateTime(new Date().toISOString())}</span></div>
           </div>
           <Button onClick={() => onDone('sites')} className="mt-4 w-full">Back to my sites</Button>
         </Card>

@@ -1,8 +1,7 @@
 // Central HTTP client for the Mundus backend, grouped by resource.
-//
-// The app runs on local mocks by default (demo-safe). Set VITE_API_URL to
-// talk to the live backend — see `.env.example`. Every wrapper below
-// mirrors the backend OpenAPI spec.
+// VITE_API_URL points at the live backend — see `.env.example`. Every
+// wrapper below mirrors the backend OpenAPI spec. Failures surface as
+// errors; screens never fall back to local data.
 
 const BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replace(/\/$/, '')
 

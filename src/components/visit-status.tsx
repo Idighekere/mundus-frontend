@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import type { VisitStatus } from '@/mocks/data'
+import type { VisitStatus } from '@/lib/models'
 
 const labels: Record<VisitStatus, string> = {
   complete: 'Complete visit',

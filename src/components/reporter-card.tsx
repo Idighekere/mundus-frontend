@@ -4,12 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { Input } from '@/components/ui/input'
-import {
-  nominateReporter, reportersForSite, reporterLink, reporterMessage, reporterWhatsappUrl, useReporters,
-  type Reporter,
-} from '@/mocks/reporter-store'
+import { reporterLink, reporterMessage, reporterWhatsappUrl } from '@/lib/reporter-links'
 import { reportersApi, type ReporterDto } from '@/lib/api'
-import { siteById } from '@/mocks/data'
 
 const statusLabel: Record<string, string> = {
   pending: 'Pending agency review',
@@ -21,15 +17,23 @@ function elevenDigits(v: string): string {
   return v.replace(/\D/g, '').slice(0, 11)
 }
 
-export function ReporterCard({ siteId, contractorId, siteName: siteNameProp, live }: { siteId: string; contractorId: string; siteName?: string; live?: boolean }) {
+interface ReporterVM {
+  id: string
+  name: string
+  phone: string
+  status: 'pending' | 'approved' | 'rejected'
+  token: string | null
+  reason?: string
+  whatsappLink?: string
+}
+
+export function ReporterCard({ siteId, contractorId, siteName }: { siteId: string; contractorId: string; siteName: string }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [liveList, setLiveList] = useState<ReporterDto[] | null>(null)
-  useReporters()
-  const siteName = siteNameProp ?? siteById(siteId)?.name ?? siteId
 
   const loadLive = useCallback(async () => {
     try {
@@ -40,63 +44,46 @@ export function ReporterCard({ siteId, contractorId, siteName: siteNameProp, liv
   }, [siteId])
 
   useEffect(() => {
-    if (live) void loadLive()
-  }, [live, loadLive])
+    void loadLive()
+  }, [loadLive])
 
-  const list: Reporter[] = live && liveList
-    ? liveList.map((r) => ({
-      id: String(r.id),
-      name: r.name,
-      phone: r.phone,
-      siteId: String(r.site_id),
-      contractorId: r.contractor_id !== null && r.contractor_id !== undefined ? String(r.contractor_id) : '',
-      status: (r.status === 'approved' || r.status === 'rejected' || r.status === 'revoked' ? r.status : 'pending') as Reporter['status'],
-      token: r.token ?? null,
-      reason: r.rejection_reason ?? undefined,
-      updatedAt: r.updated_at,
-      whatsappLink: r.whatsapp_link ?? undefined,
-    }))
-    : reportersForSite(siteId)
+  const list: ReporterVM[] = (liveList ?? []).map((r) => ({
+    id: String(r.id),
+    name: r.name,
+    phone: r.phone,
+    status: (r.status === 'approved' || r.status === 'rejected' ? r.status : 'pending'),
+    token: r.token ?? null,
+    reason: r.rejection_reason ?? undefined,
+    whatsappLink: r.whatsapp_link ?? undefined,
+  }))
 
   const nominate = async () => {
-    if (live) {
-      const trimmed = name.trim()
-      const digits = phone.replace(/\D/g, '')
-      if (trimmed.length < 2) {
-        setError('Reporter name needs at least 2 characters.')
-        return
-      }
-      if (digits.length !== 11) {
-        setError('Phone number must be exactly 11 digits.')
-        return
-      }
-      try {
-        const cid = Number(contractorId)
-        await reportersApi.nominate({
-          site_id: Number(siteId),
-          contractor_id: Number.isFinite(cid) ? cid : undefined,
-          name: trimmed,
-          phone: digits,
-        })
-        setError('')
-        setName('')
-        setPhone('')
-        setDone(true)
-        await loadLive()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Nomination failed. Try again.')
-      }
+    const trimmed = name.trim()
+    const digits = phone.replace(/\D/g, '')
+    if (trimmed.length < 2) {
+      setError('Reporter name needs at least 2 characters.')
       return
     }
-    const res = nominateReporter({ name, phone, siteId, contractorId })
-    if (!res.ok) {
-      setError(res.error)
+    if (digits.length !== 11) {
+      setError('Phone number must be exactly 11 digits.')
       return
     }
-    setError('')
-    setName('')
-    setPhone('')
-    setDone(true)
+    try {
+      const cid = Number(contractorId)
+      await reportersApi.nominate({
+        site_id: Number(siteId),
+        contractor_id: Number.isFinite(cid) ? cid : undefined,
+        name: trimmed,
+        phone: digits,
+      })
+      setError('')
+      setName('')
+      setPhone('')
+      setDone(true)
+      await loadLive()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nomination failed. Try again.')
+    }
   }
 
   const copyText = async (reporterId: string, text: string) => {

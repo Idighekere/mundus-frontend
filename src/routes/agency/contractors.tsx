@@ -9,7 +9,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowsDownUp, CaretDown, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,9 +20,9 @@ import { BottomSheet } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
-import { dumpPoints, type DumpPoint } from '@/mocks/data'
-import { addContractor, useContractorDirectory, type DirectoryContractor } from '@/mocks/contractor-store'
-import { contractorsApi, dumpPointsApi, hasLiveSession, type ContractorDto, type DumpPointDto } from '@/lib/api'
+import type { DumpPoint } from '@/lib/models'
+import { contractorsApi } from '@/lib/api'
+import { qk, useContractorsPage, useInvalidate } from '@/lib/live-queries'
 import { mapDumpPoint } from '@/lib/backend-map'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { daysSince, statusFor, type SiteStatus } from '@/lib/overdue'
@@ -32,7 +32,10 @@ export const Route = createFileRoute('/agency/contractors')({
   component: ContractorsPage,
 })
 
-interface Row extends DirectoryContractor {
+interface Row {
+  id: string
+  name: string
+  email: string
   siteCount: number
   overdue: number
   critical: number
@@ -52,69 +55,33 @@ function ContractorsPage() {
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const mockDirectory = useContractorDirectory()
-  const [liveContractors, setLiveContractors] = useState<ContractorDto[] | null>(null)
-  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
   const [saving, setSaving] = useState(false)
-  const live = hasLiveSession()
+  const invalidate = useInvalidate()
+  const { data, isPending, isError, error, refetch } = useContractorsPage()
 
-  const loadLive = useCallback(async () => {
-    setLiveLoading(true)
-    setLiveError('')
-    try {
-      const [contractors, sites] = await Promise.all([contractorsApi.list(), dumpPointsApi.all()])
-      setLiveContractors(contractors)
-      setLiveSites(sites)
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load contractors.')
-    } finally {
-      setLiveLoading(false)
-    }
-  }, [])
+  const liveContractors = data?.contractors
+  const liveSites = data?.sites
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load contractors.') : ''
 
-  useEffect(() => {
-    if (live) void loadLive()
-  }, [live, loadLive])
-
-  const directory: DirectoryContractor[] = liveContractors
-    ? liveContractors.map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email, password: '' }))
-    : mockDirectory
+  const directory = (liveContractors ?? []).map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
   const allSites: DumpPoint[] = useMemo(
-    () => (liveSites ? liveSites.map(mapDumpPoint) : dumpPoints),
+    () => (liveSites ?? []).map(mapDumpPoint),
     [liveSites],
   )
 
   const allRows: Row[] = useMemo(() => {
-    if (liveContractors) {
-      return liveContractors.map((c) => ({
-        id: String(c.id),
-        name: c.name,
-        email: c.supervisor_email,
-        password: '',
-        siteCount: c.site_count,
-        overdue: c.overdue,
-        critical: c.critical,
-        onSchedule: Math.max(0, c.site_count - c.overdue - c.critical),
-        worst: c.critical > 0 ? 'critical' : c.overdue > 0 ? 'overdue' : 'on-schedule',
-      }))
-    }
-    return mockDirectory.map((c) => {
-      const sites = allSites.filter((s) => s.contractorId === c.id)
-      const statuses = sites.map((s) => statusFor(daysSince(s.lastClearanceIso)))
-      const critical = statuses.filter((s) => s === 'critical').length
-      const overdue = statuses.filter((s) => s === 'overdue').length
-      return {
-        ...c,
-        siteCount: sites.length,
-        overdue,
-        critical,
-        onSchedule: sites.length - overdue - critical,
-        worst: critical > 0 ? 'critical' : overdue > 0 ? 'overdue' : 'on-schedule',
-      }
-    })
-  }, [mockDirectory, liveContractors, liveSites, allSites])
+    return (liveContractors ?? []).map((c) => ({
+      id: String(c.id),
+      name: c.name,
+      email: c.supervisor_email,
+      siteCount: c.site_count,
+      overdue: c.overdue,
+      critical: c.critical,
+      onSchedule: Math.max(0, c.site_count - c.overdue - c.critical),
+      worst: c.critical > 0 ? 'critical' : c.overdue > 0 ? 'overdue' : 'on-schedule',
+    }))
+  }, [liveContractors])
 
   const rows = useMemo(
     () =>
@@ -201,15 +168,6 @@ function ContractorsPage() {
       setFormError('This email is already registered to another contractor.')
       return
     }
-    if (!live) {
-      addContractor(name, email, password)
-      setName('')
-      setEmail('')
-      setPassword('')
-      setFormError('')
-      setFormOpen(false)
-      return
-    }
     setSaving(true)
     setFormError('')
     try {
@@ -221,7 +179,7 @@ function ContractorsPage() {
         supervisor_email: email.trim().toLowerCase(),
         password,
       })
-      await loadLive()
+      await invalidate(qk.contractors, qk.dashboard, qk.dumpPoints, qk.searchIndex)
       setName('')
       setEmail('')
       setPassword('')
@@ -285,13 +243,13 @@ function ContractorsPage() {
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load contractors</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" className="mt-4" onClick={() => void loadLive()}>
+          <Button variant="secondary" className="mt-4" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>
       ) : (
         <>
-          {live && !liveContractors ? (
+          {!liveContractors && !liveError ? (
             <div className="mt-4">
               <StatCardsSkeleton />
             </div>

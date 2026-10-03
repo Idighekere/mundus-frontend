@@ -2,28 +2,15 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { Camera, CheckCircle, MapPin, Megaphone } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { siteById } from '@/mocks/data'
-import { useContractorDirectory } from '@/mocks/contractor-store'
-import { ApiError, apiEnabled, reportersApi } from '@/lib/api'
+import { ApiError, reportersApi } from '@/lib/api'
 import { mapDumpPoint } from '@/lib/backend-map'
-import type { DumpPoint } from '@/mocks/data'
-import {
-  latestReportForSite, reportGate, reportsForReporter, resolveToken, seedDemoReporters, submitSiteReport,
-} from '@/mocks/reporter-store'
+import type { DumpPoint } from '@/lib/models'
 
 export const Route = createFileRoute('/r/$token')({
   component: ReporterPage,
 })
-
-function timeAgo(iso: string): string {
-  const h = (Date.now() - new Date(iso).getTime()) / 3_600_000
-  if (h < 1) return 'less than an hour ago'
-  if (h < 24) return `${Math.floor(h)} hours ago`
-  return `${Math.floor(h / 24)} days ago`
-}
 
 function ReporterPhotoStep({ onPhoto, onBack }: { onPhoto: (dataUrl: string) => void; onBack: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -107,9 +94,6 @@ function ReporterPage() {
   const [justReportedAt, setJustReportedAt] = useState<string | null>(null)
   const [justPhoto, setJustPhoto] = useState<string | null>(null)
   const [flagError, setFlagError] = useState('')
-  const [tick, setTick] = useState(0)
-  void tick
-  const live = apiEnabled
   const [liveResolve, setLiveResolve] = useState<{
     reporterName: string
     site: DumpPoint
@@ -120,7 +104,6 @@ function ReporterPage() {
   const [liveInvalid, setLiveInvalid] = useState(false)
 
   useEffect(() => {
-    if (!live) return
     setLiveLoading(true)
     setLiveInvalid(false)
     reportersApi.resolveToken(token).then(
@@ -140,12 +123,9 @@ function ReporterPage() {
         setLiveLoading(false)
       },
     )
-  }, [live, token])
+  }, [token])
 
-  const reporter = live ? undefined : resolveToken(token)
-  const directory = useContractorDirectory()
-
-  if (live && liveLoading) {
+  if (liveLoading) {
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
         <p className="font-display text-xl tracking-wide text-ink">MUNDUS</p>
@@ -154,8 +134,7 @@ function ReporterPage() {
     )
   }
 
-  if ((live && liveInvalid) || (!live && !reporter)) {
-    const isDemoLink = token === 'demo-nwaniba-reporter-link'
+  if (liveInvalid) {
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
         <MapPin size={44} className="mx-auto text-[#be3b3b]" weight="fill" />
@@ -163,23 +142,11 @@ function ReporterPage() {
         <p className="mt-2 text-ink-soft">
           It may have been revoked or replaced. Contact the agency for a new link.
         </p>
-        {isDemoLink ? (
-          <Button
-            variant="secondary"
-            className="mt-4"
-            onClick={() => {
-              seedDemoReporters()
-              window.location.reload()
-            }}
-          >
-            Restore example link
-          </Button>
-        ) : null}
       </main>
     )
   }
 
-  const site = live ? liveResolve?.site : reporter ? siteById(reporter.siteId) : undefined
+  const site = liveResolve?.site
   if (!site) {
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
@@ -189,15 +156,10 @@ function ReporterPage() {
     )
   }
 
-  const gate = live ? { open: true as const } : reportGate(site.id)
-  const last = live ? undefined : latestReportForSite(site.id)
-  const mine = live ? [] : reportsForReporter(reporter?.id ?? '')
-  const contractorName = live
-    ? (liveResolve?.contractorName ?? 'Your contractor')
-    : (directory.find((c) => c.id === reporter?.contractorId)?.name ?? 'Your contractor')
+  const contractorName = liveResolve?.contractorName ?? 'Your contractor'
 
   const submit = async () => {
-    if (live && liveResolve) {
+    if (liveResolve) {
       if (!photo) return
       setFlagError('')
       const base = { site_id: liveResolve.siteId, reporter_token: token }
@@ -222,24 +184,13 @@ function ReporterPage() {
       setJustReportedAt(new Date().toISOString())
       setJustPhoto(photo)
       setStage('done')
-      return
-    }
-    if (!reporter || !photo) return
-    const res = submitSiteReport(site.id, reporter.id, photo)
-    if (res.ok) {
-      setJustReportedAt(new Date().toISOString())
-      setStage('done')
-      setTick((t) => t + 1)
-    } else {
-      setStage('home')
-      setTick((t) => t + 1)
     }
   }
 
   return (
     <main className="mx-auto w-full max-w-[640px] px-4 py-8 pb-16">
       <Link to="/" aria-label="Mundus home" className="flex items-center gap-2 font-display text-xl tracking-wide text-ink"><LogoMark className="h-7 w-7" />MUNDUS</Link>
-      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-ink-soft">Reporter access · {live ? (liveResolve?.reporterName ?? 'Reporter') : (reporter?.name ?? 'Reporter')}</p>
+      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-ink-soft">Reporter access · {liveResolve?.reporterName ?? 'Reporter'}</p>
 
       {stage === 'done' && justReportedAt ? (
         <Card className="mt-6 text-center">
@@ -278,23 +229,9 @@ function ReporterPage() {
             <MapPin size={16} /> Assigned waste site
           </p>
           <h1 className="mt-1 text-3xl font-bold text-ink">{site.name}</h1>
-          <p className="mt-1 text-sm text-ink-soft">
-            {last ? `Last report: ${timeAgo(last.atIso)}` : 'No reports yet'}
-          </p>
-          {gate.open ? (
-            <Button onClick={() => setStage('photo')} className="mt-4 w-full py-4 text-base">
-              <Megaphone size={20} /> This site is full
-            </Button>
-          ) : (
-            <div className="mt-4">
-              <Button disabled className="w-full py-4 text-base opacity-60">
-                <Megaphone size={20} /> This site is full
-              </Button>
-              <p className="mt-2 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
-                You already reported this site. You can report again in {gate.retryIn}.
-              </p>
-            </div>
-          )}
+          <Button onClick={() => setStage('photo')} className="mt-4 w-full py-4 text-base">
+            <Megaphone size={20} /> This site is full
+          </Button>
           <p className="mt-3 text-xs text-ink-soft">This link is personal to you and only works for {site.name}.</p>
           {flagError ? (
             <p role="alert" className="mt-3 rounded-xl bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{flagError}</p>
@@ -302,22 +239,6 @@ function ReporterPage() {
         </Card>
       )}
 
-      {mine.length > 0 ? (
-        <div className="mt-6">
-          <h2 className="text-base font-semibold text-ink">Your reports</h2>
-          <div className="mt-2 space-y-2">
-            {mine.slice(0, 5).map((r) => (
-              <div key={r.id} className="flex items-center gap-3 rounded-xl bg-paper px-4 py-3 text-sm">
-                {r.photo ? (
-                  <img src={r.photo} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-                ) : null}
-                <span className="min-w-0 flex-1 font-medium text-ink">{new Date(r.atIso).toLocaleString()}</span>
-                <Badge variant="on-schedule">Dispatched</Badge>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </main>
   )
 }

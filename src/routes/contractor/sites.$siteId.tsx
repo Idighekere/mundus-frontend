@@ -8,12 +8,8 @@ import { CheckinFlow } from '@/components/checkin-flow'
 import { ReporterCard } from '@/components/reporter-card'
 import { SiteMiniMap } from '@/components/site-mini-map'
 import { useContractorSession } from '@/lib/contractor-session'
-import { dumpPoints } from '@/mocks/data'
-import { todaySubmissions } from '@/mocks/contractor-store'
-import { markSiteReportsSeen, useReporters, useReports } from '@/mocks/reporter-store'
-import { contractorsApi, type ContractorAlertDto, type DumpPointDto } from '@/lib/api'
+import { contractorsApi, type ContractorAlertDto, type CheckInDto, type DumpPointDto } from '@/lib/api'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
-import { daysSince, statusFor } from '@/lib/overdue'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/contractor/sites/$siteId')({
@@ -23,7 +19,6 @@ export const Route = createFileRoute('/contractor/sites/$siteId')({
 function ContractorSiteDetail() {
   const { siteId } = Route.useParams()
   const { session } = useContractorSession()
-  const live = session?.live ?? false
   const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
   const [liveAlerts, setLiveAlerts] = useState<ContractorAlertDto[] | null>(null)
   const [liveError, setLiveError] = useState('')
@@ -32,11 +27,8 @@ function ContractorSiteDetail() {
   const [simulateGps, setSimulateGps] = useState(true)
   const [tick, setTick] = useState(0)
 
-  const mockSite = dumpPoints.find((s) => s.id === siteId)
   const liveDto = liveSites?.find((d) => String(d.id) === siteId)
   const liveSite = liveDto ? mapDumpPoint(liveDto) : undefined
-  const reporters = useReporters()
-  const allReports = useReports()
 
   const loadField = useCallback(async () => {
     try {
@@ -63,19 +55,34 @@ function ContractorSiteDetail() {
   }, [siteId])
 
   useEffect(() => {
-    if (!live) markSiteReportsSeen(siteId)
-  }, [live, siteId])
+    void loadField()
+  }, [loadField])
+  const [livePairs, setLivePairs] = useState<import('@/lib/api').SubmissionPairDto[] | null>(null)
 
   useEffect(() => {
-    if (live) void loadField()
-  }, [live, loadField])
-  const visit = useMemo(
-    () => (session ? todaySubmissions(siteId, session.name) : { before: undefined, after: undefined }),
+    let cancelled = false
+    void (async () => {
+      try {
+        const pairs = await contractorsApi.submissions(Number(siteId))
+        if (!cancelled) setLivePairs(pairs)
+      } catch {
+        if (!cancelled) setLivePairs([])
+      }
+    })()
+    return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [siteId, session?.name, tick],
-  )
+  }, [siteId, tick])
 
-  if (live && liveError && !liveSites) {
+  const toShot = (c: CheckInDto | null | undefined) =>
+    c ? { photo: c.photo_url, flagged: c.status !== 'valid' } : undefined
+
+  const visit = useMemo(() => {
+    const today = new Date().toDateString()
+    const pair = (livePairs ?? []).find((pl) => new Date(pl.date).toDateString() === today)
+    return { before: toShot(pair?.before), after: toShot(pair?.after) }
+  }, [livePairs])
+
+  if (liveError && !liveSites) {
     return (
       <div className="mt-4">
         <Card className="text-center">
@@ -88,7 +95,7 @@ function ContractorSiteDetail() {
       </div>
     )
   }
-  if (live && !liveSites) {
+  if (!liveSites) {
     return (
       <div className="mt-4">
         <Card className="text-center">
@@ -98,18 +105,13 @@ function ContractorSiteDetail() {
       </div>
     )
   }
-  const resolvedSite = live ? liveSite : mockSite
-  if (!session || !resolvedSite) return null
-  const site = resolvedSite
-  const days = liveDto ? mapDaysSince(liveDto, resolvedSite.lastClearanceIso) : daysSince(resolvedSite.lastClearanceIso)
-  const status = liveDto ? mapSiteStatus(liveDto.status) : statusFor(days)
-  const assigned = live ? !!liveDto : resolvedSite.contractorId === session.contractorId
+  if (!session || !liveSite) return null
+  const site = liveSite
+  const days = liveDto ? mapDaysSince(liveDto, site.lastClearanceIso) : 0
+  const status = liveDto ? mapSiteStatus(liveDto.status) : 'on-schedule'
+  const assigned = !!liveDto
   const complete = !!(visit.before && visit.after)
   const flagged = visit.before?.flagged || visit.after?.flagged
-  const siteReport = site
-    ? allReports.filter((r) => r.siteId === site.id).sort((a, b) => +new Date(b.atIso) - +new Date(a.atIso))[0]
-    : undefined
-  const siteReporterName = reporters.find((r) => r.id === siteReport?.reporterId)?.name
   const liveAlert = liveAlerts
     ?.filter((a) => String(a.site_id) === site.id)
     .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))[0]
@@ -129,7 +131,6 @@ function ContractorSiteDetail() {
           site={site}
           contractor={session.name}
           simulateGps={simulateGps}
-          live={live}
           onDone={flowDone}
         />
       </div>
@@ -182,31 +183,14 @@ function ContractorSiteDetail() {
             <SiteMiniMap name={site.name} lat={site.lat} lng={site.lng} />
           </div>
 
-          {live ? (
-            liveAlert ? (
-              <div className="mt-3 flex gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-ink">
-                    {liveAlert.site_name ? `${liveAlert.site_name} reported full` : liveAlert.message}
-                  </p>
-                  <p className="text-xs text-ink-soft">
-                    {new Date(liveAlert.created_at).toLocaleString()}
-                  </p>
-                  <p className="mt-0.5 text-xs text-ink-soft">This is what the reporter saw — verify on your visit.</p>
-                </div>
-              </div>
-            ) : null
-          ) : siteReport ? (
+          {liveAlert ? (
             <div className="mt-3 flex gap-3 rounded-2xl border border-[#c08014] bg-[#FDF3C4] p-3">
-              {siteReport.photo ? (
-                <img src={siteReport.photo} alt="Reporter photo" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
-              ) : null}
               <div className="min-w-0">
                 <p className="text-sm font-bold text-ink">
-                  Reported full{siteReporterName ? ` by ${siteReporterName}` : ''}
+                  {liveAlert.site_name ? `${liveAlert.site_name} reported full` : liveAlert.message}
                 </p>
                 <p className="text-xs text-ink-soft">
-                  {new Date(siteReport.atIso).toLocaleString()}
+                  {new Date(liveAlert.created_at).toLocaleString()}
                 </p>
                 <p className="mt-0.5 text-xs text-ink-soft">This is what the reporter saw — verify on your visit.</p>
               </div>
@@ -258,7 +242,7 @@ function ContractorSiteDetail() {
             Photos must be taken with the in-app camera — gallery uploads are not allowed. Location locks at capture.
           </p>
 
-          <ReporterCard siteId={site.id} contractorId={session.contractorId} siteName={site.name} live={live} />
+          <ReporterCard siteId={site.id} contractorId={session.contractorId} siteName={site.name} />
         </>
       )}
 

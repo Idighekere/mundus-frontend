@@ -4,9 +4,9 @@ import { Eyebrow, MAXW } from './shared'
 import { cn } from '@/lib/utils'
 
 const DEMO_ROLES = [
-  { role: 'Agency portal', body: 'Overdue ranking, timelines, contractors, reporters.', to: '/agency/dashboard' as const, params: undefined },
-  { role: 'Field app', body: 'Contractor sign-in and before/after check-in.', to: '/contractor/sign-in' as const, params: undefined },
-  { role: 'Reporter link', body: 'Single-tap “site full” from an approved link.', to: '/r/$token' as const, params: { token: 'demo-nwaniba-reporter-link' } },
+  { role: 'Agency portal', body: 'Overdue ranking, timelines, contractors, reporters.', to: '/agency/dashboard' as const },
+  { role: 'Field app', body: 'Contractor sign-in and before/after check-in.', to: '/contractor/sign-in' as const },
+  { role: 'Reporter approvals', body: 'Review nominations and issue reporting links.', to: '/agency/reporters' as const },
 ]
 
 export function Demo() {
@@ -23,7 +23,6 @@ export function Demo() {
             <Link
               key={r.role}
               to={r.to}
-              params={r.params}
               className="flex min-h-[44px] items-center justify-between gap-4 rounded-2xl border border-hairline bg-paper px-5 py-4 shadow-card hover:border-primary"
             >
               <span>

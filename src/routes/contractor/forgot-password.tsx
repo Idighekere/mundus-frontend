@@ -4,19 +4,16 @@ import { ArrowLeft, CheckCircle, Key } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
-import { apiEnabled, authApi } from '@/lib/api'
-import { updateContractorPassword, useContractorDirectory } from '@/mocks/contractor-store'
+import { authApi } from '@/lib/api'
 
 export const Route = createFileRoute('/contractor/forgot-password')({
   component: ContractorForgotPassword,
 })
 
 function ContractorForgotPassword() {
-  const directory = useContractorDirectory()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
-  const [resetting, setResetting] = useState(false)
   const [code, setCode] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -31,14 +28,6 @@ function ContractorForgotPassword() {
       return
     }
     setError('')
-    if (!apiEnabled) {
-      // Demo mode: registered emails reset right here, unknown ones get
-      // the same generic message (no account enumeration).
-      const entry = directory.find((c) => c.email.toLowerCase() === email.trim().toLowerCase())
-      if (entry) setResetting(true)
-      else setSent(true)
-      return
-    }
     setSending(true)
     try {
       await authApi.forgotPassword(email.trim())
@@ -75,26 +64,6 @@ function ContractorForgotPassword() {
     } finally {
       setVerifying(false)
     }
-  }
-
-  const resetPassword = (e: React.FormEvent) => {
-    e.preventDefault()
-    const entry = directory.find((c) => c.email.toLowerCase() === email.trim().toLowerCase())
-    if (!entry) {
-      setError('This email is not registered.')
-      return
-    }
-    if (next.length < 6) {
-      setError('New password needs at least 6 characters.')
-      return
-    }
-    if (next !== confirm) {
-      setError('New passwords do not match.')
-      return
-    }
-    updateContractorPassword(entry.id, next)
-    setError('')
-    setDone(true)
   }
 
   return (
@@ -157,24 +126,6 @@ function ContractorForgotPassword() {
                 <Button type="button" variant="secondary" className="w-full" onClick={() => { setSent(false); setCode(''); setError('') }}>
                   Resend a new code
                 </Button>
-              </form>
-            </>
-          ) : resetting ? (
-            <>
-              <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Set a new password</p>
-              <h1 className="mt-1 font-display text-4xl text-ink">Choose a password</h1>
-              <p className="mt-2 leading-relaxed">For <span className="font-mono text-sm">{email}</span>.</p>
-              <form className="mt-6 space-y-4" onSubmit={resetPassword}>
-                <div>
-                  <label htmlFor="fp-new" className="mb-1 block text-sm font-semibold text-ink">New password</label>
-                  <PasswordInput id="fp-new" autoComplete="new-password" value={next} onChange={(e) => { setNext(e.target.value); setError('') }} placeholder="At least 6 characters" />
-                </div>
-                <div>
-                  <label htmlFor="fp-confirm" className="mb-1 block text-sm font-semibold text-ink">Confirm new password</label>
-                  <PasswordInput id="fp-confirm" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError('') }} placeholder="Repeat it" />
-                </div>
-                {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-                <Button type="submit" className="w-full">Save new password</Button>
               </form>
             </>
           ) : (

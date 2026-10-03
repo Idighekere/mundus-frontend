@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,14 +12,20 @@ import { BottomSheet } from '@/components/ui/sheet'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { useMediaQuery } from '@/lib/use-media-query'
-import { siteById } from '@/mocks/data'
-import { useContractorDirectory } from '@/mocks/contractor-store'
-import { reportersApi, contractorsApi, dumpPointsApi, hasLiveSession, type ContractorDto, type DumpPointDto, type ReporterDto } from '@/lib/api'
+import { qk, useReportersPage, useInvalidate } from '@/lib/live-queries'
+import { reportersApi, type ReporterDto } from '@/lib/api'
 import { mapDumpPoint } from '@/lib/backend-map'
-import {
-  approveReporter, rejectReporter, revokeReporter, seedDemoReporters,
-  useReporters, type Reporter,
-} from '@/mocks/reporter-store'
+interface Reporter {
+  id: string
+  name: string
+  phone: string
+  siteId: string
+  contractorId: string
+  status: 'pending' | 'approved' | 'rejected' | 'revoked'
+  token: string | null
+  reason?: string
+  updatedAt: string
+}
 
 export const Route = createFileRoute('/agency/reporters')({
   component: ReportersPage,
@@ -49,8 +55,6 @@ function toLocalReporter(r: ReporterDto): Reporter {
 }
 
 function ReportersPage() {
-  const mockReporters = useReporters()
-  const directory = useContractorDirectory()
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
@@ -58,50 +62,25 @@ function ReportersPage() {
   const [rejectId, setRejectId] = useState<string | null>(null)
   const [reason, setReason] = useState('')
   const [justApproved, setJustApproved] = useState<string | null>(null)
-  const [liveReporters, setLiveReporters] = useState<ReporterDto[] | null>(null)
-  const [liveContractors, setLiveContractors] = useState<ContractorDto[] | null>(null)
-  const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
-  const [liveLoading, setLiveLoading] = useState(false)
-  const [liveError, setLiveError] = useState('')
   const [acting, setActing] = useState(false)
-  const live = hasLiveSession()
+  const [actionError, setActionError] = useState('')
+  const invalidate = useInvalidate()
+  const { data, isPending, isError, error, refetch } = useReportersPage()
 
-  const loadLive = useCallback(async () => {
-    setLiveLoading(true)
-    setLiveError('')
-    try {
-      const [reporters, contractors, sites] = await Promise.all([
-        reportersApi.list(),
-        contractorsApi.list(),
-        dumpPointsApi.all(),
-      ])
-      setLiveReporters(reporters)
-      setLiveContractors(contractors)
-      setLiveSites(sites)
-    } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not load reporters.')
-    } finally {
-      setLiveLoading(false)
-    }
-  }, [])
+  const liveReporters = data?.reporters
+  const liveContractors = data?.contractors
+  const liveSites = data?.sites
+  const liveLoading = isPending
+  const liveError = isError ? (error instanceof Error ? error.message : 'Could not load reporters.') : ''
 
-  useEffect(() => {
-    if (live) void loadLive()
-  }, [live, loadLive])
+  const reporters: Reporter[] = (liveReporters ?? []).map(toLocalReporter)
 
-  const reporters: Reporter[] = liveReporters ? liveReporters.map(toLocalReporter) : mockReporters
-
-  const contractorName = (id: string) => {
-    if (liveContractors) return liveContractors.find((c) => String(c.id) === id)?.name ?? 'Unknown contractor'
-    return directory.find((c) => c.id === id)?.name ?? 'Unknown contractor'
-  }
+  const contractorName = (id: string) =>
+    liveContractors?.find((c) => String(c.id) === id)?.name ?? 'Unknown contractor'
 
   const siteName = (id: string) => {
-    if (liveSites) {
-      const found = liveSites.find((s) => String(s.id) === id)
-      return found ? mapDumpPoint(found).name : id
-    }
-    return siteById(id)?.name ?? id
+    const found = liveSites?.find((s) => String(s.id) === id)
+    return found ? mapDumpPoint(found).name : id
   }
 
   const filtered = useMemo(
@@ -113,25 +92,20 @@ function ReportersPage() {
         return `${r.name} ${r.phone} ${siteName(r.siteId)} ${contractorName(r.contractorId)}`.toLowerCase().includes(q)
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [reporters, search, status, directory, liveSites, liveContractors],
+    [reporters, search, status, liveSites, liveContractors],
   )
 
   const pendingCount = reporters.filter((r) => r.status === 'pending').length
 
   const approve = async (id: string) => {
-    if (!live) {
-      const next = approveReporter(id)
-      if (next) setJustApproved(next.name)
-      return
-    }
     setActing(true)
     try {
       const res = await reportersApi.approve(Number(id))
       setJustApproved(res.reporter.name)
-      await loadLive()
+      await invalidate(qk.reporters, qk.notices)
     } catch (err) {
       setJustApproved(null)
-      setLiveError(err instanceof Error ? err.message : 'Could not approve the reporter.')
+      setActionError(err instanceof Error ? err.message : 'Could not approve the reporter.')
     } finally {
       setActing(false)
     }
@@ -139,36 +113,26 @@ function ReportersPage() {
 
   const doReject = async () => {
     if (!rejectId) return
-    if (!live) {
-      rejectReporter(rejectId, reason)
-      setRejectId(null)
-      setReason('')
-      return
-    }
     setActing(true)
     try {
       await reportersApi.reject(Number(rejectId), reason || undefined)
-      await loadLive()
+      await invalidate(qk.reporters, qk.notices)
       setRejectId(null)
       setReason('')
     } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not reject the nomination.')
+      setActionError(err instanceof Error ? err.message : 'Could not reject the nomination.')
     } finally {
       setActing(false)
     }
   }
 
   const doRevoke = async (id: string) => {
-    if (!live) {
-      revokeReporter(id)
-      return
-    }
     setActing(true)
     try {
       await reportersApi.revoke(Number(id))
-      await loadLive()
+      await invalidate(qk.reporters, qk.notices)
     } catch (err) {
-      setLiveError(err instanceof Error ? err.message : 'Could not revoke the reporter.')
+      setActionError(err instanceof Error ? err.message : 'Could not revoke the reporter.')
     } finally {
       setActing(false)
     }
@@ -200,7 +164,7 @@ function ReportersPage() {
       <h2 className="font-display text-4xl text-ink">Reporters</h2>
       <p className="mt-1 text-ink-soft">Approve contractor-nominated reporters. Approved reporters get a personal single-site link by message.</p>
 
-      {live && !liveReporters ? (
+      {!liveReporters && !liveError ? (
         <div className="mt-4">
           <StatCardsSkeleton />
         </div>
@@ -220,6 +184,10 @@ function ReportersPage() {
           </Card>
         </div>
       )}
+
+      {actionError ? (
+        <p role="alert" className="mt-4 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{actionError}</p>
+      ) : null}
 
       {justApproved ? (
         <Card className="mt-4 border-[#1d6f42]">
@@ -274,7 +242,7 @@ function ReportersPage() {
         <Card className="mt-4 text-center">
           <p className="mt-2 font-display text-[28px] text-ink">Could not load reporters</p>
           <p className="mt-1">{liveError}</p>
-          <Button variant="secondary" onClick={() => void loadLive()} className="mt-4">
+          <Button variant="secondary" onClick={() => void refetch()} className="mt-4">
             Retry
           </Button>
         </Card>
@@ -285,11 +253,6 @@ function ReportersPage() {
             {reporters.length === 0 ? 'No nominations yet' : 'No reporters match these filters'}
           </p>
           <p className="mt-1">Contractors nominate a reporter from each assigned site.</p>
-          {!live ? (
-            <Button variant="secondary" onClick={seedDemoReporters} className="mt-4">
-              Load example requests
-            </Button>
-          ) : null}
         </Card>
       ) : (
         <>

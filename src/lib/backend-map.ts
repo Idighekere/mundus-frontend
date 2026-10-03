@@ -1,8 +1,7 @@
-// Maps backend DTOs onto the app's local models so screens keep working
-// unchanged whether data comes from mocks or the live API.
+// Maps backend DTOs onto the app's local models.
 
 import type { DumpPointDto } from './api'
-import type { DumpPoint } from '@/mocks/data'
+import type { DumpPoint } from '@/lib/models'
 import { daysSince, type SiteStatus } from './overdue'
 
 /** Backend uses snake_case + an extra `flagged` state — normalize to app statuses. */

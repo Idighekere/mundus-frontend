@@ -4,7 +4,7 @@ import { ArrowLeft, CheckCircle } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
-import { apiEnabled, authApi } from '@/lib/api'
+import { authApi } from '@/lib/api'
 
 export const Route = createFileRoute('/agency/reset-password')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -76,15 +76,7 @@ function AgencyResetPassword() {
           <button onClick={() => navigate({ to: '/agency/sign-in' })} className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
             <ArrowLeft size={16} /> Back to sign in
           </button>
-          {!apiEnabled ? (
-            <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-              <h1 className="font-display text-3xl text-ink">Reset codes come by email</h1>
-              <p className="mt-2 leading-relaxed">Start from the forgot-password page and enter the code we send you.</p>
-              <Button asChild className="mt-4 w-full">
-                <Link to="/agency/forgot-password">Request a code</Link>
-              </Button>
-            </div>
-          ) : done ? (
+          {done ? (
             <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
               <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
               <h1 className="mt-2 font-display text-3xl text-ink">Password updated</h1>
