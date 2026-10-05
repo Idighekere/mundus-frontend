@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/misc'
 import { ListSkeleton } from '@/components/skeletons'
 import { buildNotices, markAllNoticesRead, markNoticeRead, unreadIds, useNoticesInput, type Notice } from '@/lib/notifications'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/agency/notifications')({
   component: NotificationsPage,
@@ -126,7 +127,7 @@ function NotificationsPage() {
                         </span>
                         <span className="block truncate text-xs text-ink-soft">{n.body}</span>
                         <span className="block text-[11px] text-ink-soft">
-                          {new Date(n.atIso).toLocaleString()}
+                          {formatDateTime(n.atIso)}
                         </span>
                       </span>
                       {fresh ? <Badge variant="neutral">New</Badge> : null}

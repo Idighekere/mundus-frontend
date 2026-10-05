@@ -47,7 +47,7 @@ function ContractorShell() {
 
   const logout = () => {
     signOut()
-    navigate({ to: '/' })
+    navigate({ to: '/contractor/sign-in' })
   }
 
   const profileMenu = (

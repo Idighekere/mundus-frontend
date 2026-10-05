@@ -11,6 +11,7 @@ import { useContractorSession } from '@/lib/contractor-session'
 import { contractorsApi, type ContractorAlertDto, type CheckInDto, type DumpPointDto } from '@/lib/api'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/contractor/sites/$siteId')({
   component: ContractorSiteDetail,
@@ -190,7 +191,7 @@ function ContractorSiteDetail() {
                   {liveAlert.site_name ? `${liveAlert.site_name} reported full` : liveAlert.message}
                 </p>
                 <p className="text-xs text-ink-soft">
-                  {new Date(liveAlert.created_at).toLocaleString()}
+                  {formatDateTime(liveAlert.created_at)}
                 </p>
                 <p className="mt-0.5 text-xs text-ink-soft">This is what the reporter saw — verify on your visit.</p>
               </div>

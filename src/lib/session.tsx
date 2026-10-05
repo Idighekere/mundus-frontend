@@ -25,6 +25,10 @@ function load(): Session | null {
     const parsed = raw ? (JSON.parse(raw) as Session) : null
     // Drop stale live sessions whose tokens are gone (e.g. after refresh expiry).
     if (parsed?.live && !hasLiveSession()) return null
+    if (parsed && (typeof parsed.email !== 'string' || typeof parsed.name !== 'string')) {
+      localStorage.removeItem(KEY)
+      return null
+    }
     if (parsed && typeof parsed.isAdmin !== 'boolean') parsed.isAdmin = false
     return parsed
   } catch {

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useHistory } from '@/lib/live-queries'
 import { mapDumpPoint } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
+import { formatDayLabel, formatTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/contractor/history')({
   component: ContractorHistory,
@@ -39,7 +40,7 @@ function dayLabel(day: string): string {
   const yesterday = new Date(Date.now() - 86_400_000).toDateString()
   if (day === today) return 'Today'
   if (day === yesterday) return 'Yesterday'
-  return new Date(day).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })
+  return formatDayLabel(day)
 }
 
 type StatusFilter = 'all' | 'complete' | 'pending' | 'flagged'
@@ -194,8 +195,8 @@ function ContractorHistory() {
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold text-ink">{siteNameOf(v.siteId)}</span>
                         <span className="mt-0.5 block text-xs text-ink-soft">
-                          {v.before ? new Date(v.before.atIso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}
-                          {v.after ? ` → ${new Date(v.after.atIso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : ' · after pending'}
+                          {v.before ? formatTime(v.before.atIso) : ''}
+                          {v.after ? ` → ${formatTime(v.after.atIso)}` : ' · after pending'}
                         </span>
                       </span>
                       <span className="flex shrink-0 flex-col items-end gap-1">

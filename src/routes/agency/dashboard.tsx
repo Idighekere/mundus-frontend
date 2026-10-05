@@ -22,6 +22,7 @@ import { statusFor } from '@/lib/overdue'
 import { useDashboard } from '@/lib/live-queries'
 import { hasReporterFlag, mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/lib/datetime'
 
 export const Route = createFileRoute('/agency/dashboard')({
   component: DashboardPage,
@@ -51,17 +52,22 @@ function DashboardPage() {
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load dashboard.') : ''
 
   const rows: Row[] = useMemo(() => {
+    const byId = new Map((liveContractors ?? []).map((c) => [String(c.id), c.name]))
     return (liveSites ?? []).map((d) => {
       const site = mapDumpPoint(d)
+      // assigned_contractor_id is a free-text field: usually the contractor
+      // name, occasionally a bare numeric id — resolve ids, never print them.
+      const raw = d.assigned_contractor_name ?? site.contractorId
+      const contractorName = raw && byId.has(raw) ? (byId.get(raw) as string) : (raw || 'Unassigned')
       return {
         ...site,
         days: mapDaysSince(d, site.lastClearanceIso),
         status: mapSiteStatus(d.status),
-        contractorName: d.assigned_contractor_name ?? 'Unassigned',
+        contractorName,
         flagged: hasReporterFlag(d),
       }
     })
-  }, [liveSites])
+  }, [liveSites, liveContractors])
 
   const filtered = useMemo(
     () =>
@@ -114,7 +120,7 @@ function DashboardPage() {
         accessorKey: 'lastClearanceIso',
         header: 'Last cleared',
         cell: ({ getValue }) => (
-          <span className="text-ink-soft">{new Date(getValue<string>()).toLocaleDateString()}</span>
+          <span className="text-ink-soft">{formatDate(getValue<string>())}</span>
         ),
       },
     ],
@@ -297,7 +303,7 @@ function DashboardPage() {
                         {r.original.flagged ? <Badge variant="neutral">Reporter flag</Badge> : null}
                       </span>
                     </TD>
-                    <TD className="text-ink-soft">{new Date(r.original.lastClearanceIso).toLocaleDateString()}</TD>
+                    <TD className="text-ink-soft">{formatDate(r.original.lastClearanceIso)}</TD>
                   </TR>
                 ))}
               </TBody>

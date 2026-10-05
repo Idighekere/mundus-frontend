@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { currentPosition, type GeoFix } from '@/lib/geocode'
 import { checkInsApi, mediaApi } from '@/lib/api'
+import { formatDateTime as fmtDateTime } from '@/lib/datetime'
 import type { DumpPoint } from '@/lib/models'
 
 type Stage =
@@ -25,11 +26,6 @@ interface Shot {
 }
 
 const WEAK_AFTER_M = 50
-
-function fmtDateTime(iso: string): string {
-  const d = new Date(iso)
-  return `${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
-}
 
 interface UploadResult {
   photo: string
@@ -274,6 +270,9 @@ export function CheckinFlow({
 
   if (stage === 'live') {
     const weak = !simulateGps && (fix === null || (fix.accuracyM !== null && fix.accuracyM > WEAK_AFTER_M))
+    // No coarse captures: the shutter stays locked until the fix is within
+    // the 100 m geofence threshold (simulated GPS is always ready).
+    const gpsReady = simulateGps || (fix !== null && (fix.accuracyM === null || fix.accuracyM <= 100))
     return (
       <div className="mt-4">
         {backHeader(`${label} photo · ${site.name}`)}
@@ -296,12 +295,18 @@ export function CheckinFlow({
           </div>
         </div>
         {error ? <p className="mt-2 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
+        {!gpsReady ? (
+          <p className="mt-2 rounded-xl bg-canvas px-3 py-2 text-center text-sm text-ink-soft">
+            Waiting for GPS lock — stand in an open area clear of tall roofs. The shutter unlocks within 100 m accuracy.
+          </p>
+        ) : null}
         <div className="mt-4 flex items-center gap-3">
           <Button variant="ghost" onClick={() => { stopStream(); onDone() }}>Cancel</Button>
           <button
             onClick={capture}
-            aria-label={`Capture ${label} photo`}
-            className="mx-auto flex h-[72px] w-[72px] cursor-pointer items-center justify-center rounded-full border-4 border-primary bg-paper shadow-xl"
+            disabled={!gpsReady}
+            aria-label={gpsReady ? `Capture ${label} photo` : 'Waiting for GPS lock'}
+            className="mx-auto flex h-[72px] w-[72px] cursor-pointer items-center justify-center rounded-full border-4 border-primary bg-paper shadow-xl disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span className="h-12 w-12 rounded-full bg-primary" />
           </button>

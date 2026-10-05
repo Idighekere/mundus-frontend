@@ -74,7 +74,7 @@ function AgencyShell() {
 
   const logout = () => {
     signOut()
-    navigate({ to: '/' })
+    navigate({ to: '/agency/sign-in' })
   }
 
   return (

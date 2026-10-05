@@ -24,6 +24,12 @@ function load(): ContractorSession | null {
     const raw = localStorage.getItem(KEY)
     const parsed = raw ? (JSON.parse(raw) as ContractorSession) : null
     if (parsed?.live && !hasLiveSession()) return null
+    // Drop sessions stored by older shapes (pre contractor-as-person) —
+    // a missing display name crashes greetings on load.
+    if (parsed && (typeof parsed.name !== 'string' || !parsed.contractorId)) {
+      localStorage.removeItem(KEY)
+      return null
+    }
     return parsed
   } catch {
     return null

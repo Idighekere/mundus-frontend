@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/misc'
 import { ApiError, reportersApi } from '@/lib/api'
 import { mapDumpPoint } from '@/lib/backend-map'
 import type { DumpPoint } from '@/lib/models'
+import { formatTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/r/$token')({
   component: ReporterPage,
@@ -197,7 +198,7 @@ function ReporterPage() {
           <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h1 className="mt-2 text-2xl font-bold text-ink">Thank you. {contractorName} has been told.</h1>
           <p className="mt-1 text-sm text-ink-soft">
-            Reported at {new Date(justReportedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+            Reported at {formatTime(justReportedAt)}
           </p>
           {justPhoto ? (
             <img src={justPhoto} alt="Submitted report photo" className="mt-3 aspect-[4/3] w-full rounded-xl object-cover" />

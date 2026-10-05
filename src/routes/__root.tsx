@@ -1,10 +1,12 @@
 import { createRootRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
 import { LogoMark } from '@/components/logo'
 import { NotFoundPage } from '@/components/not-found'
+import { ErrorPage } from '@/components/error-page'
 
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFoundPage,
+  errorComponent: ({ reset }) => <ErrorPage onReset={reset} />,
 })
 
 function RootLayout() {

@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/misc'
 import { VisitStatusBadge } from '@/components/visit-status'
 import type { Visit, VisitPhoto } from '@/lib/models'
 import { useSiteDetail } from '@/lib/live-queries'
+import { formatDateTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/agency/sites/$siteId/visits/$visitId')({
   component: VisitPage,
@@ -14,7 +15,7 @@ export const Route = createFileRoute('/agency/sites/$siteId/visits/$visitId')({
 
 function fmtDateTime(iso: string): string {
   const d = new Date(iso)
-  return `${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} · ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
+  return formatDateTime(d)
 }
 
 function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'After'; photo?: VisitPhoto; siteLat: number; siteLng: number }) {
@@ -106,10 +107,13 @@ function VisitPage() {
         <VisitStatusBadge status={visit.status} />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-canvas p-4 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl bg-canvas p-4 sm:grid-cols-2">
         <div><p className="text-xs uppercase tracking-wide text-ink-soft">Visit date</p><p className="font-semibold text-ink">{fmtDateTime(visit.dateIso)}</p></div>
-        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{visit.contractor}</p></div>
-        <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{contractorName}</p></div>
+        {visit.status === 'reported-full' ? (
+          <div><p className="text-xs uppercase tracking-wide text-ink-soft">Reporter</p><p className="font-semibold text-ink">{visit.contractor}</p></div>
+        ) : (
+          <div><p className="text-xs uppercase tracking-wide text-ink-soft">Contractor</p><p className="font-semibold text-ink">{contractorName}</p></div>
+        )}
       </div>
 
       {visit.status === 'reported-full' ? (

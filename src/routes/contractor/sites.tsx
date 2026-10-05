@@ -10,6 +10,7 @@ import { qk, useField, useInvalidate } from '@/lib/live-queries'
 import { contractorsApi } from '@/lib/api'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/contractor/sites')({
   component: ContractorHome,
@@ -127,7 +128,7 @@ function ContractorHome() {
               ) : null}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-ink">{r.title}</p>
-                <p className="text-xs text-ink-soft">{new Date(r.atIso).toLocaleString()}</p>
+                <p className="text-xs text-ink-soft">{formatDateTime(r.atIso)}</p>
               </div>
               <button
                 onClick={() => void openAlert(r)}

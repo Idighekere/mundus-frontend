@@ -10,6 +10,7 @@ import { VisitStatusBadge, photoCount, visitNodeColor } from '@/components/visit
 import type { Visit } from '@/lib/models'
 import { useSiteDetail } from '@/lib/live-queries'
 import { cn } from '@/lib/utils'
+import { formatDate, formatTime } from '@/lib/datetime'
 
 export const Route = createFileRoute('/agency/sites/$siteId')({
   component: SiteDetailPage,
@@ -155,9 +156,9 @@ function SiteDetailPage() {
                       >
                         <span className="min-w-0 flex-1">
                           <span className="block font-semibold text-ink">
-                            {new Date(v.dateIso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {formatDate(v.dateIso)}
                             <span className="ml-2 font-mono text-sm font-medium text-ink-soft">
-                              {new Date(v.dateIso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                              {formatTime(v.dateIso)}
                             </span>
                           </span>
                           <span className="mt-1 flex flex-wrap gap-1.5">
@@ -176,7 +177,7 @@ function SiteDetailPage() {
                           ) : null}
                           <p className="mt-1 text-ink-soft">{v.note}</p>
                           {count > 0 && (v.before || v.after) ? (
-                            <Link {...to} className="mt-3 grid grid-cols-2 gap-2" aria-label={`View photos for visit on ${new Date(v.dateIso).toLocaleDateString()}`}>
+                            <Link {...to} className="mt-3 grid grid-cols-2 gap-2" aria-label={`View photos for visit on ${formatDate(v.dateIso)}`}>
                               {[v.before, v.after].map((p, i) =>
                                 p ? (
                                   <span key={i} className="group relative flex aspect-[16/10] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl bg-cloud text-ink-soft">
