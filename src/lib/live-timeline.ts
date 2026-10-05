@@ -22,6 +22,7 @@ function toPhoto(c: CheckInDto): VisitPhoto {
     lat: c.latitude,
     lng: c.longitude,
     distanceM: Math.round(c.distance_from_site_meters),
+    url: c.photo_url || undefined,
   }
 }
 

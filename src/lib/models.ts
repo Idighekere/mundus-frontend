@@ -33,6 +33,8 @@ export interface VisitPhoto {
   lat: number
   lng: number
   distanceM: number
+  /** Remote evidence URL (Cloudinary). Absent on legacy mock pairs. */
+  url?: string
 }
 
 export interface Visit {

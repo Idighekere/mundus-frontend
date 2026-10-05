@@ -181,8 +181,14 @@ function SiteDetailPage() {
                               {[v.before, v.after].map((p, i) =>
                                 p ? (
                                   <span key={i} className="group relative flex aspect-[16/10] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl bg-cloud text-ink-soft">
-                                    <Camera size={24} />
-                                    <span className="text-[11px] font-semibold uppercase tracking-wide">{i === 0 ? 'Before' : 'After'}</span>
+                                    {p.url ? (
+                                      <img src={p.url} alt={`${i === 0 ? 'Before' : 'After'} evidence photo`} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                                    ) : (
+                                      <>
+                                        <Camera size={24} />
+                                        <span className="text-[11px] font-semibold uppercase tracking-wide">{i === 0 ? 'Before' : 'After'}</span>
+                                      </>
+                                    )}
                                     <span className="absolute inset-x-0 bottom-0 bg-ink/60 py-1 text-center text-[11px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
                                       View comparison →
                                     </span>

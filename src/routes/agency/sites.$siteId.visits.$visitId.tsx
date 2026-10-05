@@ -32,11 +32,15 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
   const within = photo.distanceM <= 100
   return (
     <div>
-      <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl bg-cloud p-6 text-center text-ink-soft">
-        <Camera size={32} />
-        <p className="text-sm">{label} photo — GPS locked</p>
-        <p className="font-mono text-xs">{photo.lat.toFixed(4)}° N, {photo.lng.toFixed(4)}° E</p>
-      </div>
+      {photo.url ? (
+        <img src={photo.url} alt={`${label} evidence photo`} className="aspect-square w-full rounded-xl object-cover" loading="lazy" />
+      ) : (
+        <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl bg-cloud p-6 text-center text-ink-soft">
+          <Camera size={32} />
+          <p className="text-sm">{label} photo — GPS locked</p>
+          <p className="font-mono text-xs">{photo.lat.toFixed(4)}° N, {photo.lng.toFixed(4)}° E</p>
+        </div>
+      )}
       <div className="mt-2 space-y-1.5 rounded-xl bg-paper p-4 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wide text-ink-soft">Timestamp</span>
