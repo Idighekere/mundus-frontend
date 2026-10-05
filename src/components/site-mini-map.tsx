@@ -62,16 +62,16 @@ export function SiteMiniMap({ name, lat, lng, pin = '#0B3D2C' }: { name: string;
       <div className="relative h-48 w-full overflow-hidden rounded-xl border border-hairline">
         <SiteMapView lat={lat} lng={lng} pin={pin} interactive={false} />
         <span className="sr-only" role="img" aria-label={`Map showing ${name}`} />
-        <div className="absolute bottom-2 left-2 z-[500] rounded border border-hairline bg-paper/95 px-2 py-1 font-mono text-xs text-ink">
+        <div className="absolute bottom-2 left-2 z-10 rounded border border-hairline bg-paper/95 px-2 py-1 font-mono text-xs text-ink">
           {lat.toFixed(4)}° N, {lng.toFixed(4)}° E
         </div>
-        <div className="absolute bottom-2 right-2 z-[500] rounded bg-paper/95 px-2 py-1 text-[10px] text-ink-soft">
+        <div className="absolute bottom-2 right-2 z-10 rounded bg-paper/95 px-2 py-1 text-[10px] text-ink-soft">
           © OpenStreetMap contributors
         </div>
         <button
           onClick={() => setOpen(true)}
           aria-label={`Open interactive map of ${name}`}
-          className="absolute right-2 top-2 z-[500] flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink shadow-card hover:bg-paper"
+          className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink shadow-card hover:bg-paper"
         >
           <ArrowsOut size={20} />
         </button>
