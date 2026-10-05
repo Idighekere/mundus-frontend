@@ -4,7 +4,7 @@ import { CameraIcon, CheckCircleIcon, MapPinIcon, MegaphoneIcon } from '@phospho
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
-import { ApiError, reportersApi } from '@/lib/api'
+import { ApiError, mediaApi, reportersApi } from '@/lib/api'
 import { mapDumpPoint } from '@/lib/backend-map'
 import type { DumpPoint } from '@/lib/models'
 import { formatTime } from '@/lib/datetime'
@@ -95,6 +95,7 @@ function ReporterPage() {
   const [justReportedAt, setJustReportedAt] = useState<string | null>(null)
   const [justPhoto, setJustPhoto] = useState<string | null>(null)
   const [flagError, setFlagError] = useState('')
+  const [sending, setSending] = useState(false)
   const [liveResolve, setLiveResolve] = useState<{
     reporterName: string
     site: DumpPoint
@@ -161,30 +162,39 @@ function ReporterPage() {
 
   const submit = async () => {
     if (liveResolve) {
-      if (!photo) return
+      if (!photo || sending) return
       setFlagError('')
+      setSending(true)
       const base = { site_id: liveResolve.siteId, reporter_token: token }
       try {
-        // photo_url is accepted and stored server-side; the bare retry covers
-        // unrelated 422s (e.g. validation) without the photo payload.
-        await reportersApi.flag({ ...base, photo_url: photo })
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 422) {
-          try {
-            await reportersApi.flag(base)
-          } catch (fallbackErr) {
-            setFlagError(fallbackErr instanceof Error ? fallbackErr.message : 'Could not send the report.')
+        // Upload the capture first so the flag stores a real URL (not inline
+        // data) — the photo then flows into the contractor alert + email.
+        const blob = await (await fetch(photo)).blob()
+        const up = await mediaApi.uploadReporterPhoto(blob, token, `flag-${Date.now()}.jpg`)
+        try {
+          await reportersApi.flag({ ...base, photo_url: up.photo_url })
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 422) {
+            try {
+              await reportersApi.flag(base)
+            } catch (fallbackErr) {
+              setFlagError(fallbackErr instanceof Error ? fallbackErr.message : 'Could not send the report.')
+              return
+            }
+          } else {
+            setFlagError(err instanceof Error ? err.message : 'Could not send the report.')
+            if (err instanceof ApiError && err.status === 429) setStage('home')
             return
           }
-        } else {
-          setFlagError(err instanceof Error ? err.message : 'Could not send the report.')
-          if (err instanceof ApiError && err.status === 429) setStage('home')
-          return
         }
+        setJustReportedAt(new Date().toISOString())
+        setJustPhoto(photo)
+        setStage('done')
+      } catch (err) {
+        setFlagError(err instanceof Error ? err.message : 'Could not upload the photo. Try again.')
+      } finally {
+        setSending(false)
       }
-      setJustReportedAt(new Date().toISOString())
-      setJustPhoto(photo)
-      setStage('done')
     }
   }
 
@@ -221,7 +231,7 @@ function ReporterPage() {
           ) : null}
           <div className="mt-4 flex gap-2">
             <Button variant="secondary" onClick={() => setStage('photo')} className="flex-1">Retake</Button>
-            <Button onClick={submit} disabled={!photo} className="flex-1">Yes, report</Button>
+            <Button onClick={submit} disabled={!photo || sending} loading={sending} className="flex-1">{sending ? 'Sending…' : 'Yes, report'}</Button>
           </div>
         </Card>
       ) : (

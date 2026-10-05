@@ -322,12 +322,19 @@ export const dumpPointsApi = {
   history: (id: string) => request<unknown>(`/dump-points/${id}/history`, { auth: true }),
 }
 
-/** POST /media/* — photo uploads (contractor JWT). */
+/** POST /media/* — photo uploads (contractor JWT; reporter upload is token-validated, no JWT). */
 export const mediaApi = {
   uploadPhoto: (file: Blob, filename = 'photo.jpg') => {
     const form = new FormData()
     form.append('file', file, filename)
     return request<MediaUploadDto>('/media/upload', { method: 'POST', form, auth: true })
+  },
+  /** Public — reporter evidence upload, validated by reporter token instead of JWT. */
+  uploadReporterPhoto: (file: Blob, reporter_token: string, filename = 'flag.jpg') => {
+    const form = new FormData()
+    form.append('file', file, filename)
+    form.append('reporter_token', reporter_token)
+    return request<MediaUploadDto>('/media/reporter-upload', { method: 'POST', form })
   },
 }
 
