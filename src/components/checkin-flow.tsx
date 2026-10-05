@@ -137,8 +137,8 @@ export function CheckinFlow({
   // Upload: photo → media service → check-in record. The server verdict
   // (valid / flagged / location mismatch) drives the result stages.
   const uploadLive = async (shot: Shot) => {
-    const siteId = Number(site.id)
-    if (!Number.isFinite(siteId)) {
+    const siteId = site.id
+    if (!siteId) {
       setStage('server-error')
       return
     }

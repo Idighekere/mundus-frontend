@@ -98,7 +98,7 @@ function ReporterPage() {
   const [liveResolve, setLiveResolve] = useState<{
     reporterName: string
     site: DumpPoint
-    siteId: number
+    siteId: string
     contractorName: string
   } | null>(null)
   const [liveLoading, setLiveLoading] = useState(false)
@@ -165,8 +165,8 @@ function ReporterPage() {
       setFlagError('')
       const base = { site_id: liveResolve.siteId, reporter_token: token }
       try {
-        // photo_url is not accepted by the backend yet — it is sent so
-        // the photo starts persisting with zero frontend changes once added.
+        // photo_url is accepted and stored server-side; the bare retry covers
+        // unrelated 422s (e.g. validation) without the photo payload.
         await reportersApi.flag({ ...base, photo_url: photo })
       } catch (err) {
         if (err instanceof ApiError && err.status === 422) {

@@ -21,10 +21,6 @@ export function mapDumpPoint(d: DumpPointDto): DumpPoint {
     lat: d.latitude,
     lng: d.longitude,
     contractorId: d.assigned_contractor_id ?? '',
-    supervisorId: d.assigned_supervisor_id !== null && d.assigned_supervisor_id !== undefined
-      ? String(d.assigned_supervisor_id)
-      : 'unassigned',
-    supervisorName: d.assigned_supervisor_name ?? 'Unassigned',
     lastClearanceIso: fallbackIso,
     reporterFlagIso: undefined,
   }

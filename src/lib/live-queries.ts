@@ -97,7 +97,7 @@ export function useHistory() {
   })
 }
 
-export function useSiteDetail(siteId: number) {
+export function useSiteDetail(siteId: string) {
   return useQuery({
     queryKey: qk.siteDetail(siteId),
     queryFn: () => fetchLiveSiteDetail(siteId),

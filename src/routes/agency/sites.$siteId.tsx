@@ -21,11 +21,10 @@ const PAGE_SIZE = 3
 function SiteDetailPage() {
   const { siteId } = Route.useParams()
   const visitMatch = useMatch({ from: '/agency/sites/$siteId/visits/$visitId', shouldThrow: false })
-  const numericId = Number(siteId)
-  if (!Number.isFinite(numericId)) throw notFound()
+  if (!siteId) throw notFound()
   const [page, setPage] = useState(0)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
-  const { data: liveDetail, isPending, isError, error, refetch } = useSiteDetail(numericId)
+  const { data: liveDetail, isPending, isError, error, refetch } = useSiteDetail(siteId)
   const liveLoading = isPending
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load this site.') : ''
     const site = liveDetail?.site

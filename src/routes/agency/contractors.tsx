@@ -64,7 +64,7 @@ function ContractorsPage() {
   const liveLoading = isPending
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load contractors.') : ''
 
-  const directory = (liveContractors ?? []).map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
+  const directory = (liveContractors ?? []).map((c) => ({ id: c.id, name: c.name, email: c.email }))
   const allSites: DumpPoint[] = useMemo(
     () => (liveSites ?? []).map(mapDumpPoint),
     [liveSites],
@@ -72,9 +72,9 @@ function ContractorsPage() {
 
   const allRows: Row[] = useMemo(() => {
     return (liveContractors ?? []).map((c) => ({
-      id: String(c.id),
+      id: c.id,
       name: c.name,
-      email: c.supervisor_email,
+      email: c.email,
       siteCount: c.site_count,
       overdue: c.overdue,
       critical: c.critical,
@@ -171,12 +171,9 @@ function ContractorsPage() {
     setSaving(true)
     setFormError('')
     try {
-      // Backend still models the contractor login as a supervisor user —
-      // mirror the person's details into those fields. No UI shows them.
       await contractorsApi.create({
         name: name.trim(),
-        supervisor_name: name.trim(),
-        supervisor_email: email.trim().toLowerCase(),
+        email: email.trim().toLowerCase(),
         password,
       })
       await invalidate(qk.contractors, qk.dashboard, qk.dumpPoints, qk.searchIndex)

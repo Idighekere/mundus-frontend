@@ -39,7 +39,7 @@ function ContractorSiteDetail() {
       let alerts = await contractorsApi.alerts()
       if (alerts.some((a) => String(a.site_id) === siteId && !a.is_seen)) {
         try {
-          await contractorsApi.markAlertSeen(Number(siteId))
+          await contractorsApi.markAlertSeen(siteId)
         } catch {
           // Marking seen is best-effort — the banner still renders.
         }
@@ -64,7 +64,7 @@ function ContractorSiteDetail() {
     let cancelled = false
     void (async () => {
       try {
-        const pairs = await contractorsApi.submissions(Number(siteId))
+        const pairs = await contractorsApi.submissions(siteId)
         if (!cancelled) setLivePairs(pairs)
       } catch {
         if (!cancelled) setLivePairs([])

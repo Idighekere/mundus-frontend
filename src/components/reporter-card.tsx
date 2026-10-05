@@ -37,7 +37,7 @@ export function ReporterCard({ siteId, contractorId, siteName }: { siteId: strin
 
   const loadLive = useCallback(async () => {
     try {
-      setLiveList(await reportersApi.list(Number(siteId)))
+      setLiveList(await reportersApi.list(siteId))
     } catch {
       // Keep the previous list — the nominate action surfaces errors.
     }
@@ -69,10 +69,9 @@ export function ReporterCard({ siteId, contractorId, siteName }: { siteId: strin
       return
     }
     try {
-      const cid = Number(contractorId)
       await reportersApi.nominate({
-        site_id: Number(siteId),
-        contractor_id: Number.isFinite(cid) ? cid : undefined,
+        site_id: siteId,
+        contractor_id: contractorId || undefined,
         name: trimmed,
         phone: digits,
       })

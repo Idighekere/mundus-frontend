@@ -60,7 +60,7 @@ function ContractorHome() {
 
   const openAlert = async (a: AlertVM) => {
     try {
-      await contractorsApi.markAlertSeen(Number(a.siteId))
+      await contractorsApi.markAlertSeen(a.siteId)
     } catch {
       // Best-effort — still navigate.
     }
@@ -70,7 +70,7 @@ function ContractorHome() {
 
   const dismissAlert = async (a: AlertVM) => {
     try {
-      await contractorsApi.markAlertSeen(Number(a.siteId))
+      await contractorsApi.markAlertSeen(a.siteId)
     } catch {
       // Best-effort.
     }

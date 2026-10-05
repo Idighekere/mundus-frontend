@@ -31,11 +31,11 @@ function dayKey(iso: string): string {
 }
 
 /** Groups a day's check-ins into one timeline visit. */
-function pairVisit(siteId: number, day: string, items: CheckInDto[]): Visit {
+function pairVisit(siteId: string, day: string, items: CheckInDto[]): Visit {
   const before = items.find((c) => c.type === 'before')
   const after = items.find((c) => c.type === 'after')
   const all = [before, after].filter((c) => c !== undefined)
-  const supervisorId = before?.supervisor_id ?? after?.supervisor_id ?? 0
+  const submittedByUserId = before?.user_id ?? after?.user_id ?? 0
   const atIso = all.map((c) => +new Date(c.server_timestamp)).reduce((a, b) => Math.max(a, b), 0)
   const offTarget = all.some(
     (c) => c.status === 'location_mismatch' || c.distance_from_site_meters > 100,
@@ -58,7 +58,7 @@ function pairVisit(siteId: number, day: string, items: CheckInDto[]): Visit {
     id: `live-${siteId}-${new Date(day).getTime()}`,
     siteId: String(siteId),
     dateIso: new Date(atIso).toISOString(),
-    contractor: `Contractor #${supervisorId}`,
+    contractor: `Contractor #${submittedByUserId}`,
     status,
     note,
     before: before ? toPhoto(before) : undefined,
@@ -66,7 +66,7 @@ function pairVisit(siteId: number, day: string, items: CheckInDto[]): Visit {
   }
 }
 
-function flagVisit(siteId: number, f: ReporterFlagDto): Visit {
+function flagVisit(siteId: string, f: ReporterFlagDto): Visit {
   return {
     id: `flag-${f.id}`,
     siteId: String(siteId),
@@ -77,7 +77,7 @@ function flagVisit(siteId: number, f: ReporterFlagDto): Visit {
   }
 }
 
-export function buildLiveTimeline(siteId: number, checkins: CheckInDto[], flags: ReporterFlagDto[]): Visit[] {
+export function buildLiveTimeline(siteId: string, checkins: CheckInDto[], flags: ReporterFlagDto[]): Visit[] {
   const byDay = new Map<string, CheckInDto[]>()
   for (const c of checkins) {
     const key = dayKey(c.server_timestamp)
@@ -88,7 +88,7 @@ export function buildLiveTimeline(siteId: number, checkins: CheckInDto[], flags:
   return visits.sort((a, b) => +new Date(b.dateIso) - +new Date(a.dateIso))
 }
 
-export async function fetchLiveSiteDetail(siteId: number): Promise<LiveSiteDetail> {
+export async function fetchLiveSiteDetail(siteId: string): Promise<LiveSiteDetail> {
   const [detail, checkins, flags] = await Promise.all([
     dumpPointsApi.detail(siteId),
     checkInsApi.siteList(siteId),

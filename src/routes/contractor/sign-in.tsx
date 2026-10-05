@@ -117,7 +117,7 @@ function ContractorSignIn() {
           </form>
           <DemoAccounts
             accounts={[
-              { email: 'supervisor@mundus.org', password: 'Password123!', name: 'Emmanuel Udo', role: 'Contractor' },
+              { email: 'contractor@mundus.org', password: 'Password123!', name: 'Emmanuel Udo', role: 'Contractor' },
               { email: 'blessing@mundus.org', password: 'Password123!', name: 'Blessing Akpan', role: 'Contractor' },
             ]}
             onPick={(email, password) => { setEmail(email); setPassword(password); setError('') }}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { authApi, clearTokens, contractorsApi, hasLiveSession, setTokens } from './api'
+import { authApi, clearTokens, hasLiveSession, setTokens } from './api'
 
 interface ContractorSession {
   /** Display name — the person (or trade name) holding the phone. */
@@ -44,21 +44,12 @@ export function ContractorSessionProvider({ children }: { children: ReactNode })
         session,
         signIn: async (email: string, password: string) => {
           const token = await authApi.login(email, password)
-          if (token.user.role !== 'supervisor') throw new Error('This sign-in is for contractors.')
+          if (token.user.role !== 'contractor') throw new Error('This sign-in is for contractors.')
           setTokens({ access_token: token.access_token, refresh_token: token.refresh_token })
           const name = token.user.full_name?.trim() || email.split('@')[0]
-          let contractorId = `user-${token.user.id}`
-          let contractorName = name
-          try {
-            const directory = await contractorsApi.list()
-            const match = directory.find((c) => c.supervisor_email.toLowerCase() === email.trim().toLowerCase())
-            if (match) {
-              contractorId = String(match.id)
-              contractorName = match.name
-            }
-          } catch {
-            // Directory lookup is best-effort — login already succeeded.
-          }
+          // Backend links the contractor record at login — no directory lookup needed.
+          const contractorId = token.user.contractor_id ?? `user-${token.user.id}`
+          const contractorName = token.user.contractor_name ?? name
           const next = { name, contractorId, contractorName, email: email.trim().toLowerCase(), live: true }
           localStorage.setItem(KEY, JSON.stringify(next))
           setSession(next)

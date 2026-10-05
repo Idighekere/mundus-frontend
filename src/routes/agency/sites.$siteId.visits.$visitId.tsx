@@ -61,9 +61,8 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
 
 function VisitPage() {
   const { siteId, visitId } = Route.useParams()
-  const numericId = Number(siteId)
-  if (!Number.isFinite(numericId)) throw notFound()
-  const { data: liveDetail, isError, error, refetch } = useSiteDetail(numericId)
+  if (!siteId) throw notFound()
+  const { data: liveDetail, isError, error, refetch } = useSiteDetail(siteId)
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load this visit.') : ''
 
   const site = liveDetail?.site

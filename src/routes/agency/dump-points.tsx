@@ -57,7 +57,7 @@ function ManageDumpPointsPage() {
   )
   // Backend stores the contractor NAME on the site — the form works in
   // names end to end, with directory ids for React keys only.
-  const directory = (liveDirectory ?? []).map((c) => ({ id: String(c.id), name: c.name, email: c.supervisor_email }))
+  const directory = (liveDirectory ?? []).map((c) => ({ id: c.id, name: c.name, email: c.email }))
 
   const latNum = Number(form.lat)
   const lngNum = Number(form.lng)
@@ -98,8 +98,8 @@ function ManageDumpPointsPage() {
     setSaveError('')
     try {
       if (editingId) {
-        await dumpPointsApi.update(Number(editingId), { name: form.name.trim(), latitude: latNum, longitude: lngNum })
-        await dumpPointsApi.assign(Number(editingId), { assigned_contractor_id: form.contractorId || undefined })
+        await dumpPointsApi.update(editingId, { name: form.name.trim(), latitude: latNum, longitude: lngNum })
+        await dumpPointsApi.assign(editingId, { assigned_contractor_id: form.contractorId || undefined })
       } else {
         await dumpPointsApi.create({
           name: form.name.trim(), latitude: latNum, longitude: lngNum,
@@ -118,7 +118,7 @@ function ManageDumpPointsPage() {
   const removeSite = async (id: string) => {
     setRemoveError('')
     try {
-      await dumpPointsApi.remove(Number(id))
+      await dumpPointsApi.remove(id)
       await invalidate(qk.dumpPoints, qk.dashboard, qk.contractors, qk.searchIndex)
     } catch (err) {
       setRemoveError(err instanceof Error ? err.message : 'Could not remove the dump point.')

@@ -8,7 +8,7 @@ const BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replac
 /** True when a backend URL is configured — screens use live data then. */
 export const apiEnabled = BASE.length > 0
 
-export type UserRole = 'supervisor' | 'agency' | 'reporter'
+export type UserRole = 'contractor' | 'agency' | 'reporter'
 
 export interface UserDto {
   id: number
@@ -16,6 +16,9 @@ export interface UserDto {
   full_name?: string | null
   role: UserRole
   is_active: boolean
+  /** Contractor record linked at login (contractor logins only). */
+  contractor_id?: string | null
+  contractor_name?: string | null
   /** Agency admins can invite and deactivate staff. Absent = non-admin. */
   is_admin?: boolean | null
   is_agency_staff?: boolean | null
@@ -30,16 +33,15 @@ export interface TokenDto {
 }
 
 export interface DumpPointDto {
-  id: number
+  id: string
   name: string
   latitude: number
   longitude: number
   code?: string | null
   sector?: string | null
   assigned_contractor_id?: string | null
-  assigned_supervisor_id?: number | null
   assigned_contractor_name?: string | null
-  assigned_supervisor_name?: string | null
+  assigned_contractor_email?: string | null
   interval_days: number
   last_clearance_timestamp?: string | null
   created_at: string
@@ -65,8 +67,8 @@ export interface DashboardSummaryDto extends DashboardStatsDto {
 
 export interface CheckInDto {
   id: number
-  site_id: number
-  supervisor_id: number
+  site_id: string
+  user_id: number
   type: 'before' | 'after'
   photo_url: string
   photo_hash: string
@@ -83,9 +85,9 @@ export interface ReporterDto {
   id: number
   name: string
   phone: string
-  site_id: number
+  site_id: string
   site_name?: string | null
-  contractor_id?: number | null
+  contractor_id?: string | null
   status: string
   token?: string | null
   rejection_reason?: string | null
@@ -96,7 +98,7 @@ export interface ReporterDto {
 
 export interface ReporterFlagDto {
   id: number
-  site_id: number
+  site_id: string
   reporter_id?: number | null
   reporter_name?: string | null
   timestamp: string
@@ -105,10 +107,9 @@ export interface ReporterFlagDto {
 }
 
 export interface ContractorDto {
-  id: number
+  id: string
   name: string
-  supervisor_name: string
-  supervisor_email: string
+  email: string
   site_count: number
   overdue: number
   critical: number
@@ -117,7 +118,7 @@ export interface ContractorDto {
 
 export interface SubmissionPairDto {
   date: string
-  site_id: number
+  site_id: string
   site_name: string
   before?: CheckInDto | null
   after?: CheckInDto | null
@@ -126,7 +127,7 @@ export interface SubmissionPairDto {
 
 export interface ContractorAlertDto {
   id: number
-  site_id: number
+  site_id: string
   site_name?: string | null
   message: string
   is_seen: boolean
@@ -308,17 +309,17 @@ export const dashboardApi = {
 /** /dump-points/* — site registry CRUD + assignment (agency JWT). */
 export const dumpPointsApi = {
   all: () => request<DumpPointDto[]>('/dump-points/all?limit=100', { auth: true }),
-  detail: (id: number) => request<DumpPointDto>(`/dump-points/detail/${id}`, { auth: true }),
+  detail: (id: string) => request<DumpPointDto>(`/dump-points/detail/${id}`, { auth: true }),
   create: (body: { name: string; latitude: number; longitude: number; code?: string; sector?: string; assigned_contractor_id?: string }) =>
     request<DumpPointDto>('/dump-points/create', { method: 'POST', body, auth: true }),
-  update: (id: number, body: { name?: string; latitude?: number; longitude?: number; code?: string; sector?: string }) =>
+  update: (id: string, body: { name?: string; latitude?: number; longitude?: number; code?: string; sector?: string }) =>
     request<DumpPointDto>(`/dump-points/update/${id}`, { method: 'PUT', body, auth: true }),
-  remove: (id: number) =>
+  remove: (id: string) =>
     request<void>(`/dump-points/delete/${id}`, { method: 'DELETE', auth: true }),
-  assign: (id: number, body: { assigned_contractor_id?: string; assigned_supervisor_id?: number }) =>
+  assign: (id: string, body: { assigned_contractor_id?: string }) =>
     request<DumpPointDto>(`/dump-points/${id}/assign`, { method: 'PUT', body, auth: true }),
   /** Backend history schema is still untyped — returns raw events, may be an array or object. */
-  history: (id: number) => request<unknown>(`/dump-points/${id}/history`, { auth: true }),
+  history: (id: string) => request<unknown>(`/dump-points/${id}/history`, { auth: true }),
 }
 
 /** POST /media/* — photo uploads (contractor JWT). */
@@ -332,9 +333,9 @@ export const mediaApi = {
 
 /** /check-ins/* — before/after clearance evidence (contractor JWT). */
 export const checkInsApi = {
-  submit: (body: { site_id: number; type: 'before' | 'after'; photo_url: string; photo_hash: string; latitude: number; longitude: number; device_timestamp: string }) =>
+  submit: (body: { site_id: string; type: 'before' | 'after'; photo_url: string; photo_hash: string; latitude: number; longitude: number; device_timestamp: string }) =>
     request<CheckInDto>('/check-ins/new', { method: 'POST', body, auth: true }),
-  siteList: (siteId: number) => request<CheckInDto[]>(`/check-ins/site/${siteId}`, { auth: true }),
+  siteList: (siteId: string) => request<CheckInDto[]>(`/check-ins/site/${siteId}`, { auth: true }),
 }
 
 /** /contractors/* + /contractor/* — directory, field app, alerts. */
@@ -347,12 +348,12 @@ export const contractorsApi = {
     const suffix = `?${p.toString()}`
     return request<ContractorDto[]>(`/contractors/all${suffix}`, { auth: true })
   },
-  create: (body: { name: string; supervisor_name: string; supervisor_email: string; password: string }) =>
+  create: (body: { name: string; email: string; password: string }) =>
     request<ContractorDto>('/contractors/new', { method: 'POST', body, auth: true }),
   /** Assigned sites for the logged-in contractor, most overdue first. */
   sites: () => request<DumpPointDto[]>('/contractor/sites', { auth: true }),
   /** Contractor history grouped into before/after pairs. */
-  submissions: (site_id?: number, status?: string) => {
+  submissions: (site_id?: string, status?: string) => {
     const p = new URLSearchParams()
     if (site_id !== undefined) p.set('site_id', String(site_id))
     if (status && status !== 'all') p.set('status', status)
@@ -361,15 +362,15 @@ export const contractorsApi = {
     return request<SubmissionPairDto[]>(`/contractor/submissions${suffix}`, { auth: true })
   },
   alerts: () => request<ContractorAlertDto[]>('/contractor/alerts', { auth: true }),
-  markAlertSeen: (siteId: number) =>
+  markAlertSeen: (siteId: string) =>
     request<void>(`/contractor/alerts/${siteId}/seen`, { method: 'POST', auth: true }),
 }
 
 /** /reporters/* + /r/* — community reporter lifecycle and flags. */
 export const reportersApi = {
-  nominate: (body: { site_id: number; contractor_id?: number; name: string; phone: string }) =>
+  nominate: (body: { site_id: string; contractor_id?: string; name: string; phone: string }) =>
     request<ReporterDto>('/reporters/nominate', { method: 'POST', body, auth: true }),
-  list: (site_id?: number, status?: string, q?: string) => {
+  list: (site_id?: string, status?: string, q?: string) => {
     const p = new URLSearchParams()
     if (site_id !== undefined) p.set('site_id', String(site_id))
     if (status && status !== 'all') p.set('status', status)
@@ -387,9 +388,9 @@ export const reportersApi = {
   /** Public — resolves a personal reporter link. */
   resolveToken: (token: string) => request<PublicReporterSiteDto>(`/r/${token}`),
   /** Public via reporter_token — photo_url is accepted, stored, and returned with the flag. */
-  flag: (body: { site_id: number; reporter_token?: string; photo_url?: string; note?: string }) =>
+  flag: (body: { site_id: string; reporter_token?: string; photo_url?: string; note?: string }) =>
     request<ReporterFlagDto>('/reporters/flag-site', { method: 'POST', body }),
-  siteFlags: (siteId: number) => request<ReporterFlagDto[]>(`/reporters/site/${siteId}/flags`, { auth: true }),
+  siteFlags: (siteId: string) => request<ReporterFlagDto[]>(`/reporters/site/${siteId}/flags`, { auth: true }),
 }
 
 /** POST /devices/* — push notification registration. */
