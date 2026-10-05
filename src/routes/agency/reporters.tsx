@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { CheckIcon, FunnelSimpleIcon, MagnifyingGlassIcon, MegaphoneIcon, XIcon } from '@phosphor-icons/react'
+import { ArrowSquareOutIcon, CheckIcon, CopyIcon, FunnelSimpleIcon, MagnifyingGlassIcon, MegaphoneIcon, XIcon } from '@phosphor-icons/react'
+import { reporterLink } from '@/lib/reporter-links'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -64,6 +65,21 @@ function ReportersPage() {
   const [justApproved, setJustApproved] = useState<string | null>(null)
   const [acting, setActing] = useState(false)
   const [actionError, setActionError] = useState('')
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const copyLink = async (id: string, token: string) => {
+    try {
+      await navigator.clipboard.writeText(reporterLink(token))
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = reporterLink(token)
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      ta.remove()
+    }
+    setCopiedId(id)
+  }
   const invalidate = useInvalidate()
   const { data, isPending, isError, error, refetch } = useReportersPage()
 
@@ -279,6 +295,18 @@ function ReportersPage() {
                         {r.status === 'pending' ? (
                           <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><XIcon size={16} /> Reject</Button>
                         ) : null}
+                        {r.status === 'approved' && r.token ? (
+                          <>
+                            <Button asChild variant="secondary">
+                              <a href={reporterLink(r.token)} target="_blank" rel="noreferrer">
+                                <ArrowSquareOutIcon size={16} /> Open link
+                              </a>
+                            </Button>
+                            <Button variant="secondary" onClick={() => void copyLink(r.id, r.token as string)}>
+                              {copiedId === r.id ? <CheckIcon size={16} /> : <CopyIcon size={16} />} {copiedId === r.id ? 'Copied' : 'Copy link'}
+                            </Button>
+                          </>
+                        ) : null}
                         {r.status === 'approved' ? (
                           <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting} loading={acting}>Revoke</Button>
                         ) : null}
@@ -306,6 +334,18 @@ function ReportersPage() {
                   ) : null}
                   {r.status === 'pending' ? (
                     <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><XIcon size={16} /> Reject</Button>
+                  ) : null}
+                  {r.status === 'approved' && r.token ? (
+                    <>
+                      <Button asChild variant="secondary">
+                        <a href={reporterLink(r.token)} target="_blank" rel="noreferrer">
+                          <ArrowSquareOutIcon size={16} /> Open link
+                        </a>
+                      </Button>
+                      <Button variant="secondary" onClick={() => void copyLink(r.id, r.token as string)}>
+                        {copiedId === r.id ? <CheckIcon size={16} /> : <CopyIcon size={16} />} {copiedId === r.id ? 'Copied' : 'Copy link'}
+                      </Button>
+                    </>
                   ) : null}
                   {r.status === 'approved' ? (
                     <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting}>Revoke</Button>
