@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { X } from '@phosphor-icons/react'
+import { XIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 export function Dialog({
@@ -29,7 +29,7 @@ export function Dialog({
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-ink-soft hover:bg-cloud cursor-pointer"
         >
-          <X size={20} />
+          <XIcon size={20} />
         </button>
         {children}
       </div>

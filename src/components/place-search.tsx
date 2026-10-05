@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { MagnifyingGlass, MapPin } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, MapPinIcon } from '@phosphor-icons/react'
 import { Input } from '@/components/ui/input'
 import { searchPlaces, type PlaceResult } from '@/lib/geocode'
 
@@ -42,7 +42,7 @@ export function PlaceSearch({ onPick }: { onPick: (pos: { lat: number; lng: numb
 
   return (
     <div ref={boxRef} className="relative">
-      <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+      <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -68,7 +68,7 @@ export function PlaceSearch({ onPick }: { onPick: (pos: { lat: number; lng: numb
                 }}
                 className="flex w-full cursor-pointer items-start gap-2 px-4 py-2.5 text-left text-sm hover:bg-cloud"
               >
-                <MapPin size={18} className="mt-0.5 shrink-0 text-primary" />
+                <MapPinIcon size={18} className="mt-0.5 shrink-0 text-primary" />
                 <span className="text-ink">{r.label}</span>
               </button>
             ))

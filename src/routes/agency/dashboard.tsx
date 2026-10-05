@@ -9,7 +9,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, ArrowsDownUp, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
+import { ArrowDownIcon, ArrowUpIcon, ArrowsDownUpIcon, FunnelSimpleIcon, MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -173,7 +173,7 @@ function DashboardPage() {
 
       <div className="mt-4 flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+          <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -183,10 +183,10 @@ function DashboardPage() {
           />
         </div>
         <Button variant="secondary" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}>
-          <FunnelSimple size={18} /> <span className="hidden sm:inline">Filters</span>
+          <FunnelSimpleIcon size={18} /> <span className="hidden sm:inline">Filters</span>
         </Button>
         <Button asChild className="hidden md:inline-flex">
-          <Link to="/agency/dump-points"><Plus size={18} /> Add site</Link>
+          <Link to="/agency/dump-points"><PlusIcon size={18} /> Add site</Link>
         </Button>
       </div>
 
@@ -281,7 +281,7 @@ function DashboardPage() {
                             className="inline-flex cursor-pointer items-center gap-1 uppercase"
                           >
                             {flexRender(h.column.columnDef.header, h.getContext())}
-                            {h.column.getIsSorted() === 'desc' ? <ArrowDown size={14} /> : h.column.getIsSorted() === 'asc' ? <ArrowUp size={14} /> : <ArrowsDownUp size={14} className="opacity-40" />}
+                            {h.column.getIsSorted() === 'desc' ? <ArrowDownIcon size={14} /> : h.column.getIsSorted() === 'asc' ? <ArrowUpIcon size={14} /> : <ArrowsDownUpIcon size={14} className="opacity-40" />}
                           </button>
                         ) : (
                           flexRender(h.column.columnDef.header, h.getContext())

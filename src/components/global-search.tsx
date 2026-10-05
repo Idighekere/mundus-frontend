@@ -1,15 +1,15 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { Buildings, FileText, MagnifyingGlass, MapPin } from '@phosphor-icons/react'
+import { BuildingsIcon, FileTextIcon, MagnifyingGlassIcon, MapPinIcon } from '@phosphor-icons/react'
 import { Input } from '@/components/ui/input'
 import { globalSearch, type SearchResult } from '@/lib/search'
 import { useSearchIndex } from '@/lib/live-queries'
 import { mapDaysSince, mapDumpPoint } from '@/lib/backend-map'
 
 const icons = {
-  page: <FileText size={18} className="shrink-0 text-primary" />,
-  site: <MapPin size={18} className="shrink-0 text-primary" />,
-  contractor: <Buildings size={18} className="shrink-0 text-primary" />,
+  page: <FileTextIcon size={18} className="shrink-0 text-primary" />,
+  site: <MapPinIcon size={18} className="shrink-0 text-primary" />,
+  contractor: <BuildingsIcon size={18} className="shrink-0 text-primary" />,
 }
 
 export function GlobalSearch({ compact = false }: { compact?: boolean }) {
@@ -53,7 +53,7 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
 
   return (
     <div ref={boxRef} className="relative w-full max-w-md">
-      <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+      <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
       <Input
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); setActive(0) }}

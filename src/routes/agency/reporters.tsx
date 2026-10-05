@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { Check, FunnelSimple, MagnifyingGlass, Megaphone, X } from '@phosphor-icons/react'
+import { CheckIcon, FunnelSimpleIcon, MagnifyingGlassIcon, MegaphoneIcon, XIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -191,7 +191,7 @@ function ReportersPage() {
 
       {justApproved ? (
         <Card className="mt-4 border-[#1d6f42]">
-          <p className="flex items-center gap-2 font-semibold text-ink"><Check size={18} className="text-[#1d6f42]" /> {justApproved} approved</p>
+          <p className="flex items-center gap-2 font-semibold text-ink"><CheckIcon size={18} className="text-[#1d6f42]" /> {justApproved} approved</p>
           <p className="mt-1 text-sm text-ink-soft">The contractor can now send them their personal reporting link by SMS or WhatsApp.</p>
           <div className="mt-3">
             <Button variant="secondary" onClick={() => setJustApproved(null)}>Dismiss</Button>
@@ -201,7 +201,7 @@ function ReportersPage() {
 
       <div className="mt-4 flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+          <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -211,7 +211,7 @@ function ReportersPage() {
           />
         </div>
         <Button variant="secondary" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}>
-          <FunnelSimple size={18} /> <span className="hidden sm:inline">Filters</span>
+          <FunnelSimpleIcon size={18} /> <span className="hidden sm:inline">Filters</span>
         </Button>
       </div>
 
@@ -248,7 +248,7 @@ function ReportersPage() {
         </Card>
       ) : filtered.length === 0 ? (
         <Card className="mt-4 text-center">
-          <Megaphone size={32} className="mx-auto text-ink-soft" />
+          <MegaphoneIcon size={32} className="mx-auto text-ink-soft" />
           <p className="mt-2 font-display text-[28px] text-ink">
             {reporters.length === 0 ? 'No nominations yet' : 'No reporters match these filters'}
           </p>
@@ -274,10 +274,10 @@ function ReportersPage() {
                     <TD>
                       <div className="flex flex-wrap gap-2">
                         {r.status === 'pending' || r.status === 'rejected' ? (
-                          <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting} loading={acting}><Check size={16} /> Approve</Button>
+                          <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting} loading={acting}><CheckIcon size={16} /> Approve</Button>
                         ) : null}
                         {r.status === 'pending' ? (
-                          <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><X size={16} /> Reject</Button>
+                          <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><XIcon size={16} /> Reject</Button>
                         ) : null}
                         {r.status === 'approved' ? (
                           <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting} loading={acting}>Revoke</Button>
@@ -302,10 +302,10 @@ function ReportersPage() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(r.status === 'pending' || r.status === 'rejected') ? (
-                    <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting}><Check size={16} /> Approve</Button>
+                    <Button variant="secondary" onClick={() => void approve(r.id)} disabled={acting}><CheckIcon size={16} /> Approve</Button>
                   ) : null}
                   {r.status === 'pending' ? (
-                    <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><X size={16} /> Reject</Button>
+                    <Button variant="ghost" onClick={() => { setRejectId(r.id); setReason('') }}><XIcon size={16} /> Reject</Button>
                   ) : null}
                   {r.status === 'approved' ? (
                     <Button variant="danger" onClick={() => void doRevoke(r.id)} disabled={acting}>Revoke</Button>

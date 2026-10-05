@@ -2,7 +2,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Crosshair } from '@phosphor-icons/react'
+import { CrosshairIcon } from '@phosphor-icons/react'
 import { currentPosition } from '@/lib/geocode'
 
 const UYO = { lat: 5.042, lng: 7.957 }
@@ -89,7 +89,7 @@ export function MapPicker({
       <div ref={elRef} className="z-0 h-56 w-full overflow-hidden rounded-xl border border-hairline" />
       <p className="mt-1 text-xs text-ink-soft">Tap the map or drag the pin to set coordinates.</p>
       <Button variant="secondary" onClick={locate} disabled={locating} className="mt-2 w-full">
-        <Crosshair size={18} /> {locating ? 'Reading GPS — up to 12s for a precise fix…' : 'Use my current location'}
+        <CrosshairIcon size={18} /> {locating ? 'Reading GPS — up to 12s for a precise fix…' : 'Use my current location'}
       </Button>
       {accuracy !== null ? (
         <p className={`mt-1 text-xs ${accuracy <= 100 ? 'text-ink-soft' : 'text-[#be3b3b]'}`}>

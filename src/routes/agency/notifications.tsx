@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { Bell, CheckCircle, Flag, Megaphone, UserPlus, Warning } from '@phosphor-icons/react'
+import { BellIcon, CheckCircleIcon, FlagIcon, MegaphoneIcon, UserPlusIcon, WarningIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -14,10 +14,10 @@ export const Route = createFileRoute('/agency/notifications')({
 })
 
 const kindIcon = {
-  report: <Megaphone size={20} className="text-primary" />,
-  flag: <Warning size={20} weight="fill" className="text-[#be3b3b]" />,
-  nomination: <UserPlus size={20} className="text-[#c08014]" />,
-  overdue: <Flag size={20} weight="fill" className="text-[#be3b3b]" />,
+  report: <MegaphoneIcon size={20} className="text-primary" />,
+  flag: <WarningIcon size={20} weight="fill" className="text-[#be3b3b]" />,
+  nomination: <UserPlusIcon size={20} className="text-[#c08014]" />,
+  overdue: <FlagIcon size={20} weight="fill" className="text-[#be3b3b]" />,
 }
 
 function dayGroup(iso: string): string {
@@ -76,7 +76,7 @@ function NotificationsPage() {
               setTick((t) => t + 1)
             }}
           >
-            <CheckCircle size={18} weight="fill" /> Mark all read
+            <CheckCircleIcon size={18} weight="fill" /> Mark all read
           </Button>
         ) : null}
       </div>
@@ -93,7 +93,7 @@ function NotificationsPage() {
         </Card>
       ) : notices.length === 0 ? (
         <Card className="mt-4 text-center">
-          <Bell size={32} className="mx-auto text-ink-soft" />
+          <BellIcon size={32} className="mx-auto text-ink-soft" />
           <p className="mt-2 font-display text-[28px] text-ink">Nothing to review</p>
           <p className="mt-1">Reports, flags, and nominations will land here.</p>
         </Card>

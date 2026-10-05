@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft, MapPin } from '@phosphor-icons/react'
+import { ArrowLeftIcon, MapPinIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { LogoMark } from '@/components/logo'
 
@@ -20,12 +20,12 @@ export function NotFoundPage() {
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Button asChild variant="secondary">
             <Link to="/">
-              <ArrowLeft size={18} /> Back home
+              <ArrowLeftIcon size={18} /> Back home
             </Link>
           </Button>
           <Button asChild>
             <Link to="/agency/dashboard">
-              <MapPin size={18} /> Open dashboard
+              <MapPinIcon size={18} /> Open dashboard
             </Link>
           </Button>
         </div>

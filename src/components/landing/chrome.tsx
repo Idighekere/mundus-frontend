@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { List, X } from '@phosphor-icons/react'
+import { ListIcon, XIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { LogoMark } from '@/components/logo'
 import { NAV_LINKS, useScrolled } from './shared'
@@ -51,7 +51,7 @@ export function SiteHeader({ activeSection }: { activeSection: string }) {
             onClick={() => setMenuOpen((v) => !v)}
             className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full text-ink hover:bg-cloud md:hidden"
           >
-            {menuOpen ? <X size={22} /> : <List size={22} />}
+            {menuOpen ? <XIcon size={22} /> : <ListIcon size={22} />}
           </button>
         </div>
       </nav>

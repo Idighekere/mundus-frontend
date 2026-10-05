@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  ArrowLeft, ArrowRight, Camera, CheckCircle, CloudSlash, Crosshair, Info,
-  MapPin, VideoCameraSlash, Warning,
+  ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckCircleIcon, CloudSlash, CrosshairIcon, Info,
+  MapPinIcon, VideoCameraSlash, WarningIcon,
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -199,7 +199,7 @@ export function CheckinFlow({
 
   const backHeader = (title: string) => (
     <button onClick={() => { stopStream(); onDone() }} className="mb-3 inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 text-sm font-semibold text-ink">
-      <ArrowLeft size={18} /> {title}
+      <ArrowLeftIcon size={18} /> {title}
     </button>
   )
 
@@ -213,16 +213,16 @@ export function CheckinFlow({
           <p className="text-sm text-ink-soft">Mundus needs your camera and location to confirm you are at the dump point. Photos must be taken with the in-app camera.</p>
           <div className="mt-4 space-y-3">
             <div className="flex gap-3 rounded-xl bg-canvas p-4">
-              <Camera size={24} className="shrink-0 text-primary" />
+              <CameraIcon size={24} className="shrink-0 text-primary" />
               <div><p className="font-semibold text-ink">Camera</p><p className="text-sm text-ink-soft">To take the before and after photos</p></div>
             </div>
             <div className="flex gap-3 rounded-xl bg-canvas p-4">
-              <MapPin size={24} className="shrink-0 text-primary" />
+              <MapPinIcon size={24} className="shrink-0 text-primary" />
               <div><p className="font-semibold text-ink">Location</p><p className="text-sm text-ink-soft">To confirm you are at the dump point</p></div>
             </div>
           </div>
           <Button onClick={startCamera} className="mt-4 w-full">
-            Grant permissions & continue <ArrowRight size={18} />
+            Grant permissions & continue <ArrowRightIcon size={18} />
           </Button>
         </Card>
       </div>
@@ -236,7 +236,7 @@ export function CheckinFlow({
         {backHeader(site.name)}
         <Card className="text-center">
           {isCam ? <VideoCameraSlash size={40} className="mx-auto text-[#be3b3b]" />
-            : <Crosshair size={40} className="mx-auto text-[#be3b3b]" />}
+            : <CrosshairIcon size={40} className="mx-auto text-[#be3b3b]" />}
           <h2 className="mt-2 text-xl font-bold text-ink">
             {stage === 'unsupported' ? 'In-app capture not supported here'
               : isCam ? 'Camera permission is required' : 'Location permission is required'}
@@ -285,11 +285,11 @@ export function CheckinFlow({
               </span>
             ) : fix && !weak ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1d6f42] px-3 py-1.5 text-xs font-semibold text-white">
-                <CheckCircle size={14} weight="fill" /> GPS locked · ±{fix.accuracyM ?? '?'} m
+                <CheckCircleIcon size={14} weight="fill" /> GPS locked · ±{fix.accuracyM ?? '?'} m
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c08014] px-3 py-1.5 text-xs font-semibold text-white">
-                <Warning size={14} weight="fill" /> Weak GPS signal{fix?.accuracyM ? ` (accuracy ${fix.accuracyM} m)` : ''}. Move to an open area.
+                <WarningIcon size={14} weight="fill" /> Weak GPS signal{fix?.accuracyM ? ` (accuracy ${fix.accuracyM} m)` : ''}. Move to an open area.
               </span>
             )}
           </div>
@@ -323,7 +323,7 @@ export function CheckinFlow({
         <p className="text-lg font-semibold text-ink">Step {type === 'before' ? 1 : 2}: {label}</p>
         <img src={shot.dataUrl} alt={`${label} preview`} className="mt-2 aspect-[4/3] w-full rounded-2xl object-cover" />
         <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#e6f5ee] px-3 py-1.5 text-xs font-semibold text-primary">
-          <CheckCircle size={14} weight="fill" /> Location recorded{shot.accuracyM !== null ? `, accuracy ${shot.accuracyM} m` : ''}
+          <CheckCircleIcon size={14} weight="fill" /> Location recorded{shot.accuracyM !== null ? `, accuracy ${shot.accuracyM} m` : ''}
         </p>
         <Card className="mt-2 space-y-2 p-4">
           <div className="flex justify-between text-sm">
@@ -337,7 +337,7 @@ export function CheckinFlow({
         </Card>
         <div className="mt-3 flex gap-2">
           <Button variant="secondary" onClick={() => setStage('live')} className="flex-1">Retake</Button>
-          <Button onClick={upload} className="flex-1">Submit <ArrowRight size={18} /></Button>
+          <Button onClick={upload} className="flex-1">Submit <ArrowRightIcon size={18} /></Button>
         </div>
       </div>
     )
@@ -389,7 +389,7 @@ export function CheckinFlow({
         {backHeader(site.name)}
         <Card className="border-[#be3b3b]">
           <div className="flex items-center gap-2">
-            <Warning size={28} weight="fill" className="shrink-0 text-[#be3b3b]" />
+            <WarningIcon size={28} weight="fill" className="shrink-0 text-[#be3b3b]" />
             <div>
               <h2 className="text-xl font-bold text-ink">{dup ? 'Duplicate photo' : 'Location mismatch'}</h2>
               <p className="text-sm font-semibold text-[#be3b3b]">{dup ? 'Photo already submitted' : `${result.distanceM} m off-target`}</p>
@@ -420,13 +420,13 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
+          <CheckCircleIcon size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-xl font-bold text-ink">Before photo submitted</h2>
           <p className="text-sm text-ink-soft">Submitted {fmtDateTime(new Date().toISOString())}</p>
           <p className="mx-auto mt-3 max-w-sm rounded-xl bg-canvas px-3 py-2 text-sm text-ink">Step 1 complete. Take the after photo once clearance is finished.</p>
           <div className="mt-4 flex gap-2">
             <Button variant="secondary" onClick={() => onDone()} className="flex-1">Back to site</Button>
-            <Button onClick={() => onDone('after')} className="flex-1">Continue to after photo <ArrowRight size={18} /></Button>
+            <Button onClick={() => onDone('after')} className="flex-1">Continue to after photo <ArrowRightIcon size={18} /></Button>
           </div>
         </Card>
       </div>
@@ -438,7 +438,7 @@ export function CheckinFlow({
       <div className="mt-4">
         {backHeader(site.name)}
         <Card className="text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
+          <CheckCircleIcon size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-xl font-bold text-ink">Visit complete. {site.name} cleared.</h2>
           <p className="mt-2 inline-block rounded-full bg-[#e6f5ee] px-3 py-1 font-display text-2xl text-primary">0 DAYS</p>
           <p className="mt-1 text-xs text-ink-soft">Days since clearance reset to 0.</p>

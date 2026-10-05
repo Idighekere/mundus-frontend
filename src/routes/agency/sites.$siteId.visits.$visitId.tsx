@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { ArrowLeft, Camera, CheckCircle, XCircle } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CameraIcon, CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { VisitSkeleton } from '@/components/skeletons'
@@ -24,7 +24,7 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
   if (!photo) {
     return (
       <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-hairline bg-canvas p-6 text-center text-ink-soft">
-        <Camera size={28} />
+        <CameraIcon size={28} />
         <p className="text-sm font-semibold">No {label.toLowerCase()} photo recorded</p>
       </div>
     )
@@ -36,7 +36,7 @@ function PhotoPanel({ label, photo, siteLat, siteLng }: { label: 'Before' | 'Aft
         <img src={photo.url} alt={`${label} evidence photo`} className="aspect-square w-full rounded-xl object-cover" loading="lazy" />
       ) : (
         <div className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl bg-cloud p-6 text-center text-ink-soft">
-          <Camera size={32} />
+          <CameraIcon size={32} />
           <p className="text-sm">{label} photo — GPS locked</p>
           <p className="font-mono text-xs">{photo.lat.toFixed(4)}° N, {photo.lng.toFixed(4)}° E</p>
         </div>
@@ -98,7 +98,7 @@ function VisitPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-medium text-ink-soft">
         <Link to="/agency/dashboard" className="inline-flex items-center gap-1 hover:text-primary">
-          <ArrowLeft size={16} /> Dashboard
+          <ArrowLeftIcon size={16} /> Dashboard
         </Link>
         <span>/</span>
         <Link to="/agency/sites/$siteId" params={{ siteId }} className="hover:text-primary">{site.name}</Link>
@@ -145,8 +145,8 @@ function VisitPage() {
           {checks.map((c) => (
             <div key={c.label} className="flex items-center justify-between rounded-xl bg-canvas p-4">
               <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-ink">
-                {c.state === 'pass' ? <CheckCircle size={22} weight="fill" className="shrink-0 text-[#1d6f42]" />
-                  : c.state === 'fail' ? <XCircle size={22} weight="fill" className="shrink-0 text-[#be3b3b]" />
+                {c.state === 'pass' ? <CheckCircleIcon size={22} weight="fill" className="shrink-0 text-[#1d6f42]" />
+                  : c.state === 'fail' ? <XCircleIcon size={22} weight="fill" className="shrink-0 text-[#be3b3b]" />
                   : <span className="h-5 w-5 shrink-0 rounded-full border-2 border-hairline" />}
                 {c.label}
               </span>

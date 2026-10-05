@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { PasswordInput } from '@/components/ui/input'
@@ -73,7 +73,7 @@ function ContractorAccount() {
           {error ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
           {saved ? (
             <p className="flex items-center gap-2 rounded-lg bg-[#e6f5ee] px-3 py-2 text-sm text-primary">
-              <CheckCircle size={18} weight="fill" /> Password updated.
+              <CheckCircleIcon size={18} weight="fill" /> Password updated.
             </p>
           ) : null}
           <Button type="submit" className="w-full">Save new password</Button>

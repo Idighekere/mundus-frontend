@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, Camera, CheckCircle, Warning } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CameraIcon, CheckCircleIcon, WarningIcon } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -141,7 +141,7 @@ function ContractorSiteDetail() {
   return (
     <div className="mt-4">
       <Button variant="ghost" onClick={() => navigate({ to: '/contractor/sites' })} className="mb-2 pl-0">
-        <ArrowLeft size={18} /> My sites
+        <ArrowLeftIcon size={18} /> My sites
       </Button>
 
       {!assigned ? (
@@ -151,12 +151,12 @@ function ContractorSiteDetail() {
         </Card>
       ) : complete ? (
         <Card className="text-center">
-          <CheckCircle size={40} weight="fill" className="mx-auto text-[#1d6f42]" />
+          <CheckCircleIcon size={40} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h2 className="mt-2 text-2xl font-bold text-ink">Visit complete</h2>
           <p className="mt-1 text-ink-soft">{site.name} · before + after logged today.</p>
           {flagged ? (
             <p className="mx-auto mt-3 flex max-w-sm items-start gap-2 rounded-xl bg-[#fde8e8] px-3 py-2 text-left text-sm text-[#be3b3b]">
-              <Warning size={18} className="mt-0.5 shrink-0" />
+              <WarningIcon size={18} className="mt-0.5 shrink-0" />
               One photo was captured outside the 100 m geofence and flagged for agency review.
             </p>
           ) : null}
@@ -218,7 +218,7 @@ function ContractorSiteDetail() {
                 <img src={visit.before.photo} alt="Before" className="mt-2 aspect-[16/10] w-full rounded-xl object-cover" />
               ) : (
                 <Button onClick={() => setCapturing('before')} className="mt-3 w-full">
-                  <Camera size={18} /> Take before photo
+                  <CameraIcon size={18} /> Take before photo
                 </Button>
               )}
             </Card>
@@ -232,7 +232,7 @@ function ContractorSiteDetail() {
                 <img src={visit.after.photo} alt="After" className="mt-2 aspect-[16/10] w-full rounded-xl object-cover" />
               ) : (
                 <Button onClick={() => setCapturing('after')} disabled={!visit.before} className="mt-3 w-full">
-                  <Camera size={18} /> Take after photo
+                  <CameraIcon size={18} /> Take after photo
                 </Button>
               )}
               {!visit.before ? <p className="mt-2 text-xs text-ink-soft">Available after the before photo.</p> : null}

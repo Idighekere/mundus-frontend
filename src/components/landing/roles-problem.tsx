@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Flag, XCircle } from "@phosphor-icons/react";
+import { FlagIcon, XCircleIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Eyebrow, MAXW, Reveal } from "./shared";
 import { cn } from "@/lib/utils";
@@ -96,7 +96,7 @@ export function Roles() {
               </p>
               <div className="mt-4 rounded-xl bg-paper p-3 text-center">
                 <p className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 font-action text-sm font-medium text-white">
-                  <Flag size={16} weight="fill" /> This site is full
+                  <FlagIcon size={16} weight="fill" /> This site is full
                 </p>
                 <p className="mt-2 font-mono text-[11px] text-ink-soft">
                   12h limit · photo attached
@@ -184,7 +184,7 @@ export function Problem() {
                 >
                   <span className="font-semibold text-white">{label}</span>
                   <span className="flex shrink-0 items-center gap-2 font-mono text-xs uppercase tracking-wider text-white/50">
-                    <XCircle size={16} weight="fill" /> {note}
+                    <XCircleIcon size={16} weight="fill" /> {note}
                   </span>
                 </li>
               ))}

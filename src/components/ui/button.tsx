@@ -1,7 +1,7 @@
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { ButtonHTMLAttributes } from 'react'
-import { CircleNotch } from '@phosphor-icons/react'
+import { CircleNotchIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
@@ -41,7 +41,7 @@ export function Button({ className, variant, asChild, loading, disabled, childre
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? <CircleNotch size={18} weight="bold" className="animate-spin" aria-hidden="true" /> : null}
+      {loading ? <CircleNotchIcon size={18} weight="bold" className="animate-spin" aria-hidden="true" /> : null}
       {children}
     </button>
   )

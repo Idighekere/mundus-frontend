@@ -10,7 +10,7 @@ import {
   type SortingState,
 } from '@tanstack/react-table'
 import { Fragment, useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, ArrowsDownUp, CaretDown, FunnelSimple, MagnifyingGlass, Plus } from '@phosphor-icons/react'
+import { ArrowDownIcon, ArrowUpIcon, ArrowsDownUpIcon, CaretDownIcon, FunnelSimpleIcon, MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -230,7 +230,7 @@ function ContractorsPage() {
           <p className="mt-1 text-ink-soft">Registered contractors — the individuals who sign in and check in. Expand a row to see assigned dump points.</p>
         </div>
         <Button onClick={() => { setName(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
-          <Plus size={18} /> Add contractor
+          <PlusIcon size={18} /> Add contractor
         </Button>
       </div>
 
@@ -270,7 +270,7 @@ function ContractorsPage() {
 
       <div className="mt-4 flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+          <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -280,7 +280,7 @@ function ContractorsPage() {
           />
         </div>
         <Button variant="secondary" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}>
-          <FunnelSimple size={18} /> <span className="hidden sm:inline">Filters</span>
+          <FunnelSimpleIcon size={18} /> <span className="hidden sm:inline">Filters</span>
         </Button>
       </div>
 
@@ -332,7 +332,7 @@ function ContractorsPage() {
                       <TH key={h.id}>
                         <button onClick={h.column.getToggleSortingHandler()} className="inline-flex cursor-pointer items-center gap-1 uppercase">
                           {flexRender(h.column.columnDef.header, h.getContext())}
-                          {h.column.getIsSorted() === 'desc' ? <ArrowDown size={14} /> : h.column.getIsSorted() === 'asc' ? <ArrowUp size={14} /> : <ArrowsDownUp size={14} className="opacity-40" />}
+                          {h.column.getIsSorted() === 'desc' ? <ArrowDownIcon size={14} /> : h.column.getIsSorted() === 'asc' ? <ArrowUpIcon size={14} /> : <ArrowsDownUpIcon size={14} className="opacity-40" />}
                         </button>
                       </TH>
                     ))}
@@ -346,7 +346,7 @@ function ContractorsPage() {
                     <Fragment key={r.id}>
                       <TR key={r.id} className="cursor-pointer" onClick={() => r.toggleExpanded()}>
                         <TD>
-                          <CaretDown size={18} className={cn('text-ink-soft transition-transform', r.getIsExpanded() && 'rotate-180')} />
+                          <CaretDownIcon size={18} className={cn('text-ink-soft transition-transform', r.getIsExpanded() && 'rotate-180')} />
                         </TD>
                         {r.getVisibleCells().map((cell) => (
                           <TD key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TD>
@@ -399,7 +399,7 @@ function ContractorsPage() {
                     </span>
                     <span className="flex items-center gap-2">
                       <StatusBadge status={r.original.worst} />
-                      <CaretDown size={18} className={cn('text-ink-soft transition-transform', open && 'rotate-180')} />
+                      <CaretDownIcon size={18} className={cn('text-ink-soft transition-transform', open && 'rotate-180')} />
                     </span>
                   </button>
                   {open ? (

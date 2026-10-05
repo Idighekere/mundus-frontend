@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { Camera, CheckCircle, MapPin, Megaphone } from '@phosphor-icons/react'
+import { CameraIcon, CheckCircleIcon, MapPinIcon, MegaphoneIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -65,7 +65,7 @@ function ReporterPhotoStep({ onPhoto, onBack }: { onPhoto: (dataUrl: string) => 
       <p className="mt-1 text-sm text-ink-soft">A photo is required — show the contractor exactly what you are reporting.</p>
       {blocked ? (
         <div className="mt-3 rounded-xl bg-canvas p-4 text-center text-sm text-ink-soft">
-          <Camera size={28} className="mx-auto" />
+          <CameraIcon size={28} className="mx-auto" />
           <p className="mt-2 font-semibold text-ink">Camera access is required to report.</p>
           <p className="mt-1">Allow camera access for this page in your browser settings, then try again.</p>
           <Button variant="secondary" onClick={onBack} className="mt-3 w-full">Back</Button>
@@ -80,7 +80,7 @@ function ReporterPhotoStep({ onPhoto, onBack }: { onPhoto: (dataUrl: string) => 
           </div>
           <div className="mt-3 flex gap-2">
             <Button variant="secondary" onClick={onBack} className="flex-1">Back</Button>
-            <Button onClick={capture} disabled={!live} className="flex-1"><Camera size={18} /> Capture</Button>
+            <Button onClick={capture} disabled={!live} className="flex-1"><CameraIcon size={18} /> Capture</Button>
           </div>
         </>
       )}
@@ -138,7 +138,7 @@ function ReporterPage() {
   if (liveInvalid) {
     return (
       <main className="mx-auto w-full max-w-[640px] px-4 py-16 text-center">
-        <MapPin size={44} className="mx-auto text-[#be3b3b]" weight="fill" />
+        <MapPinIcon size={44} className="mx-auto text-[#be3b3b]" weight="fill" />
         <h1 className="mt-3 text-2xl font-bold text-ink">This reporting link is not valid</h1>
         <p className="mt-2 text-ink-soft">
           It may have been revoked or replaced. Contact the agency for a new link.
@@ -195,7 +195,7 @@ function ReporterPage() {
 
       {stage === 'done' && justReportedAt ? (
         <Card className="mt-6 text-center">
-          <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
+          <CheckCircleIcon size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
           <h1 className="mt-2 text-2xl font-bold text-ink">Thank you. {contractorName} has been told.</h1>
           <p className="mt-1 text-sm text-ink-soft">
             Reported at {formatTime(justReportedAt)}
@@ -227,11 +227,11 @@ function ReporterPage() {
       ) : (
         <Card className="mt-6">
           <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.2em] text-ink-soft">
-            <MapPin size={16} /> Assigned waste site
+            <MapPinIcon size={16} /> Assigned waste site
           </p>
           <h1 className="mt-1 text-3xl font-bold text-ink">{site.name}</h1>
           <Button onClick={() => setStage('photo')} className="mt-4 w-full py-4 text-base">
-            <Megaphone size={20} /> This site is full
+            <MegaphoneIcon size={20} /> This site is full
           </Button>
           <p className="mt-3 text-xs text-ink-soft">This link is personal to you and only works for {site.name}.</p>
           {flagError ? (

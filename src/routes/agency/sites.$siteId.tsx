@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, notFound, useMatch } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, Camera, CaretDown, Images } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, CaretDownIcon, ImagesIcon } from '@phosphor-icons/react'
 import { Badge, StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -44,7 +44,7 @@ function SiteDetailPage() {
     return (
       <div>
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
-          <ArrowLeft size={16} /> Dashboard
+          <ArrowLeftIcon size={16} /> Dashboard
         </Link>
         <div className="mt-2">
           <SiteDetailSkeleton />
@@ -56,7 +56,7 @@ function SiteDetailPage() {
     return (
       <div>
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-ink-soft hover:text-primary">
-          <ArrowLeft size={16} /> Dashboard
+          <ArrowLeftIcon size={16} /> Dashboard
         </Link>
         <Card className="mt-4 text-center">
           <p className="font-display text-[28px] text-ink">Could not load this site</p>
@@ -86,7 +86,7 @@ function SiteDetailPage() {
     <div>
       <div className="mb-4 flex items-center gap-2 text-sm font-medium text-ink-soft">
         <Link to="/agency/dashboard" className="inline-flex min-h-[44px] items-center gap-1 hover:text-primary">
-          <ArrowLeft size={16} /> Dashboard
+          <ArrowLeftIcon size={16} /> Dashboard
         </Link>
         <span>/</span>
         <span className="font-semibold text-ink">{site.name}</span>
@@ -166,7 +166,7 @@ function SiteDetailPage() {
                             {count > 0 ? <Badge variant="neutral">{count} photo{count > 1 ? 's' : ''}</Badge> : null}
                           </span>
                         </span>
-                        <CaretDown size={20} className={cn('shrink-0 text-ink-soft transition-transform', isOpen && 'rotate-180')} />
+                        <CaretDownIcon size={20} className={cn('shrink-0 text-ink-soft transition-transform', isOpen && 'rotate-180')} />
                       </button>
                       {isOpen ? (
                         <div className="border-t border-hairline p-4 pt-3">
@@ -185,7 +185,7 @@ function SiteDetailPage() {
                                       <img src={p.url} alt={`${i === 0 ? 'Before' : 'After'} evidence photo`} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                                     ) : (
                                       <>
-                                        <Camera size={24} />
+                                        <CameraIcon size={24} />
                                         <span className="text-[11px] font-semibold uppercase tracking-wide">{i === 0 ? 'Before' : 'After'}</span>
                                       </>
                                     )}
@@ -204,7 +204,7 @@ function SiteDetailPage() {
                           <div className="mt-3 flex items-center justify-between">
                             {count > 0 ? (
                               <Link {...to} className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-ink underline underline-offset-4 hover:text-primary">
-                                <Images size={18} /> Open comparison <ArrowRight size={16} />
+                                <ImagesIcon size={18} /> Open comparison <ArrowRightIcon size={16} />
                               </Link>
                             ) : (
                               <span className="text-sm text-ink-soft">No contractor photos{v.ticket ? ` · Ticket #${v.ticket}` : ''}</span>
@@ -233,7 +233,7 @@ function SiteDetailPage() {
           ) : null}
 
           <Button variant="secondary" asChild className="mt-4 md:hidden">
-            <Link to="/agency/dashboard"><ArrowLeft size={18} /> Back to dashboard</Link>
+            <Link to="/agency/dashboard"><ArrowLeftIcon size={18} /> Back to dashboard</Link>
           </Button>
         </div>
       </div>

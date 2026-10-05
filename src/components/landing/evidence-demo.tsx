@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { Eyebrow, MAXW } from './shared'
 import { cn } from '@/lib/utils'
 
@@ -29,7 +29,7 @@ export function Demo() {
                 <span className="block font-semibold text-ink">{r.role}</span>
                 <span className="block text-sm">{r.body}</span>
               </span>
-              <ArrowRight size={20} className="shrink-0 text-primary" />
+              <ArrowRightIcon size={20} className="shrink-0 text-primary" />
             </Link>
           ))}
         </div>

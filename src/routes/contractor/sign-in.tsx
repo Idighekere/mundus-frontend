@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, Camera, MapPin, CheckCircle } from '@phosphor-icons/react'
+import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, MapPinIcon, CheckCircleIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { DemoAccounts } from '@/components/demo-accounts'
 import { Button } from '@/components/ui/button'
@@ -54,9 +54,9 @@ function ContractorSignIn() {
             <div className="mt-4 hidden rounded-2xl bg-white/10 p-5 backdrop-blur md:block">
               <div className="space-y-2">
                 {[
-                  { icon: <Camera size={20} className="text-white/80" />, t: 'Before photo', d: 'Snap the pile on arrival' },
-                  { icon: <MapPin size={20} className="text-white/80" />, t: 'Clear the site', d: 'Evacuate and sweep' },
-                  { icon: <CheckCircle size={20} className="text-white/80" />, t: 'After photo', d: 'Proof — counter resets to 0d' },
+                  { icon: <CameraIcon size={20} className="text-white/80" />, t: 'Before photo', d: 'Snap the pile on arrival' },
+                  { icon: <MapPinIcon size={20} className="text-white/80" />, t: 'Clear the site', d: 'Evacuate and sweep' },
+                  { icon: <CheckCircleIcon size={20} className="text-white/80" />, t: 'After photo', d: 'Proof — counter resets to 0d' },
                 ].map((s) => (
                   <div key={s.t} className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3">
                     {s.icon}
@@ -68,7 +68,7 @@ function ContractorSignIn() {
                 ))}
               </div>
               <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#1d6f42] px-3 py-1.5 text-xs font-bold text-white">
-                <CheckCircle size={14} weight="fill" /> In-app camera only — no gallery
+                <CheckCircleIcon size={14} weight="fill" /> In-app camera only — no gallery
               </p>
             </div>
           </div>
@@ -80,7 +80,7 @@ function ContractorSignIn() {
       <div className="flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-[440px]">
           <Link to="/" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft size={16} /> Back home
+            <ArrowLeftIcon size={16} /> Back home
           </Link>
           <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Contractor sign in</p>
           <h1 className="mt-1 font-display text-4xl text-ink md:text-[48px]">Start your round</h1>
@@ -113,7 +113,7 @@ function ContractorSignIn() {
               />
             </div>
             {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-            <Button type="submit" loading={busy} className="w-full">Start shift <ArrowRight size={18} /></Button>
+            <Button type="submit" loading={busy} className="w-full">Start shift <ArrowRightIcon size={18} /></Button>
           </form>
           <DemoAccounts
             accounts={[

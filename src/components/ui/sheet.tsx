@@ -1,5 +1,5 @@
 import { Drawer } from 'vaul'
-import { X } from '@phosphor-icons/react'
+import { XIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 
 export function BottomSheet({
@@ -25,7 +25,7 @@ export function BottomSheet({
                 onClick={() => onOpenChange(false)}
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-ink-soft hover:bg-cloud cursor-pointer"
               >
-                <X size={20} />
+                <XIcon size={20} />
               </button>
             </div>
           </div>

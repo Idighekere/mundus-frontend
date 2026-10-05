@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { X } from '@phosphor-icons/react'
+import { XIcon } from '@phosphor-icons/react'
 
 export function RightSheet({
   open, onOpenChange, title, description, children, footer,
@@ -36,7 +36,7 @@ export function RightSheet({
             onClick={() => onOpenChange(false)}
             className="flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-cloud"
           >
-            <X size={20} />
+            <XIcon size={20} />
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6">{children}</div>

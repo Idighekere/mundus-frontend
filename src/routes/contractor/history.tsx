@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
-import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react'
+import { ArrowRightIcon, MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -112,7 +112,7 @@ function ContractorHistory() {
       <h2 className="text-xl font-semibold text-ink">My submissions</h2>
 
       <div className="relative mt-3">
-        <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+        <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -203,7 +203,7 @@ function ContractorHistory() {
                         <Badge variant={complete ? 'on-schedule' : 'overdue'}>{complete ? 'Done' : 'Pending'}</Badge>
                         {flagged ? <Badge variant="critical">Flagged</Badge> : null}
                       </span>
-                      <ArrowRight size={16} className={cn('shrink-0 text-ink-soft')} />
+                      <ArrowRightIcon size={16} className={cn('shrink-0 text-ink-soft')} />
                     </Link>
                   )
                 })}

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate } from '@tanstack/react-router'
 import { useMemo } from 'react'
-import { ArrowRight, X } from '@phosphor-icons/react'
+import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -141,7 +141,7 @@ function ContractorHome() {
                 aria-label="Dismiss alert"
                 className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full text-ink hover:bg-white/50"
               >
-                <X size={18} />
+                <XIcon size={18} />
               </button>
             </div>
           ))}
@@ -172,7 +172,7 @@ function ContractorHome() {
                 <StatusBadge status={s.status} />
               </div>
               <span className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 font-action text-sm font-bold text-on-primary">
-                Check in <ArrowRight size={16} />
+                Check in <ArrowRightIcon size={16} />
               </span>
             </Link>
           ))}

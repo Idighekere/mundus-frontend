@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
-import { ClockCounterClockwise, MapPin, SignOut, User } from '@phosphor-icons/react'
+import { ClockCounterClockwiseIcon, MapPinIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { useContractorSession } from '@/lib/contractor-session'
 import {
@@ -17,9 +17,9 @@ export const Route = createFileRoute('/contractor')({
 })
 
 const tabs = [
-  { to: '/contractor/sites' as const, label: 'Sites', icon: MapPin },
-  { to: '/contractor/history' as const, label: 'History', icon: ClockCounterClockwise },
-  { to: '/contractor/account' as const, label: 'Account', icon: User },
+  { to: '/contractor/sites' as const, label: 'Sites', icon: MapPinIcon },
+  { to: '/contractor/history' as const, label: 'History', icon: ClockCounterClockwiseIcon },
+  { to: '/contractor/account' as const, label: 'Account', icon: UserIcon },
 ]
 
 function initials(name: string): string {
@@ -67,7 +67,7 @@ function ContractorShell() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={logout}>
-          <SignOut size={18} /> Log out
+          <SignOutIcon size={18} /> Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

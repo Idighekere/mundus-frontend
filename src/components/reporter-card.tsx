@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Copy } from '@phosphor-icons/react'
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
@@ -144,7 +144,7 @@ export function ReporterCard({ siteId, contractorId, siteName }: { siteId: strin
                       )}
                       className="flex-1"
                     >
-                      {copiedId === reporter.id ? <Check size={16} /> : <Copy size={16} />} {copiedId === reporter.id ? 'Copied' : 'Copy SMS'}
+                      {copiedId === reporter.id ? <CheckIcon size={16} /> : <CopyIcon size={16} />} {copiedId === reporter.id ? 'Copied' : 'Copy SMS'}
                     </Button>
                     <Button asChild className="flex-1 bg-[#1faa55] hover:bg-[#178a44]">
                       <a

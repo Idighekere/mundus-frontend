@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle, Key } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CheckCircleIcon, KeyIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
@@ -77,7 +77,7 @@ function ContractorForgotPassword() {
             <p className="font-display text-sm uppercase tracking-[0.2em] text-[#ffa034]">Locked out?</p>
             <div className="mt-4 hidden rounded-2xl bg-white/10 p-5 backdrop-blur md:block">
               <div className="flex items-center gap-3">
-                <Key size={24} className="shrink-0 text-white/80" />
+                <KeyIcon size={24} className="shrink-0 text-white/80" />
                 <p className="leading-relaxed text-white/80">Enter your email and enter the 6-digit code. Back on round in a minute.</p>
               </div>
             </div>
@@ -90,11 +90,11 @@ function ContractorForgotPassword() {
       <div className="flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-[440px]">
           <Link to="/contractor/sign-in" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft size={16} /> Back to sign in
+            <ArrowLeftIcon size={16} /> Back to sign in
           </Link>
           {done ? (
             <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-              <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
+              <CheckCircleIcon size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
               <h1 className="mt-2 font-display text-3xl text-ink">Password updated</h1>
               <p className="mt-2 leading-relaxed">Sign in with your new password to start your round.</p>
               <Button asChild className="mt-4 w-full">

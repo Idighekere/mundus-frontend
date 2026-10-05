@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { EnvelopeSimple, MagnifyingGlass, PauseCircle, PlayCircle, Plus } from '@phosphor-icons/react'
+import { EnvelopeSimpleIcon, MagnifyingGlassIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
 import { ListSkeleton } from '@/components/skeletons'
@@ -176,7 +176,7 @@ function SettingsPage() {
   const formActions = (
     <div className="flex gap-2">
       <Button onClick={() => void invite()} disabled={saving} loading={saving} className="flex-1">
-        <EnvelopeSimple size={18} /> {saving ? 'Sending…' : 'Send invite'}
+        <EnvelopeSimpleIcon size={18} /> {saving ? 'Sending…' : 'Send invite'}
       </Button>
       <Button variant="secondary" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
     </div>
@@ -232,7 +232,7 @@ function SettingsPage() {
           <p className="mt-1 text-ink-soft">Agency accounts. New staff sign in with the login details emailed to them.</p>
         </div>
         <Button onClick={() => { resetForm(); setSentTo(null); setFormOpen(true) }}>
-          <Plus size={18} /> Invite staff
+          <PlusIcon size={18} /> Invite staff
         </Button>
       </div>
 
@@ -258,7 +258,7 @@ function SettingsPage() {
       ) : (
         <>
           <div className="relative mt-4">
-            <MagnifyingGlass size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+            <MagnifyingGlassIcon size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -304,7 +304,7 @@ function SettingsPage() {
                             onClick={() => void toggleActive(m)}
                             disabled={m.email.toLowerCase() === session?.email.toLowerCase()}
                           >
-                            {m.isActive ? <><PauseCircle size={16} /> Deactivate</> : <><PlayCircle size={16} /> Reactivate</>}
+                            {m.isActive ? <><PauseCircleIcon size={16} /> Deactivate</> : <><PlayCircleIcon size={16} /> Reactivate</>}
                           </Button>
                         </TD>
                       </TR>
@@ -333,7 +333,7 @@ function SettingsPage() {
                       onClick={() => void toggleActive(m)}
                       disabled={m.email.toLowerCase() === session?.email.toLowerCase()}
                     >
-                      {m.isActive ? <PauseCircle size={16} /> : <PlayCircle size={16} />}
+                      {m.isActive ? <PauseCircleIcon size={16} /> : <PlayCircleIcon size={16} />}
                       <span className="sr-only">{m.isActive ? 'Deactivate' : 'Reactivate'}</span>
                     </Button>
                   </Card>

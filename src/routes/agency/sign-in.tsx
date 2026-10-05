@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, Bell, CheckCircle } from '@phosphor-icons/react'
+import { ArrowLeftIcon, BellIcon, CheckCircleIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { DemoAccounts } from '@/components/demo-accounts'
 import { Button } from '@/components/ui/button'
@@ -70,7 +70,7 @@ function AgencySignIn() {
                 ))}
               </div>
               <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ffa034] px-3 py-1.5 text-xs font-bold text-primary-deep">
-                <Bell size={14} weight="fill" /> Itam Junction flagged full
+                <BellIcon size={14} weight="fill" /> Itam Junction flagged full
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ function AgencySignIn() {
       <div className="flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-[440px]">
           <Link to="/" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft size={16} /> Back home
+            <ArrowLeftIcon size={16} /> Back home
           </Link>
           <p className="mt-4 font-display text-sm uppercase tracking-[0.2em] text-primary">Agency access only</p>
           <h1 className="mt-1 font-display text-4xl text-ink md:text-[48px]">Agency sign in</h1>
@@ -102,7 +102,7 @@ function AgencySignIn() {
               <PasswordInput id="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} />
             </div>
             {error ? <p role="alert" className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{error}</p> : null}
-            <Button type="submit" loading={busy} className="w-full">Sign in <CheckCircle size={18} /></Button>
+            <Button type="submit" loading={busy} className="w-full">Sign in <CheckCircleIcon size={18} /></Button>
           </form>
           <p className="mt-4 text-center text-sm">
             New to the agency? Ask your agency admin for an account.

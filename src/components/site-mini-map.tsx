@@ -1,7 +1,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowsOut } from '@phosphor-icons/react'
+import { ArrowsOutIcon } from '@phosphor-icons/react'
 import { Dialog, DialogTitle } from '@/components/ui/dialog'
 
 function pinHtml(pin: string): string {
@@ -73,7 +73,7 @@ export function SiteMiniMap({ name, lat, lng, pin = '#0B3D2C' }: { name: string;
           aria-label={`Open interactive map of ${name}`}
           className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink shadow-card hover:bg-paper"
         >
-          <ArrowsOut size={20} />
+          <ArrowsOutIcon size={20} />
         </button>
       </div>
 

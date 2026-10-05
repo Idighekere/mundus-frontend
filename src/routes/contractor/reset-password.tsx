@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CheckCircleIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
@@ -74,11 +74,11 @@ function ContractorResetPassword() {
       <div className="flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-[440px]">
           <button onClick={() => navigate({ to: '/contractor/sign-in' })} className="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft size={16} /> Back to sign in
+            <ArrowLeftIcon size={16} /> Back to sign in
           </button>
           {done ? (
             <div className="mt-4 rounded-2xl border border-hairline bg-paper p-6 text-center shadow-card">
-              <CheckCircle size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
+              <CheckCircleIcon size={44} weight="fill" className="mx-auto text-[#1d6f42]" />
               <h1 className="mt-2 font-display text-3xl text-ink">Password updated</h1>
               <p className="mt-2 leading-relaxed">Sign in with your new password to start your round.</p>
               <Button asChild className="mt-4 w-full">

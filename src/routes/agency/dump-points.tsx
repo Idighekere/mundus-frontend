@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { MapPin, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
+import { MapPinIcon, PencilSimpleIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
@@ -172,7 +172,7 @@ function ManageDumpPointsPage() {
       {locateError ? <p className="rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{locateError}</p> : null}
       {address ? (
         <p className="flex items-start gap-2 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
-          <MapPin size={18} className="mt-0.5 shrink-0 text-primary" /> {address}
+          <MapPinIcon size={18} className="mt-0.5 shrink-0 text-primary" /> {address}
         </p>
       ) : null}
 
@@ -189,7 +189,7 @@ function ManageDumpPointsPage() {
             Live registry of municipal disposal locations.
           </p>
         </div>
-        <Button onClick={openAdd}><Plus size={18} /> Add dump point</Button>
+        <Button onClick={openAdd}><PlusIcon size={18} /> Add dump point</Button>
       </div>
 
       {liveLoading && !liveSites ? (
@@ -217,8 +217,8 @@ function ManageDumpPointsPage() {
                     <TD className="text-ink-soft">{s.contractorId || 'Unassigned'}</TD>
                     <TD>
                       <div className="flex gap-2">
-                        <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimple size={16} /> Edit</Button>
-                        <Button variant="danger" onClick={() => void removeSite(s.id)}><Trash size={16} /> Remove</Button>
+                        <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimpleIcon size={16} /> Edit</Button>
+                        <Button variant="danger" onClick={() => void removeSite(s.id)}><TrashIcon size={16} /> Remove</Button>
                       </div>
                     </TD>
                   </TR>
@@ -234,7 +234,7 @@ function ManageDumpPointsPage() {
                   <p className="font-semibold text-ink">{s.name}</p>
                   <p className="text-xs text-ink-soft">{s.contractorId || 'Unassigned'}</p>
                 </div>
-                <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimple size={16} /> Edit</Button>
+                <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimpleIcon size={16} /> Edit</Button>
               </Card>
             ))}
           </div>

@@ -1,5 +1,5 @@
 import { Link, useRouter } from '@tanstack/react-router'
-import { ArrowCounterClockwise, House } from '@phosphor-icons/react'
+import { ArrowCounterClockwiseIcon, HouseIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { LogoMark } from '@/components/logo'
 
@@ -23,11 +23,11 @@ export function ErrorPage({ onReset }: { onReset?: () => void }) {
         </p>
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Button onClick={retry}>
-            <ArrowCounterClockwise size={18} /> Try again
+            <ArrowCounterClockwiseIcon size={18} /> Try again
           </Button>
           <Button asChild variant="secondary">
             <Link to="/">
-              <House size={18} /> Back home
+              <HouseIcon size={18} /> Back home
             </Link>
           </Button>
         </div>

@@ -1,5 +1,5 @@
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { CaretDown, Check } from '@phosphor-icons/react'
+import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 export const Select = SelectPrimitive.Root
@@ -15,7 +15,7 @@ export function SelectTrigger({ className, children, ...props }: SelectPrimitive
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <CaretDown size={16} className="shrink-0 text-ink-soft" />
+        <CaretDownIcon size={16} className="shrink-0 text-ink-soft" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -53,7 +53,7 @@ export function SelectItem({ className, children, ...props }: SelectPrimitive.Se
     >
       <SelectPrimitive.ItemText className="flex-1">{children}</SelectPrimitive.ItemText>
       <SelectPrimitive.ItemIndicator>
-        <Check size={16} className="text-primary" />
+        <CheckIcon size={16} className="text-primary" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   )
