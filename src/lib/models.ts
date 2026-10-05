@@ -15,6 +15,7 @@ export interface DumpPoint {
   lat: number
   lng: number
   contractorId: string
+  contractorName: string
   lastClearanceIso: string
   reporterFlagIso?: string
 }

@@ -146,15 +146,12 @@ function ManageDumpPointsPage() {
         <Select value={form.contractorId} onValueChange={(v) => setForm({ ...form, contractorId: v })}>
           <SelectTrigger><SelectValue placeholder="Choose a contractor" /></SelectTrigger>
           <SelectContent>
-            {directory.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
-            {[...new Set(displaySites.map((s) => s.contractorId))]
-              .filter((n): n is string => !!n && !directory.some((c) => c.name === n))
-              .map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}
+            {directory.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
         {errors.contractorId ? <p className="mt-1 text-sm text-[#be3b3b]">{errors.contractorId}</p> : null}
         <p className="mt-1.5 rounded-xl bg-canvas px-3 py-2 text-sm text-ink">
-          Contact: <span className="font-semibold">{directory.find((c) => c.name === form.contractorId)?.email ?? '—'}</span>
+          Contact: <span className="font-semibold">{directory.find((c) => c.id === form.contractorId)?.email ?? '—'}</span>
         </p>
       </div>
       <span className="mb-1 block text-sm font-semibold text-ink">Location</span>
@@ -214,7 +211,7 @@ function ManageDumpPointsPage() {
                 {displaySites.map((s) => (
                   <TR key={s.id}>
                     <TD className="font-semibold">{s.name}</TD>
-                    <TD className="text-ink-soft">{s.contractorId || 'Unassigned'}</TD>
+                    <TD className="text-ink-soft">{s.contractorName || 'Unassigned'}</TD>
                     <TD>
                       <div className="flex gap-2">
                         <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimpleIcon size={16} /> Edit</Button>
@@ -232,7 +229,7 @@ function ManageDumpPointsPage() {
               <Card key={s.id} className="flex items-center justify-between gap-2 p-4">
                 <div>
                   <p className="font-semibold text-ink">{s.name}</p>
-                  <p className="text-xs text-ink-soft">{s.contractorId || 'Unassigned'}</p>
+                  <p className="text-xs text-ink-soft">{s.contractorName || 'Unassigned'}</p>
                 </div>
                 <Button variant="secondary" onClick={() => openEdit(s.id)}><PencilSimpleIcon size={16} /> Edit</Button>
               </Card>

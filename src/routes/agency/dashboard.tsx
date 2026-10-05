@@ -52,22 +52,17 @@ function DashboardPage() {
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load dashboard.') : ''
 
   const rows: Row[] = useMemo(() => {
-    const byId = new Map((liveContractors ?? []).map((c) => [String(c.id), c.name]))
     return (liveSites ?? []).map((d) => {
       const site = mapDumpPoint(d)
-      // assigned_contractor_id is a free-text field: usually the contractor
-      // name, occasionally a bare numeric id — resolve ids, never print them.
-      const raw = d.assigned_contractor_name ?? site.contractorId
-      const contractorName = raw && byId.has(raw) ? (byId.get(raw) as string) : (raw || 'Unassigned')
       return {
         ...site,
         days: mapDaysSince(d, site.lastClearanceIso),
         status: mapSiteStatus(d.status),
-        contractorName,
+        contractorName: site.contractorName || 'Unassigned',
         flagged: hasReporterFlag(d),
       }
     })
-  }, [liveSites, liveContractors])
+  }, [liveSites])
 
   const filtered = useMemo(
     () =>
@@ -211,13 +206,8 @@ function DashboardPage() {
               <SelectContent>
                 <SelectItem value="all">All contractors</SelectItem>
                 {(liveContractors ?? []).map((c) => (
-                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                 ))}
-                {[...new Set(rows.map((r) => r.contractorName))]
-                  .filter((n) => n !== 'Unassigned' && !(liveContractors ?? []).some((c) => c.name === n))
-                  .map((n) => (
-                    <SelectItem key={n} value={n}>{n}</SelectItem>
-                  ))}
               </SelectContent>
             </Select>
           </div>

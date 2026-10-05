@@ -91,8 +91,18 @@ function ReportersPage() {
 
   const reporters: Reporter[] = (liveReporters ?? []).map(toLocalReporter)
 
-  const contractorName = (id: string) =>
-    liveContractors?.find((c) => String(c.id) === id)?.name ?? 'Unknown contractor'
+  const contractorName = (id: string, siteId?: string) => {
+    const direct = liveContractors?.find((c) => String(c.id) === id)?.name
+    if (direct) return direct
+    // Nominations stored without a contractor link fall back to the site's
+    // assigned contractor — converges automatically once rows are linked.
+    if (siteId) {
+      const site = liveSites?.find((s) => String(s.id) === siteId)
+      const assigned = site ? mapDumpPoint(site).contractorName : ''
+      if (assigned) return assigned
+    }
+    return 'Unknown contractor'
+  }
 
   const siteName = (id: string) => {
     const found = liveSites?.find((s) => String(s.id) === id)
@@ -105,7 +115,7 @@ function ReportersPage() {
         if (status !== 'all' && r.status !== status) return false
         const q = search.toLowerCase().trim()
         if (!q) return true
-        return `${r.name} ${r.phone} ${siteName(r.siteId)} ${contractorName(r.contractorId)}`.toLowerCase().includes(q)
+        return `${r.name} ${r.phone} ${siteName(r.siteId)} ${contractorName(r.contractorId, r.siteId)}`.toLowerCase().includes(q)
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [reporters, search, status, liveSites, liveContractors],
@@ -285,7 +295,7 @@ function ReportersPage() {
                       <p className="text-xs text-ink-soft">{r.phone}</p>
                     </TD>
                     <TD className="text-ink-soft">{siteName(r.siteId)}</TD>
-                    <TD className="text-ink-soft">{contractorName(r.contractorId)}</TD>
+                    <TD className="text-ink-soft">{contractorName(r.contractorId, r.siteId)}</TD>
                     <TD><Badge variant={statusVariant[r.status]}>{r.status}</Badge></TD>
                     <TD>
                       <div className="flex flex-wrap gap-2">

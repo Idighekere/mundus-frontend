@@ -69,9 +69,11 @@ export function ReporterCard({ siteId, contractorId, siteName }: { siteId: strin
       return
     }
     try {
+      // Session id falls back to `user-<id>` when no contractor row links
+      // the login — the backend only accepts real contractor UUIDs.
       await reportersApi.nominate({
         site_id: siteId,
-        contractor_id: contractorId || undefined,
+        contractor_id: /^[0-9a-f-]{32,36}$/i.test(contractorId) ? contractorId : undefined,
         name: trimmed,
         phone: digits,
       })

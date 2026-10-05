@@ -21,6 +21,7 @@ export function mapDumpPoint(d: DumpPointDto): DumpPoint {
     lat: d.latitude,
     lng: d.longitude,
     contractorId: d.assigned_contractor_id ?? '',
+    contractorName: d.assigned_contractor_name ?? '',
     lastClearanceIso: fallbackIso,
     reporterFlagIso: undefined,
   }
