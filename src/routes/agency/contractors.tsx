@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/misc'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
+import { RefreshButton } from '@/components/refresh-button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
@@ -57,7 +58,7 @@ function ContractorsPage() {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [saving, setSaving] = useState(false)
   const invalidate = useInvalidate()
-  const { data, isPending, isError, error, refetch } = useContractorsPage()
+  const { data, isPending, isFetching, isError, error, refetch } = useContractorsPage()
 
   const liveContractors = data?.contractors
   const liveSites = data?.sites
@@ -226,9 +227,12 @@ function ContractorsPage() {
           <h2 className="font-display text-4xl text-ink">Contractors</h2>
           <p className="mt-1 text-ink-soft">Registered contractors — the individuals who sign in and check in. Expand a row to see assigned dump points.</p>
         </div>
-        <Button onClick={() => { setName(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
-          <PlusIcon size={18} /> Add contractor
-        </Button>
+        <div className="flex shrink-0 gap-2">
+          <RefreshButton loading={isFetching} onRefresh={() => void refetch()} />
+          <Button onClick={() => { setName(''); setEmail(''); setPassword(''); setFormError(''); setFormOpen(true) }}>
+            <PlusIcon size={18} /> Add contractor
+          </Button>
+        </div>
       </div>
 
       {liveLoading && !liveContractors ? (

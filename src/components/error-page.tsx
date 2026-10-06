@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { LogoMark } from '@/components/logo'
 
 /** Last-resort crash page for render errors anywhere in the app. */
-export function ErrorPage({ onReset }: { onReset?: () => void }) {
+export function ErrorPage({ onReset, title, message }: { onReset?: () => void; title?: string; message?: string }) {
   const router = useRouter()
   const retry = () => {
     if (onReset) onReset()
@@ -17,9 +17,9 @@ export function ErrorPage({ onReset }: { onReset?: () => void }) {
           <LogoMark className="h-10 w-10" />
           <span className="font-display text-2xl tracking-wide text-ink">MUNDUS</span>
         </Link>
-        <h1 className="mt-8 font-display text-3xl text-ink">Something went wrong</h1>
+        <h1 className="mt-8 font-display text-3xl text-ink">{title ?? 'Something went wrong'}</h1>
         <p className="mt-2 leading-relaxed">
-          This screen ran into a problem. Your data is safe — try again, or head home.
+          {message ?? 'This screen ran into a problem. Your data is safe — try again, or head home.'}
         </p>
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Button onClick={retry}>

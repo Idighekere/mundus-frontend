@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon, CameraIcon, MapPinIcon, CheckCircleIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
@@ -6,20 +6,28 @@ import { DemoAccounts } from '@/components/demo-accounts'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { useContractorSession } from '@/lib/contractor-session'
+import { safeRedirect } from '@/lib/redirect-intent'
 
 export const Route = createFileRoute('/contractor/sign-in')({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+    ...(typeof search.redirect === 'string' ? { redirect: search.redirect } : {}),
+  }),
   component: ContractorSignIn,
 })
 
 function ContractorSignIn() {
+  const { redirect } = Route.useSearch()
   const { session, signIn } = useContractorSession()
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  if (session) return <Navigate to="/contractor/sites" replace />
+  // Post-login landing: back to the originally requested page when present,
+  // otherwise the section home. Declarative (not in submit) so the session
+  // state is always committed before the router moves.
+  if (session)
+    return <Navigate to={safeRedirect(redirect, '/contractor', '/contractor/sites') as '/contractor/sites'} replace />
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +39,6 @@ function ContractorSignIn() {
     setBusy(true)
     try {
       await signIn(email, password)
-      navigate({ to: '/contractor/sites', replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
     } finally {

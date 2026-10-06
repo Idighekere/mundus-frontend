@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatch, useNavigate } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useTrack } from '@watchupltd/react'
 import { ArrowRightIcon, XIcon } from '@phosphor-icons/react'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,7 +8,8 @@ import { Card } from '@/components/ui/misc'
 import { ContractorHomeSkeleton } from '@/components/skeletons'
 import { useContractorSession } from '@/lib/contractor-session'
 import { qk, useField, useInvalidate } from '@/lib/live-queries'
-import { contractorsApi } from '@/lib/api'
+import { checkInsApi, contractorsApi, mediaApi } from '@/lib/api'
+import { dequeueShot, listQueued, type QueuedShot } from '@/lib/offline-queue'
 import { mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
 import { cn } from '@/lib/utils'
 import { formatDateTime } from '@/lib/datetime'
@@ -21,6 +23,51 @@ function ContractorHome() {
   const navigate = useNavigate()
   const invalidate = useInvalidate()
   const { data, isError, error, refetch } = useField()
+  const track = useTrack()
+  const [queue, setQueue] = useState<QueuedShot[]>(() => listQueued())
+  const [draining, setDraining] = useState(false)
+  const [drainError, setDrainError] = useState('')
+
+  const drainQueue = async () => {
+    const items = listQueued()
+    if (items.length === 0 || draining) return
+    setDraining(true)
+    setDrainError('')
+    for (const q of items) {
+      try {
+        const blob = await (await fetch(q.dataUrl)).blob()
+        const up = await mediaApi.uploadPhoto(blob, `${q.type}-${Date.now()}.jpg`)
+        await checkInsApi.submit({
+          site_id: q.siteId,
+          type: q.type,
+          photo_url: up.photo_url,
+          photo_hash: up.photo_hash,
+          latitude: q.lat,
+          longitude: q.lng,
+          device_timestamp: q.atIso,
+        })
+        dequeueShot(q.id)
+        track('checkin.offline_uploaded', { type: q.type, siteId: q.siteId })
+      } catch {
+        setDrainError('Some queued photos failed — staying offline? They remain queued.')
+        break
+      }
+    }
+    setQueue(listQueued())
+    setDraining(false)
+    await invalidate(qk.field, qk.history)
+  }
+
+  useEffect(() => {
+    const onOnline = () => void drainQueue()
+    window.addEventListener('online', onOnline)
+    return () => window.removeEventListener('online', onOnline)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    setQueue(listQueued())
+  }, [])
   const liveSites = data?.sites
   const liveAlerts = data?.alerts
   const liveError = isError ? (error instanceof Error ? error.message : 'Could not load your sites.') : ''
@@ -115,6 +162,23 @@ function ContractorHome() {
           <p className={cn('mt-1 font-display text-4xl', overdue > 0 ? 'text-[#be3b3b]' : 'text-ink')}>{overdue}</p>
         </Card>
       </div>
+
+      {queue.length > 0 ? (
+        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-hairline bg-paper p-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-ink">
+              {queue.length} photo{queue.length > 1 ? 's' : ''} queued offline
+            </p>
+            <p className="text-xs text-ink-soft">Reconnect to upload automatically, or upload now.</p>
+          </div>
+          <Button onClick={() => void drainQueue()} disabled={draining} loading={draining} className="shrink-0">
+            {draining ? 'Uploading…' : 'Upload now'}
+          </Button>
+        </div>
+      ) : null}
+      {drainError ? (
+        <p role="alert" className="mt-2 rounded-lg bg-[#fde8e8] px-3 py-2 text-sm text-[#be3b3b]">{drainError}</p>
+      ) : null}
 
       <h2 className="mt-6 text-base font-normal text-ink-soft">Your dump points</h2>
       <p className="text-sm text-ink-soft">Most overdue first.</p>

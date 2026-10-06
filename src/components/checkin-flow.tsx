@@ -3,8 +3,10 @@ import {
   ArrowLeftIcon, ArrowRightIcon, CameraIcon, CheckCircleIcon, CloudSlash, CrosshairIcon, Info,
   MapPinIcon, VideoCameraSlash, WarningIcon,
 } from '@phosphor-icons/react'
+import { useFlag, useTrack } from '@watchupltd/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/misc'
+import { enqueueShot } from '@/lib/offline-queue'
 import { currentPosition, type GeoFix } from '@/lib/geocode'
 import { checkInsApi, mediaApi } from '@/lib/api'
 import { formatDateTime as fmtDateTime } from '@/lib/datetime'
@@ -54,6 +56,9 @@ export function CheckinFlow({
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const label = type === 'before' ? 'Before' : 'After'
+  const track = useTrack()
+  const queueEnabled = useFlag('offline_queue')
+  const [queued, setQueued] = useState(false)
 
   const stopStream = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -94,6 +99,7 @@ export function CheckinFlow({
         }
       })
     } catch {
+      track('checkin.camera_denied', { type, siteId: site.id })
       setStage('denied-camera')
     }
   }
@@ -165,6 +171,21 @@ export function CheckinFlow({
         distanceM: serverDistance,
         flagged: isDuplicate || isOffTarget,
       })
+      track('checkin.uploaded', {
+        type,
+        siteId: site.id,
+        flagged: isDuplicate || isOffTarget,
+        distanceM: serverDistance,
+        simulated: shot.simulated,
+      })
+      if (isDuplicate || isOffTarget) {
+        track('checkin.flagged', {
+          type,
+          siteId: site.id,
+          reason: isDuplicate ? 'duplicate' : 'location',
+          distanceM: serverDistance,
+        })
+      }
       setProgress(100)
       await new Promise((r) => setTimeout(r, 250))
       stopStream()
@@ -373,6 +394,34 @@ export function CheckinFlow({
               ? 'Your photo is kept on this screen. Reconnect and retry — nothing is lost.'
               : 'The server could not save your photo. Your capture is kept on this screen.'}
           </p>
+          {offline && queueEnabled && shot && !queued ? (
+            <div className="mt-4 flex gap-2">
+              <Button
+                onClick={() => {
+                  const ok = enqueueShot({
+                    siteId: site.id,
+                    siteName: site.name,
+                    type,
+                    dataUrl: shot.dataUrl,
+                    lat: shot.lat,
+                    lng: shot.lng,
+                    accuracyM: shot.accuracyM,
+                    atIso: shot.atIso,
+                  })
+                  if (ok) {
+                    track('checkin.offline_queued', { type, siteId: site.id })
+                    setQueued(true)
+                    onDone('sites')
+                  } else {
+                    setError('Outbox is full — reconnect and retry instead.')
+                  }
+                }}
+                className="flex-1"
+              >
+                Queue photo for upload
+              </Button>
+            </div>
+          ) : null}
           <div className="mt-4 flex gap-2">
             <Button variant="secondary" onClick={() => onDone()} className="flex-1">Back to site</Button>
             <Button onClick={() => (shot ? upload() : setStage('live'))} className="flex-1">Retry upload</Button>

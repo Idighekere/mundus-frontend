@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowLeftIcon, BellIcon, CheckCircleIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
@@ -6,21 +6,29 @@ import { DemoAccounts } from '@/components/demo-accounts'
 import { Button } from '@/components/ui/button'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { useSession } from '@/lib/session'
+import { safeRedirect } from '@/lib/redirect-intent'
 
 // Unlisted staff-only route — never linked from public pages except the footer.
 export const Route = createFileRoute('/agency/sign-in')({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
+    ...(typeof search.redirect === 'string' ? { redirect: search.redirect } : {}),
+  }),
   component: AgencySignIn,
 })
 
 function AgencySignIn() {
+  const { redirect } = Route.useSearch()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const { session, signIn } = useSession()
-  const navigate = useNavigate()
 
-  if (session) return <Navigate to="/agency/dashboard" replace />
+  // Post-login landing: back to the originally requested page when present,
+  // otherwise the dashboard. Declarative (not in submit) so the session
+  // state is always committed before the router moves.
+  if (session)
+    return <Navigate to={safeRedirect(redirect, '/agency', '/agency/dashboard') as '/agency/dashboard'} replace />
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +44,6 @@ function AgencySignIn() {
     setBusy(true)
     try {
       await signIn(email, password)
-      navigate({ to: '/agency/dashboard', replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Try again.')
     } finally {

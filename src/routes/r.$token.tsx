@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
+import { useTrack } from '@watchupltd/react'
 import { CameraIcon, CheckCircleIcon, MapPinIcon, MegaphoneIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { Button } from '@/components/ui/button'
@@ -90,6 +91,7 @@ function ReporterPhotoStep({ onPhoto, onBack }: { onPhoto: (dataUrl: string) => 
 
 function ReporterPage() {
   const { token } = Route.useParams()
+  const track = useTrack()
   const [stage, setStage] = useState<'home' | 'photo' | 'confirm' | 'done'>('home')
   const [photo, setPhoto] = useState<string | null>(null)
   const [justReportedAt, setJustReportedAt] = useState<string | null>(null)
@@ -190,6 +192,7 @@ function ReporterPage() {
         setJustReportedAt(new Date().toISOString())
         setJustPhoto(photo)
         setStage('done')
+        track('report.submitted', { siteId: liveResolve.siteId })
       } catch (err) {
         setFlagError(err instanceof Error ? err.message : 'Could not upload the photo. Try again.')
       } finally {

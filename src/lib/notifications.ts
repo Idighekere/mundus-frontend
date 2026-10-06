@@ -152,6 +152,8 @@ export interface NoticesInput {
   nominations: PendingNomination[]
   sites?: { id: string; name: string; lastClearanceIso: string }[]
   liveError?: string
+  loading: boolean
+  reload: () => void
 }
 
 /**
@@ -163,9 +165,12 @@ export function useNoticesInput(): NoticesInput {
   const [liveSites, setLiveSites] = useState<DumpPointDto[] | null>(null)
   const [liveContractors, setLiveContractors] = useState<{ id: string; name: string }[] | null>(null)
   const [liveError, setLiveError] = useState('')
+  const [nonce, setNonce] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
+    setLoading(true)
     void (async () => {
       try {
         const [reporters, sites, contractors] = await Promise.all([
@@ -180,13 +185,15 @@ export function useNoticesInput(): NoticesInput {
         setLiveError('')
       } catch (err) {
         if (!cancelled) setLiveError(err instanceof Error ? err.message : 'Could not load notifications.')
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [nonce])
 
   if (!liveSites || !liveReporters) {
-    return { reports: [], flagged: [], nominations: [], sites: [], liveError }
+    return { reports: [], flagged: [], nominations: [], sites: [], liveError, loading, reload: () => setNonce((n) => n + 1) }
   }
   const sites = liveSites.map((d) => {
     const s = mapDumpPoint(d)
@@ -212,5 +219,7 @@ export function useNoticesInput(): NoticesInput {
       })),
     sites,
     liveError,
+    loading,
+    reload: () => setNonce((n) => n + 1),
   }
 }

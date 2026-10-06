@@ -2,6 +2,7 @@ import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } fro
 import { ClockCounterClockwiseIcon, MapPinIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { useContractorSession } from '@/lib/contractor-session'
+import { buildIntent } from '@/lib/redirect-intent'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,7 @@ function initials(name: string): string {
 }
 
 function ContractorShell() {
-  const { pathname } = useLocation()
+  const { pathname, searchStr } = useLocation()
   const { session, signOut } = useContractorSession()
   const navigate = useNavigate()
 
@@ -41,7 +42,8 @@ function ContractorShell() {
     // Redirect only while inside this section. During a transition away
     // (e.g. to "/") the shell can render once with the new pathname and no
     // session — render nothing and let it unmount instead of bouncing back.
-    if (pathname.startsWith('/contractor')) return <Navigate to="/contractor/sign-in" replace />
+    if (pathname.startsWith('/contractor'))
+      return <Navigate to="/contractor/sign-in" replace search={{ redirect: buildIntent(pathname, searchStr) }} />
     return null
   }
 

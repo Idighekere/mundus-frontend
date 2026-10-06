@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
 import type { DumpPoint } from '@/lib/models'
 import { StatCardsSkeleton, ListSkeleton } from '@/components/skeletons'
+import { RefreshButton } from '@/components/refresh-button'
 import { statusFor } from '@/lib/overdue'
 import { useDashboard } from '@/lib/live-queries'
 import { hasReporterFlag, mapDaysSince, mapDumpPoint, mapSiteStatus } from '@/lib/backend-map'
@@ -43,7 +44,7 @@ function DashboardPage() {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'days', desc: true }])
   const [filtersOpen, setFiltersOpen] = useState(false)
   const navigate = useNavigate()
-  const { data, isPending, isError, error, refetch } = useDashboard()
+  const { data, isPending, isFetching, isError, error, refetch } = useDashboard()
 
   const liveSites = data?.sites
   const liveStats = data?.stats
@@ -144,8 +145,13 @@ function DashboardPage() {
 
   return (
     <div>
-      <h2 className="font-display text-4xl text-ink">Dashboard</h2>
-      <p className="mt-1 text-ink-soft">All registered dump points, most overdue first. Select a site for its full audit timeline.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="font-display text-4xl text-ink">Dashboard</h2>
+          <p className="mt-1 text-ink-soft">All registered dump points, most overdue first. Select a site for its full audit timeline.</p>
+        </div>
+        <RefreshButton loading={isFetching} onRefresh={() => void refetch()} />
+      </div>
 
       {!liveSites && !liveError ? (
         <div className="mt-4">

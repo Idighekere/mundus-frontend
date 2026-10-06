@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/lib/session";
+import { buildIntent } from "@/lib/redirect-intent";
 import { buildNotices, unreadIds, useNoticesInput } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
@@ -64,7 +65,7 @@ function initials(name: string): string {
 }
 
 function AgencyShell() {
-  const { pathname } = useLocation();
+  const { pathname, searchStr } = useLocation();
   const { session, signOut } = useSession();
   const navigate = useNavigate();
   const input = useNoticesInput();
@@ -105,7 +106,13 @@ function AgencyShell() {
     // Same as contractor shell: only redirect inside this section; render
     // nothing during a transition away so the navigation can complete.
     if (pathname.startsWith("/agency"))
-      return <Navigate to="/agency/sign-in" replace />;
+      return (
+        <Navigate
+          to="/agency/sign-in"
+          replace
+          search={{ redirect: buildIntent(pathname, searchStr) }}
+        />
+      );
     return null;
   }
 

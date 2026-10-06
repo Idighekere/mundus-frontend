@@ -8,6 +8,7 @@ import { ListSkeleton } from '@/components/skeletons'
 import { buildNotices, markAllNoticesRead, markNoticeRead, unreadIds, useNoticesInput, type Notice } from '@/lib/notifications'
 import { cn } from '@/lib/utils'
 import { formatDateTime } from '@/lib/datetime'
+import { RefreshButton } from '@/components/refresh-button'
 
 export const Route = createFileRoute('/agency/notifications')({
   component: NotificationsPage,
@@ -29,7 +30,7 @@ function NotificationsPage() {
   const [tick, setTick] = useState(0)
   const input = useNoticesInput()
 
-  const loading = !input.sites
+  const loading = input.loading
   const notices = useMemo(
     () =>
       buildNotices(
@@ -68,17 +69,20 @@ function NotificationsPage() {
             {unread.size === 0 ? 'All caught up.' : `${unread.size} unread — reports, flags, nominations, red flags.`}
           </p>
         </div>
-        {unread.size > 0 ? (
-          <Button
-            variant="secondary"
-            onClick={() => {
-              markAllNoticesRead(notices.map((n) => n.id))
-              setTick((t) => t + 1)
-            }}
-          >
-            <CheckCircleIcon size={18} weight="fill" /> Mark all read
-          </Button>
-        ) : null}
+        <div className="flex shrink-0 gap-2">
+          <RefreshButton loading={loading} onRefresh={() => input.reload()} />
+          {unread.size > 0 ? (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                markAllNoticesRead(notices.map((n) => n.id))
+                setTick((t) => t + 1)
+              }}
+            >
+              <CheckCircleIcon size={18} weight="fill" /> Mark all read
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {loading ? (
