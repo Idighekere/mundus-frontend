@@ -7,4 +7,5 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [TanStackRouterVite({ target: 'react', autoCodeSplitting: false }), react(), tailwindcss()],
   resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } },
+  server: { allowedHosts: ['shaky-voting-aim.ngrok-free.dev'] },
 })
