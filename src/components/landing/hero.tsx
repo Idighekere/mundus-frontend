@@ -110,6 +110,20 @@ export function InfraBand() {
                 loading="lazy"
               />
             </a>
+            <span aria-hidden="true" className="h-6 w-px bg-hairline" />
+            <a
+              href="https://bach.io"
+              target="_blank"
+              rel="noreferrer noopener"
+              aria-label="Bachs"
+            >
+              <img
+                src="/logos/bach-logo.png"
+                alt="Bachs"
+                className="h-7 w-auto opacity-80 transition-opacity hover:opacity-100"
+                loading="lazy"
+              />
+            </a>
           </div>
         </Reveal>
       </div>
