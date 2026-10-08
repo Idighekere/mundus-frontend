@@ -144,6 +144,144 @@ export interface PublicReporterSiteDto {
   site: DumpPointDto
 }
 
+export type PayoutStatus =
+  | 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'PROCESSING'
+  | 'SUCCESS' | 'FAILED' | 'CANCELLED'
+
+export interface PayoutStatementDto {
+  id: string
+  contractor_id: string
+  contractor_name?: string | null
+  contractor_email?: string | null
+  period: string
+  monthly_stipend: number
+  expected_clearances: number
+  verified_clearances: number
+  held_clearances: number
+  calculated_payout_amount: number
+  status: PayoutStatus
+  unique_payout_reference: string
+  transfer_code?: string | null
+  approved_by_id?: number | null
+  approved_by_name?: string | null
+  approved_at?: string | null
+  payment_provider: string
+  payment_provider_status?: string | null
+  failure_reason?: string | null
+  calculation_breakdown?: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PayoutStatementListDto {
+  period?: string | null
+  total_stipend_pool: number
+  total_earned_amount: number
+  total_paid_amount: number
+  pending_approval_count: number
+  total_count: number
+  statements: PayoutStatementDto[]
+}
+
+export interface ContractorPayoutDetailsDto {
+  contractor_id: string
+  name: string
+  email: string
+  monthly_stipend: number
+  bank_name?: string | null
+  bank_account_number?: string | null
+  bank_account_name?: string | null
+  bank_code?: string | null
+  payment_provider_recipient_id?: string | null
+  is_payout_ready: boolean
+}
+
+export interface SiteEarningsBreakdownDto {
+  site_id: string
+  site_name: string
+  code?: string | null
+  interval_days: number
+  expected_clearances: number
+  verified_clearances: number
+  held_clearances: number
+}
+
+export interface ContractorEarningsDto {
+  contractor_id: string
+  contractor_name: string
+  period: string
+  days_in_month: number
+  monthly_stipend: number
+  expected_clearances: number
+  verified_clearances: number
+  held_clearances: number
+  earned_so_far: number
+  progress_percent: number
+  sites_breakdown: SiteEarningsBreakdownDto[]
+  payout_statement?: PayoutStatementDto | null
+}
+
+export interface HeldClearanceDto {
+  site_id: string
+  site_name: string
+  date: string
+  contractor_id?: string | null
+  contractor_name?: string | null
+  before_check_in_id?: number | null
+  after_check_in_id?: number | null
+  flags: string[]
+  reason: string
+}
+
+export interface BankDto {
+  name: string
+  code: string
+}
+
+export interface BankResolveDto {
+  account_number: string
+  account_name: string
+  bank_code: string
+  bank_name: string
+}
+
+export interface AgencyWalletDto {
+  balance: number
+  currency: string
+  last_updated?: string | null
+}
+
+export interface WalletTopUpDto {
+  checkout_url: string
+  reference: string
+  amount: number
+  currency: string
+  session_id?: string | null
+  status: string
+  created_at?: string | null
+}
+
+export interface PayoutReceiptDto {
+  receipt_id: string
+  reference: string
+  transfer_code?: string | null
+  payment_provider: string
+  period: string
+  contractor: { name?: string | null; email?: string | null }
+  amount_paid: number
+  currency: string
+  performance: {
+    expected_clearances: number
+    verified_clearances: number
+    held_clearances: number
+    stipend: number
+  }
+  status: string
+  approved_at?: string | null
+  approved_by?: string | null
+  environment: string
+}
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -196,7 +334,18 @@ interface RequestOptions {
 function errorMessage(status: number, payload: unknown): string {
   if (payload && typeof payload === 'object' && 'detail' in payload) {
     const d = (payload as { detail: unknown }).detail
-    if (typeof d === 'string') return d
+    if (typeof d === 'string') {
+      if (status === 429) {
+        const retry = (payload as { retry_in_seconds?: unknown }).retry_in_seconds
+        if (typeof retry === 'number' && Number.isFinite(retry) && retry > 0) {
+          const h = Math.floor(retry / 3600)
+          const m = Math.ceil((retry % 3600) / 60)
+          const when = h > 0 ? `about ${h}h${m > 0 ? ` ${m}m` : ''}` : `about ${m} minute${m === 1 ? '' : 's'}`
+          return `${d} Try again in ${when}.`
+        }
+      }
+      return d
+    }
     if (Array.isArray(d)) {
       const first = d[0] as { msg?: string } | undefined
       if (first?.msg) return first.msg
@@ -404,4 +553,88 @@ export const reportersApi = {
 export const devicesApi = {
   register: (fcm_token: string, role?: string) =>
     request<{ message: string }>('/devices/register', { method: 'POST', body: { fcm_token, role }, auth: true }),
+}
+
+/** Download an authed file response (e.g. CSV export) via a blob URL. */
+export async function downloadAuthedFile(path: string, filename: string): Promise<void> {
+  const t = getTokens()
+  if (!t) throw new ApiError(401, 'Not signed in.')
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { Authorization: `Bearer ${t.access_token}` },
+  })
+  if (!res.ok) throw new ApiError(res.status, `Download failed (${res.status}).`)
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 5000)
+}
+
+/** /agency/payouts/* + /contractor/* — monthly stipend payouts (agency JWT unless noted). */
+export const payoutsApi = {
+  /** Agency: statement table. Response carries pool totals + pending count. */
+  list: (period?: string, status?: string, contractor_id?: string) => {
+    const p = new URLSearchParams()
+    if (period) p.set('period', period)
+    if (status && status !== 'all' && status !== 'ALL') p.set('status', status)
+    if (contractor_id) p.set('contractor_id', contractor_id)
+    p.set('limit', '100')
+    return request<PayoutStatementListDto>(`/agency/payouts?${p.toString()}`, { auth: true })
+  },
+  detail: (id: string) => request<PayoutStatementDto>(`/agency/payouts/${id}`, { auth: true }),
+  /** Agency: generate immutable month snapshots (defaults to current month). */
+  generate: (period?: string, contractor_id?: string) => {
+    const p = new URLSearchParams()
+    if (period) p.set('period', period)
+    if (contractor_id) p.set('contractor_id', contractor_id)
+    const suffix = p.toString() ? `?${p.toString()}` : ''
+    return request<PayoutStatementDto[]>(`/agency/payouts/generate${suffix}`, { method: 'POST', auth: true })
+  },
+  /** Agency: approve + initiate provider transfer. Idempotent server-side. */
+  approve: (id: string, notes?: string) =>
+    request<PayoutStatementDto>(`/agency/payouts/${id}/approve`, { method: 'POST', body: { notes: notes ?? null }, auth: true }),
+  /** Agency: approve many statements for a period in one action. */
+  bulkApprove: (period: string, statement_ids?: string[], notes?: string) =>
+    request<unknown>(`/agency/payouts/bulk-approve`, { method: 'POST', body: { period, statement_ids: statement_ids ?? null, notes: notes ?? null }, auth: true }),
+  receipt: (id: string) => request<PayoutReceiptDto>(`/agency/payouts/${id}/receipt`, { auth: true }),
+  /** Agency: set stipend + bank details once; backend registers the provider recipient. */
+  savePayoutDetails: (contractorId: string, body: { monthly_stipend: number; bank_account_number: string; bank_code: string; bank_name?: string; bank_account_name?: string }) =>
+    request<ContractorPayoutDetailsDto>(`/agency/contractors/${contractorId}/payout-details`, { method: 'PUT', body, auth: true }),
+  /** Contractor: own bank details. monthly_stipend echoes the current value
+  (contractors can't set their own pay — the backend should ignore it). */
+  saveMyPayoutDetails: (body: { monthly_stipend?: number; bank_account_number: string; bank_code: string; bank_name?: string; bank_account_name?: string }) =>
+    request<ContractorPayoutDetailsDto>(`/contractor/payout-details`, { method: 'PUT', body, auth: true }),
+  /** Agency: platform balance funding payouts (absent until backend ships it — callers must tolerate 404). */
+  wallet: () => request<AgencyWalletDto>(`/agency/wallet`, { auth: true }),
+  /** Agency: open a hosted checkout to fund the platform wallet. Returns a checkout URL + reference. */
+  topup: (amount: number, redirect_url?: string) =>
+    request<WalletTopUpDto>(`/agency/wallet/topup`, { method: 'POST', body: { amount, redirect_url: redirect_url ?? null }, auth: true }),
+  /** Agency: top-up session history. */
+  topups: () => request<WalletTopUpDto[]>(`/agency/wallet/topups`, { auth: true }),
+  /** Agency: visits on hold for review. */
+  held: (period?: string) => {
+    const suffix = period ? `?period=${encodeURIComponent(period)}` : ''
+    return request<HeldClearanceDto[]>(`/agency/clearances/held${suffix}`, { auth: true })
+  },
+  /** Agency: clear a held visit so it counts as verified. */
+  clearHeld: (site_id: string, date: string) =>
+    request<unknown>(`/agency/clearances/${site_id}/${date}/approve`, { method: 'POST', auth: true }),
+  /** Public: supported banks for the payout-setup form. */
+  banks: () => request<BankDto[]>(`/payouts/banks`),
+  /** Public: verify a NUBAN account number against a bank code. */
+  resolveAccount: (account_number: string, bank_code: string) =>
+    request<BankResolveDto>(`/payouts/resolve-account`, { method: 'POST', body: { account_number, bank_code } }),
+  /** Contractor: live progress for a month (defaults to current). */
+  myEarnings: (period?: string) => {
+    const suffix = period ? `?period=${encodeURIComponent(period)}` : ''
+    return request<ContractorEarningsDto>(`/contractor/earnings${suffix}`, { auth: true })
+  },
+  /** Contractor: own payout history. */
+  myPayouts: () => request<PayoutStatementDto[]>(`/contractor/payouts`, { auth: true }),
+  /** Contractor: one own statement (ownership enforced server-side). */
+  myPayoutDetail: (id: string) => request<PayoutStatementDto>(`/contractor/payouts/${id}`, { auth: true }),
 }

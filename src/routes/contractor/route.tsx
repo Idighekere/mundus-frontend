@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
-import { ClockCounterClockwiseIcon, MapPinIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
+import { BankIcon, ClockCounterClockwiseIcon, MapPinIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 import { LogoMark } from '@/components/logo'
 import { useContractorSession } from '@/lib/contractor-session'
 import { buildIntent } from '@/lib/redirect-intent'
@@ -20,6 +20,7 @@ export const Route = createFileRoute('/contractor')({
 const tabs = [
   { to: '/contractor/sites' as const, label: 'Sites', icon: MapPinIcon },
   { to: '/contractor/history' as const, label: 'History', icon: ClockCounterClockwiseIcon },
+  { to: '/contractor/earnings' as const, label: 'Earnings', icon: BankIcon },
   { to: '/contractor/account' as const, label: 'Account', icon: UserIcon },
 ]
 

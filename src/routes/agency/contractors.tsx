@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/misc'
 import { Input, PasswordInput } from '@/components/ui/input'
 import { RightSheet } from '@/components/ui/right-sheet'
 import { BottomSheet } from '@/components/ui/sheet'
+import { PayoutSetupDialog } from '@/components/payout-setup-dialog'
 import { RefreshButton } from '@/components/refresh-button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TD, TH, THead, TR, Table, TBody } from '@/components/ui/table'
@@ -55,6 +56,7 @@ function ContractorsPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState('')
+  const [payoutFor, setPayoutFor] = useState<{ id: string; name: string } | null>(null)
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [saving, setSaving] = useState(false)
   const invalidate = useInvalidate()
@@ -376,6 +378,13 @@ function ContractorsPage() {
                                   </Link>
                                 )
                               })}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setPayoutFor({ id: r.original.id, name: r.original.name }) }}
+                                className="mt-1 flex items-center justify-between gap-2 rounded-lg bg-paper px-3 py-2 text-left hover:bg-cloud"
+                              >
+                                <span className="font-medium text-ink">Payment setup</span>
+                                <span className="text-xs font-semibold text-primary">Stipend + bank details</span>
+                              </button>
                             </div>
                           </TD>
                         </TR>
@@ -416,6 +425,13 @@ function ContractorsPage() {
                           <StatusBadge status={statusFor(daysSince(s.lastClearanceIso))} />
                         </Link>
                       ))}
+                      <button
+                        onClick={() => setPayoutFor({ id: r.original.id, name: r.original.name })}
+                        className="flex items-center justify-between gap-2 rounded-lg bg-canvas px-3 py-2 text-left"
+                      >
+                        <span className="font-medium text-ink">Payment setup</span>
+                        <span className="text-xs font-semibold text-primary">Stipend + bank details</span>
+                      </button>
                     </div>
                   ) : null}
                 </div>
@@ -443,6 +459,15 @@ function ContractorsPage() {
           {contractorForm}
         </BottomSheet>
       )}
+      {payoutFor ? (
+        <PayoutSetupDialog
+          contractorId={payoutFor.id}
+          contractorName={payoutFor.name}
+          open
+          onOpenChange={(open) => { if (!open) setPayoutFor(null) }}
+          onSaved={() => { void invalidate(qk.contractors) }}
+        />
+      ) : null}
     </div>
   )
 }

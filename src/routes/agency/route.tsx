@@ -18,6 +18,7 @@ import {
   MegaphoneIcon,
   SignOutIcon,
   SquaresFour,
+  Wallet,
   XIcon,
 } from "@phosphor-icons/react";
 import { LogoMark } from "@/components/logo";
@@ -53,6 +54,7 @@ const links = [
     icon: BuildingsIcon,
   },
   { to: "/agency/reporters" as const, label: "Reporters", icon: MegaphoneIcon },
+  { to: "/agency/payments" as const, label: "Payments", icon: Wallet },
 ];
 
 function initials(name: string): string {

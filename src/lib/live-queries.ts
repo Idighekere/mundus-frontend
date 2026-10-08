@@ -3,6 +3,7 @@ import {
   contractorsApi,
   dashboardApi,
   dumpPointsApi,
+  payoutsApi,
   reportersApi,
   staffApi,
 } from './api'
@@ -20,6 +21,11 @@ export const qk = {
   siteDetail: (id: string | number) => ['site', String(id)],
   notices: ['notices'],
   searchIndex: ['search-index'],
+  payouts: (period?: string, status?: string) => ['payouts', period ?? 'all', status ?? 'all'],
+  payoutDetail: (id: string) => ['payout', id],
+  held: (period?: string) => ['held', period ?? 'all'],
+  earnings: (period?: string) => ['earnings', period ?? 'current'],
+  myPayouts: ['my-payouts'],
 } as const
 
 export function useDashboard() {
@@ -133,4 +139,58 @@ export function useInvalidate() {
   const qc = useQueryClient()
   return (...keys: readonly (readonly string[])[]) =>
     Promise.all(keys.map((k) => qc.invalidateQueries({ queryKey: k })))
+}
+
+export function usePayoutsPage(period?: string, status?: string) {
+  return useQuery({
+    queryKey: qk.payouts(period, status),
+    queryFn: () => payoutsApi.list(period, status),
+  })
+}
+
+export function usePayoutDetail(id: string) {
+  return useQuery({
+    queryKey: qk.payoutDetail(id),
+    queryFn: () => payoutsApi.detail(id),
+  })
+}
+
+export function useHeldQueue(period?: string) {
+  return useQuery({
+    queryKey: qk.held(period),
+    queryFn: () => payoutsApi.held(period),
+  })
+}
+
+export function useMyEarnings(period?: string) {
+  return useQuery({
+    queryKey: qk.earnings(period),
+    queryFn: () => payoutsApi.myEarnings(period),
+  })
+}
+
+export function useMyPayouts() {
+  return useQuery({
+    queryKey: qk.myPayouts,
+    queryFn: () => payoutsApi.myPayouts(),
+  })
+}
+
+/** Platform balance for payouts. Absent (404) until the backend ships it —
+callers render nothing on error instead of failing the page. */
+export function useAgencyWallet() {
+  return useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => payoutsApi.wallet(),
+    retry: false,
+    staleTime: 60_000,
+  })
+}
+
+export function useWalletTopups() {
+  return useQuery({
+    queryKey: ['wallet-topups'],
+    queryFn: () => payoutsApi.topups(),
+    retry: false,
+  })
 }

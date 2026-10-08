@@ -20,18 +20,21 @@ import { Route as AgencyForgotPasswordRouteImport } from './routes/agency/forgot
 import { Route as AgencyManageDumpPointsRouteImport } from './routes/agency/manage-dump-points'
 import { Route as AgencyManageSitesRouteImport } from './routes/agency/manage-sites'
 import { Route as AgencyNotificationsRouteImport } from './routes/agency/notifications'
+import { Route as AgencyPaymentsRouteImport } from './routes/agency/payments'
 import { Route as AgencyReportersRouteImport } from './routes/agency/reporters'
 import { Route as AgencyResetPasswordRouteImport } from './routes/agency/reset-password'
 import { Route as AgencySettingsRouteImport } from './routes/agency/settings'
 import { Route as AgencySignInRouteImport } from './routes/agency/sign-in'
 import { Route as ContractorIndexRouteImport } from './routes/contractor/index'
 import { Route as ContractorAccountRouteImport } from './routes/contractor/account'
+import { Route as ContractorEarningsRouteImport } from './routes/contractor/earnings'
 import { Route as ContractorForgotPasswordRouteImport } from './routes/contractor/forgot-password'
 import { Route as ContractorHistoryRouteImport } from './routes/contractor/history'
 import { Route as ContractorResetPasswordRouteImport } from './routes/contractor/reset-password'
 import { Route as ContractorSignInRouteImport } from './routes/contractor/sign-in'
 import { Route as ContractorSitesRouteImport } from './routes/contractor/sites'
 import { Route as RTokenRouteImport } from './routes/r.$token'
+import { Route as AgencyPaymentsPayoutIdRouteImport } from './routes/agency/payments.$payoutId'
 import { Route as AgencySitesSiteIdRouteImport } from './routes/agency/sites.$siteId'
 import { Route as ContractorSitesSiteIdRouteImport } from './routes/contractor/sites.$siteId'
 import { Route as AgencySitesSiteIdVisitsVisitIdRouteImport } from './routes/agency/sites.$siteId.visits.$visitId'
@@ -91,6 +94,11 @@ const AgencyNotificationsRoute = AgencyNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AgencyRouteRoute,
 } as any)
+const AgencyPaymentsRoute = AgencyPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AgencyRouteRoute,
+} as any)
 const AgencyReportersRoute = AgencyReportersRouteImport.update({
   id: '/reporters',
   path: '/reporters',
@@ -119,6 +127,11 @@ const ContractorIndexRoute = ContractorIndexRouteImport.update({
 const ContractorAccountRoute = ContractorAccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => ContractorRouteRoute,
+} as any)
+const ContractorEarningsRoute = ContractorEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
   getParentRoute: () => ContractorRouteRoute,
 } as any)
 const ContractorForgotPasswordRoute =
@@ -152,6 +165,11 @@ const RTokenRoute = RTokenRouteImport.update({
   path: '/r/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgencyPaymentsPayoutIdRoute = AgencyPaymentsPayoutIdRouteImport.update({
+  id: '/$payoutId',
+  path: '/$payoutId',
+  getParentRoute: () => AgencyPaymentsRoute,
+} as any)
 const AgencySitesSiteIdRoute = AgencySitesSiteIdRouteImport.update({
   id: '/sites/$siteId',
   path: '/sites/$siteId',
@@ -180,11 +198,13 @@ export interface FileRoutesByFullPath {
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
+  '/agency/payments': typeof AgencyPaymentsRouteWithChildren
   '/agency/reporters': typeof AgencyReportersRoute
   '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/earnings': typeof ContractorEarningsRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/reset-password': typeof ContractorResetPasswordRoute
@@ -193,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/r/$token': typeof RTokenRoute
   '/agency/': typeof AgencyIndexRoute
   '/contractor/': typeof ContractorIndexRoute
+  '/agency/payments/$payoutId': typeof AgencyPaymentsPayoutIdRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
   '/contractor/sites/$siteId': typeof ContractorSitesSiteIdRoute
   '/agency/sites/$siteId/visits/$visitId': typeof AgencySitesSiteIdVisitsVisitIdRoute
@@ -206,11 +227,13 @@ export interface FileRoutesByTo {
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
+  '/agency/payments': typeof AgencyPaymentsRouteWithChildren
   '/agency/reporters': typeof AgencyReportersRoute
   '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/earnings': typeof ContractorEarningsRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/reset-password': typeof ContractorResetPasswordRoute
@@ -219,6 +242,7 @@ export interface FileRoutesByTo {
   '/r/$token': typeof RTokenRoute
   '/agency': typeof AgencyIndexRoute
   '/contractor': typeof ContractorIndexRoute
+  '/agency/payments/$payoutId': typeof AgencyPaymentsPayoutIdRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
   '/contractor/sites/$siteId': typeof ContractorSitesSiteIdRoute
   '/agency/sites/$siteId/visits/$visitId': typeof AgencySitesSiteIdVisitsVisitIdRoute
@@ -235,11 +259,13 @@ export interface FileRoutesById {
   '/agency/manage-dump-points': typeof AgencyManageDumpPointsRoute
   '/agency/manage-sites': typeof AgencyManageSitesRoute
   '/agency/notifications': typeof AgencyNotificationsRoute
+  '/agency/payments': typeof AgencyPaymentsRouteWithChildren
   '/agency/reporters': typeof AgencyReportersRoute
   '/agency/reset-password': typeof AgencyResetPasswordRoute
   '/agency/settings': typeof AgencySettingsRoute
   '/agency/sign-in': typeof AgencySignInRoute
   '/contractor/account': typeof ContractorAccountRoute
+  '/contractor/earnings': typeof ContractorEarningsRoute
   '/contractor/forgot-password': typeof ContractorForgotPasswordRoute
   '/contractor/history': typeof ContractorHistoryRoute
   '/contractor/reset-password': typeof ContractorResetPasswordRoute
@@ -248,6 +274,7 @@ export interface FileRoutesById {
   '/r/$token': typeof RTokenRoute
   '/agency/': typeof AgencyIndexRoute
   '/contractor/': typeof ContractorIndexRoute
+  '/agency/payments/$payoutId': typeof AgencyPaymentsPayoutIdRoute
   '/agency/sites/$siteId': typeof AgencySitesSiteIdRouteWithChildren
   '/contractor/sites/$siteId': typeof ContractorSitesSiteIdRoute
   '/agency/sites/$siteId/visits/$visitId': typeof AgencySitesSiteIdVisitsVisitIdRoute
@@ -265,11 +292,13 @@ export interface FileRouteTypes {
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
+    | '/agency/payments'
     | '/agency/reporters'
     | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/earnings'
     | '/contractor/forgot-password'
     | '/contractor/history'
     | '/contractor/reset-password'
@@ -278,6 +307,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/agency/'
     | '/contractor/'
+    | '/agency/payments/$payoutId'
     | '/agency/sites/$siteId'
     | '/contractor/sites/$siteId'
     | '/agency/sites/$siteId/visits/$visitId'
@@ -291,11 +321,13 @@ export interface FileRouteTypes {
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
+    | '/agency/payments'
     | '/agency/reporters'
     | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/earnings'
     | '/contractor/forgot-password'
     | '/contractor/history'
     | '/contractor/reset-password'
@@ -304,6 +336,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/agency'
     | '/contractor'
+    | '/agency/payments/$payoutId'
     | '/agency/sites/$siteId'
     | '/contractor/sites/$siteId'
     | '/agency/sites/$siteId/visits/$visitId'
@@ -319,11 +352,13 @@ export interface FileRouteTypes {
     | '/agency/manage-dump-points'
     | '/agency/manage-sites'
     | '/agency/notifications'
+    | '/agency/payments'
     | '/agency/reporters'
     | '/agency/reset-password'
     | '/agency/settings'
     | '/agency/sign-in'
     | '/contractor/account'
+    | '/contractor/earnings'
     | '/contractor/forgot-password'
     | '/contractor/history'
     | '/contractor/reset-password'
@@ -332,6 +367,7 @@ export interface FileRouteTypes {
     | '/r/$token'
     | '/agency/'
     | '/contractor/'
+    | '/agency/payments/$payoutId'
     | '/agency/sites/$siteId'
     | '/contractor/sites/$siteId'
     | '/agency/sites/$siteId/visits/$visitId'
@@ -423,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgencyNotificationsRouteImport
       parentRoute: typeof AgencyRouteRoute
     }
+    '/agency/payments': {
+      id: '/agency/payments'
+      path: '/payments'
+      fullPath: '/agency/payments'
+      preLoaderRoute: typeof AgencyPaymentsRouteImport
+      parentRoute: typeof AgencyRouteRoute
+    }
     '/agency/reporters': {
       id: '/agency/reporters'
       path: '/reporters'
@@ -463,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/contractor/account'
       preLoaderRoute: typeof ContractorAccountRouteImport
+      parentRoute: typeof ContractorRouteRoute
+    }
+    '/contractor/earnings': {
+      id: '/contractor/earnings'
+      path: '/earnings'
+      fullPath: '/contractor/earnings'
+      preLoaderRoute: typeof ContractorEarningsRouteImport
       parentRoute: typeof ContractorRouteRoute
     }
     '/contractor/forgot-password': {
@@ -507,6 +557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agency/payments/$payoutId': {
+      id: '/agency/payments/$payoutId'
+      path: '/$payoutId'
+      fullPath: '/agency/payments/$payoutId'
+      preLoaderRoute: typeof AgencyPaymentsPayoutIdRouteImport
+      parentRoute: typeof AgencyPaymentsRoute
+    }
     '/agency/sites/$siteId': {
       id: '/agency/sites/$siteId'
       path: '/sites/$siteId'
@@ -531,6 +588,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AgencyPaymentsRouteChildren {
+  AgencyPaymentsPayoutIdRoute: typeof AgencyPaymentsPayoutIdRoute
+}
+
+const AgencyPaymentsRouteChildren: AgencyPaymentsRouteChildren = {
+  AgencyPaymentsPayoutIdRoute: AgencyPaymentsPayoutIdRoute,
+}
+
+const AgencyPaymentsRouteWithChildren = AgencyPaymentsRoute._addFileChildren(
+  AgencyPaymentsRouteChildren,
+)
+
 interface AgencySitesSiteIdRouteChildren {
   AgencySitesSiteIdVisitsVisitIdRoute: typeof AgencySitesSiteIdVisitsVisitIdRoute
 }
@@ -550,6 +619,7 @@ interface AgencyRouteRouteChildren {
   AgencyManageDumpPointsRoute: typeof AgencyManageDumpPointsRoute
   AgencyManageSitesRoute: typeof AgencyManageSitesRoute
   AgencyNotificationsRoute: typeof AgencyNotificationsRoute
+  AgencyPaymentsRoute: typeof AgencyPaymentsRouteWithChildren
   AgencyReportersRoute: typeof AgencyReportersRoute
   AgencyResetPasswordRoute: typeof AgencyResetPasswordRoute
   AgencySettingsRoute: typeof AgencySettingsRoute
@@ -566,6 +636,7 @@ const AgencyRouteRouteChildren: AgencyRouteRouteChildren = {
   AgencyManageDumpPointsRoute: AgencyManageDumpPointsRoute,
   AgencyManageSitesRoute: AgencyManageSitesRoute,
   AgencyNotificationsRoute: AgencyNotificationsRoute,
+  AgencyPaymentsRoute: AgencyPaymentsRouteWithChildren,
   AgencyReportersRoute: AgencyReportersRoute,
   AgencyResetPasswordRoute: AgencyResetPasswordRoute,
   AgencySettingsRoute: AgencySettingsRoute,
@@ -592,6 +663,7 @@ const ContractorSitesRouteWithChildren = ContractorSitesRoute._addFileChildren(
 
 interface ContractorRouteRouteChildren {
   ContractorAccountRoute: typeof ContractorAccountRoute
+  ContractorEarningsRoute: typeof ContractorEarningsRoute
   ContractorForgotPasswordRoute: typeof ContractorForgotPasswordRoute
   ContractorHistoryRoute: typeof ContractorHistoryRoute
   ContractorResetPasswordRoute: typeof ContractorResetPasswordRoute
@@ -602,6 +674,7 @@ interface ContractorRouteRouteChildren {
 
 const ContractorRouteRouteChildren: ContractorRouteRouteChildren = {
   ContractorAccountRoute: ContractorAccountRoute,
+  ContractorEarningsRoute: ContractorEarningsRoute,
   ContractorForgotPasswordRoute: ContractorForgotPasswordRoute,
   ContractorHistoryRoute: ContractorHistoryRoute,
   ContractorResetPasswordRoute: ContractorResetPasswordRoute,
